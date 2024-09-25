@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "nava-platform-cli"
+version = "0.1.0"
+description = "Nava PBC's Platform CLI tool for managing platform templates"
+authors = ["Your Name <you@example.com>"]
+license = "Apache License Version 2.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+click = "^8.1.7"
+copier = "^9.3.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+pytest-watch = "^4.2.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
