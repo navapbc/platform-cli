@@ -4,17 +4,20 @@ import pytest
 from nava.commands.infra.get_app_names import get_app_names
 
 
-def test_get_app_names(tmp_path, capsys):
-    # Create a temporary directory structure
+@pytest.fixture
+def tmp_template(tmp_path):
     infra_dir = tmp_path / "infra"
     infra_dir.mkdir()
     (infra_dir / "app1").mkdir()
     (infra_dir / "app2").mkdir()
     (infra_dir / "infra").mkdir()
     (infra_dir / "accounts").mkdir()
+    return tmp_path
 
+
+def test_get_app_names(tmp_template, capsys):
     # Call the function with the temporary directory
-    get_app_names(str(tmp_path))
+    get_app_names(str(tmp_template))
 
     # Capture the output
     captured = capsys.readouterr()
