@@ -1,26 +1,20 @@
-import os
+import os.path
 import sys
+from typing import List
 
 
-def get_app_names(dest="."):
-    excluded_dirs = {
-        "infra",
+def get_app_names(template_dir: str) -> List[str]:
+    excluded_dirs = [
         "accounts",
         "modules",
         "networks",
         "project-config",
-        "test",
-    }
-    infra_path = os.path.join(dest, "infra")
-
-    if not os.path.exists(infra_path):
-        print(f"The path {infra_path} does not exist.")
-        return
-
-    for root, dirs, _ in os.walk(infra_path):
-        # Only consider directories at the maxdepth 1
-        if root == infra_path:
-            for dir_name in dirs:
-                if dir_name not in excluded_dirs:
-                    print(dir_name)
-            break
+    ]
+    infra_path = os.path.join(template_dir, "infra")
+    with os.scandir(infra_path) as entries:
+        folders = [
+            entry.name
+            for entry in entries
+            if entry.is_dir() and entry.name not in excluded_dirs
+        ]
+    return folders
