@@ -22,5 +22,6 @@ def tmp_template(tmp_path: Path) -> Path:
 @pytest.fixture
 def tmp_project(tmp_path: Path) -> Path:
     project_dir = tmp_path / "project"
+    project_dir.mkdir()
     subprocess.run(["git", "init"], cwd=project_dir)
     return project_dir
