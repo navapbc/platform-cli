@@ -1,6 +1,10 @@
-import pytest
-from pathlib import Path
 import subprocess
+from pathlib import Path
+
+import pytest
+from click.testing import CliRunner
+
+from nava.cli import cli as nava_cli
 
 
 @pytest.fixture
@@ -25,3 +29,12 @@ def tmp_project(tmp_path: Path) -> Path:
     project_dir.mkdir()
     subprocess.run(["git", "init"], cwd=project_dir)
     return project_dir
+
+
+@pytest.fixture
+def cli():
+    def fn(*args):
+        runner = CliRunner()
+        return runner.invoke(nava_cli, *args)
+
+    return fn
