@@ -15,3 +15,9 @@ def tmp_template(tmp_path: Path) -> Path:
     (infra_dir / "project-config").mkdir()
     subprocess.run(["git", "init"], cwd=tmp_path)
     return tmp_path
+
+
+@pytest.fixture
+def tmp_project(tmp_path: Path) -> Path:
+    subprocess.run(["git", "init"], cwd=tmp_path)
+    return tmp_path
