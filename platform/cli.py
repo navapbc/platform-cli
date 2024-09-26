@@ -1,21 +1,46 @@
 # platform/cli.py
 import click
 
+
 @click.group()
 def cli():
     pass
 
-@click.command()
-@click.option('--name', default='world', help='Who to greet.')
-def greet(name):
-    click.echo(f"Hello, {name}!")
 
-@click.command()
-def info():
-    click.echo("Platform CLI Tool v0.1.0")
+@cli.group()
+def infra():
+    pass
 
-cli.add_command(greet)
-cli.add_command(info)
 
-if __name__ == '__main__':
+@cli.group()
+def app():
+    pass
+
+
+@infra.command()
+def install():
+    click.echo("Installing infrastructure...")
+
+
+@infra.command()
+def add_app():
+    click.echo("Adding application to infrastructure...")
+
+
+@infra.command()
+def update():
+    click.echo("Updating infrastructure...")
+
+
+@app.command()
+def install():
+    click.echo("Installing application...")
+
+
+@app.command()
+def update():
+    click.echo("Updating application...")
+
+
+if __name__ == "__main__":
     cli()
