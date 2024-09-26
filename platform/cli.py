@@ -1,6 +1,7 @@
 # platform/cli.py
 import click
 import platform.commands.infra as infra
+import platform.commands.app as app
 
 
 @click.group()
@@ -9,22 +10,7 @@ def cli():
 
 
 cli.add_command(infra.infra)
-
-
-@cli.group()
-def app():
-    pass
-
-
-@app.command()
-def install():
-    click.echo("Installing application...")
-
-
-@app.command()
-def update():
-    click.echo("Updating application...")
-
+cli.add_command(app.app)
 
 if __name__ == "__main__":
     cli()
