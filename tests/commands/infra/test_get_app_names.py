@@ -1,4 +1,3 @@
-import os
 import pytest
 
 from nava.commands.infra.get_app_names import get_app_names

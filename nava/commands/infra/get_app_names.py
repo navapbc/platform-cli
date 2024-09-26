@@ -1,5 +1,4 @@
 import os.path
-import sys
 from typing import List
 
 
