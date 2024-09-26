@@ -1,5 +1,6 @@
 import pytest
 from pathlib import Path
+import subprocess
 
 
 @pytest.fixture
@@ -12,4 +13,5 @@ def tmp_template(tmp_path: Path) -> Path:
     (infra_dir / "modules").mkdir()
     (infra_dir / "networks").mkdir()
     (infra_dir / "project-config").mkdir()
+    subprocess.run(["git", "init"], cwd=tmp_path)
     return tmp_path
