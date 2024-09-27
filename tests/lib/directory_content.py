@@ -57,14 +57,14 @@ class DirectoryContent(
         and recursively create its contents. If it's a file, create the file with the
         given contents.
         """
-        for key, value in self.data.items():
-            path = os.path.join(root_dir, key)
-            if isinstance(value, FileContent):
-                value.to_fs(path)
+        for path, content in self.data.items():
+            path = os.path.join(root_dir, path)
+            if isinstance(content, FileContent):
+                content.to_fs(path)
             else:
-                assert isinstance(value, DirectoryContent)
+                assert isinstance(content, DirectoryContent)
                 os.makedirs(path)
-                value.to_fs(path)
+                content.to_fs(path)
 
     @staticmethod
     def from_fs(path: str) -> "DirectoryContent":
