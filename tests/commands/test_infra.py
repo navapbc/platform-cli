@@ -40,8 +40,6 @@ def test_install(cli, tmp_template, tmp_project):
                 "workflows": {
                     "ci-app-pr-environment-checks.yml": "",
                     "pr-environment-checks.yml": "",
-                    "template-only-cd.yml": "",
-                    "template-only-ci-infra.yml": "",
                 },
             },
             "bin": {},
@@ -53,6 +51,5 @@ def test_install(cli, tmp_template, tmp_project):
                 "networks": {},
                 "project-config": {},
             },
-            "template-only-bin": {},
         }
     )
