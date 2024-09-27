@@ -1,6 +1,7 @@
 import click
 import shutil
-import os
+
+import copier
 
 
 @click.group()
@@ -12,7 +13,14 @@ def infra():
 @click.argument("template_dir")
 @click.argument("project_dir")
 def install(template_dir, project_dir):
-    shutil.copytree(template_dir, project_dir, dirs_exist_ok=True)
+    exclude = ["template-only-*"]
+    copier.run_copy(template_dir, project_dir, exclude=exclude)
+    # options
+    # vcs_ref:str
+    # data:dict[str,any]
+    # exclude:list[str]
+    # overwrite=True
+    # answers_file relative to project_dir
 
 
 @infra.command()

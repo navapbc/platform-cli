@@ -20,7 +20,6 @@ def tmp_template(tmp_path: Path) -> Path:
     DirectoryContent(
         {
             ".github": {
-                "actions": {},
                 "workflows": {
                     "ci-app-pr-environment-checks.yml": "",
                     "pr-environment-checks.yml": "",
@@ -28,16 +27,23 @@ def tmp_template(tmp_path: Path) -> Path:
                     "template-only-ci-infra.yml": "",
                 },
             },
-            "bin": {},
-            "infra": {
-                "app1": {},
-                "app2": {},
-                "accounts": {},
-                "modules": {},
-                "networks": {},
-                "project-config": {},
+            "bin": {
+                "publish-release": "",
             },
-            "template-only-bin": {},
+            "infra": {
+                "app1": {"main.tf": ""},
+                "app2": {"main.tf": ""},
+                "accounts": {"main.tf": ""},
+                "modules": {
+                    "service": {"main.tf": ""},
+                },
+                "networks": {"main.tf": ""},
+                "project-config": {"main.tf": ""},
+            },
+            "template-only-bin": {
+                "install-template": "",
+                "destroy-account": "",
+            },
         }
     ).to_fs(str(template_dir))
 

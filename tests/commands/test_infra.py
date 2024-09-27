@@ -37,20 +37,23 @@ def test_install(cli, tmp_template, tmp_project):
     assert dir_contents.without(".git") == DirectoryContent(
         {
             ".github": {
-                "actions": {},
                 "workflows": {
                     "ci-app-pr-environment-checks.yml": "",
                     "pr-environment-checks.yml": "",
                 },
             },
-            "bin": {},
+            "bin": {
+                "publish-release": "",
+            },
             "infra": {
-                "app1": {},
-                "app2": {},
-                "accounts": {},
-                "modules": {},
-                "networks": {},
-                "project-config": {},
+                "app1": {"main.tf": ""},
+                "app2": {"main.tf": ""},
+                "accounts": {"main.tf": ""},
+                "modules": {
+                    "service": {"main.tf": ""},
+                },
+                "networks": {"main.tf": ""},
+                "project-config": {"main.tf": ""},
             },
         }
     )
