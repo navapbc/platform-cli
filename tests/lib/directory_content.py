@@ -4,8 +4,6 @@ from collections import UserDict, UserString
 from collections.abc import Mapping, MutableMapping
 from typing import cast, Union
 
-DirectoryConfig = Mapping[str, Union["DirectoryConfig", str]]
-
 
 class FileContent(UserString):
 
@@ -69,26 +67,15 @@ class DirectoryContent(
                 value.to_fs(path)
 
     @staticmethod
-    def from_fs(root_dir: str) -> "DirectoryContent":
+    def from_fs(path: str) -> "DirectoryContent":
         """
         Given a directory, return a DirectoryState object that represents its contents
         """
-        config = cast(DirectoryConfig, DirectoryContent.config_from_fs(root_dir))
-        return DirectoryContent(config)
-
-    @staticmethod
-    def config_from_fs(path: str) -> DirectoryConfig | str:
-        """
-        Given a directory, return a DirectoryState config that can be used to create a
-        DirectoryState object that represents the directory's contents
-        """
-        config = {}
+        config = DirectoryContent({})
         for name in os.listdir(path):
             subpath = os.path.join(path, name)
             if os.path.isdir(subpath):
-                config[name] = DirectoryContent.config_from_fs(subpath)
+                config[name] = DirectoryContent.from_fs(subpath)
             else:
-                with open(subpath) as f:
-                    contents = f.read()
-                config[name] = contents
+                config[name] = FileContent.from_fs(subpath)
         return config
