@@ -1,21 +1,17 @@
 from dataclasses import dataclass
 import os
+from collections import UserDict, UserString
 from collections.abc import Mapping, MutableMapping
 from typing import cast, Union
 
 DirectoryConfig = Mapping[str, Union["DirectoryConfig", str]]
 
 
-@dataclass
-class File:
-    contents: str
-
-    def __init__(self, contents: str) -> None:
-        self.contents = contents
+class File(UserString):
 
     def to_fs(self, path: str) -> None:
         with open(path, "w") as f:
-            f.write(self.contents)
+            f.write(self.data)
 
     @staticmethod
     def from_fs(path: str) -> "File":
@@ -24,11 +20,9 @@ class File:
         return File(contents)
 
 
-@dataclass
-class Directory:
-    items: MutableMapping[str, Union[File, "Directory"]]
+class Directory(UserDict, MutableMapping[str, Union[File, "Directory"]]):
 
-    def __init__(self, config: DirectoryConfig) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         """
         Given a configuration like the following, initialize the directory state.
         {
@@ -41,12 +35,20 @@ class Directory:
             "file1": "file1 contents"
         }
         """
-        self.items: MutableMapping[str, File | Directory] = {}
-        for key, value in config.items():
+        super().__init__(*args, **kwargs)
+        for key, value in self.data.items():
             if isinstance(value, str):
-                self.items[key] = File(value)
+                self.data[key] = File(value)
             else:
-                self.items[key] = Directory(value)
+                self.data[key] = Directory(value)
+
+    def without(self, item: str) -> "Directory":
+        """
+        Return a new Directory object with the given item removed.
+        """
+        new_items = dict(self.data)
+        del new_items[item]
+        return Directory(new_items)
 
     def to_fs(self, root_dir: str) -> None:
         """
@@ -55,7 +57,7 @@ class Directory:
         and recursively create its contents. If it's a file, create the file with the
         given contents.
         """
-        for key, value in self.items.items():
+        for key, value in self.data.items():
             path = os.path.join(root_dir, key)
             if isinstance(value, File):
                 value.to_fs(path)
