@@ -29,5 +29,8 @@ def add_app():
 
 
 @infra.command()
-def update():
-    click.echo("Updating infrastructure...")
+@click.argument("template_dir")
+@click.argument("project_dir")
+def update(template_dir, project_dir):
+    exclude = ["template-only-*"]
+    copier.run_update(template_dir, project_dir, exclude=exclude)

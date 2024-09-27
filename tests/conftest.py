@@ -31,8 +31,7 @@ def tmp_template(tmp_path: Path) -> Path:
                 "publish-release": "",
             },
             "infra": {
-                "app1": {"main.tf": ""},
-                "app2": {"main.tf": ""},
+                "{{app_name}}": {"main.tf": ""},
                 "accounts": {"main.tf": ""},
                 "modules": {
                     "service": {"main.tf": ""},
