@@ -1,10 +1,12 @@
+from dataclasses import dataclass
 import os
 from collections.abc import Mapping, MutableMapping
-from typing import cast
+from typing import cast, Union
 
-DirectoryStateConfig = Mapping[str, "DirectoryStateConfig" | str]
+DirectoryStateConfig = Mapping[str, Union["DirectoryStateConfig", str]]
 
 
+@dataclass
 class FileState:
     def __init__(self, contents: str) -> None:
         self.contents = contents
@@ -20,6 +22,7 @@ class FileState:
         return FileState(contents)
 
 
+@dataclass
 class DirectoryState:
     def __init__(self, config: DirectoryStateConfig) -> None:
         """

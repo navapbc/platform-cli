@@ -1,4 +1,4 @@
-from tests.lib.asserts import assert_dirs_equal
+from tests.lib import DirectoryState
 
 # Test cases
 
@@ -32,5 +32,4 @@ from tests.lib.asserts import assert_dirs_equal
 
 def test_install(cli, tmp_template, tmp_project):
     cli(["infra", "install", str(tmp_template), str(tmp_project)])
-    expected_dir = "/path/to/expected/dir"
-    assert_dirs_equal(tmp_project, expected_dir)
+    assert DirectoryState.from_fs(tmp_project) == DirectoryState({})
