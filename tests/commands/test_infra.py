@@ -1,4 +1,4 @@
-from tests.lib import Directory
+from tests.lib import DirectoryContent
 
 # Test cases
 
@@ -32,7 +32,8 @@ from tests.lib import Directory
 
 def test_install(cli, tmp_template, tmp_project):
     cli(["infra", "install", str(tmp_template), str(tmp_project)])
-    assert Directory.from_fs(tmp_project) == Directory(
+    dir_contents = DirectoryContent.from_fs(tmp_project)
+    assert dir_contents.without(".git") == DirectoryContent(
         {
             ".github": {
                 "actions": {},

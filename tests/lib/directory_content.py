@@ -7,20 +7,22 @@ from typing import cast, Union
 DirectoryConfig = Mapping[str, Union["DirectoryConfig", str]]
 
 
-class File(UserString):
+class FileContent(UserString):
 
     def to_fs(self, path: str) -> None:
         with open(path, "w") as f:
             f.write(self.data)
 
     @staticmethod
-    def from_fs(path: str) -> "File":
+    def from_fs(path: str) -> "FileContent":
         with open(path) as f:
             contents = f.read()
-        return File(contents)
+        return FileContent(contents)
 
 
-class Directory(UserDict, MutableMapping[str, Union[File, "Directory"]]):
+class DirectoryContent(
+    UserDict, MutableMapping[str, Union[FileContent, "DirectoryContent"]]
+):
 
     def __init__(self, *args, **kwargs) -> None:
         """
@@ -38,17 +40,17 @@ class Directory(UserDict, MutableMapping[str, Union[File, "Directory"]]):
         super().__init__(*args, **kwargs)
         for key, value in self.data.items():
             if isinstance(value, str):
-                self.data[key] = File(value)
+                self.data[key] = FileContent(value)
             else:
-                self.data[key] = Directory(value)
+                self.data[key] = DirectoryContent(value)
 
-    def without(self, item: str) -> "Directory":
+    def without(self, item: str) -> "DirectoryContent":
         """
         Return a new Directory object with the given item removed.
         """
         new_items = dict(self.data)
         del new_items[item]
-        return Directory(new_items)
+        return DirectoryContent(new_items)
 
     def to_fs(self, root_dir: str) -> None:
         """
@@ -59,20 +61,20 @@ class Directory(UserDict, MutableMapping[str, Union[File, "Directory"]]):
         """
         for key, value in self.data.items():
             path = os.path.join(root_dir, key)
-            if isinstance(value, File):
+            if isinstance(value, FileContent):
                 value.to_fs(path)
             else:
-                assert isinstance(value, Directory)
+                assert isinstance(value, DirectoryContent)
                 os.makedirs(path)
                 value.to_fs(path)
 
     @staticmethod
-    def from_fs(root_dir: str) -> "Directory":
+    def from_fs(root_dir: str) -> "DirectoryContent":
         """
         Given a directory, return a DirectoryState object that represents its contents
         """
-        config = cast(DirectoryConfig, Directory.config_from_fs(root_dir))
-        return Directory(config)
+        config = cast(DirectoryConfig, DirectoryContent.config_from_fs(root_dir))
+        return DirectoryContent(config)
 
     @staticmethod
     def config_from_fs(path: str) -> DirectoryConfig | str:
@@ -84,7 +86,7 @@ class Directory(UserDict, MutableMapping[str, Union[File, "Directory"]]):
         for name in os.listdir(path):
             subpath = os.path.join(path, name)
             if os.path.isdir(subpath):
-                config[name] = Directory.config_from_fs(subpath)
+                config[name] = DirectoryContent.config_from_fs(subpath)
             else:
                 with open(subpath) as f:
                     contents = f.read()

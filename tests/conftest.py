@@ -5,7 +5,7 @@ import pytest
 from click.testing import CliRunner
 
 from nava.cli import cli as nava_cli
-from tests.lib import Directory
+from tests.lib import DirectoryContent
 from tests.lib import git
 
 pytest.register_assert_rewrite("tests.lib.asserts")
@@ -17,7 +17,7 @@ def tmp_template(tmp_path: Path) -> Path:
     template_dir.mkdir()
     git.init(template_dir)
 
-    Directory(
+    DirectoryContent(
         {
             ".github": {
                 "actions": {},
