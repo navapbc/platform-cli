@@ -47,6 +47,7 @@ def tmp_template(tmp_path: Path) -> Path:
         }
     ).to_fs(str(template_dir))
 
+    git.commit(template_dir)
     return template_dir
 
 
