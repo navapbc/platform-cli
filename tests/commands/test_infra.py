@@ -57,3 +57,11 @@ def test_install(cli, tmp_template, tmp_project):
             },
         }
     )
+
+
+def test_update(cli, tmp_template, tmp_project):
+    cli(["infra", "install", str(tmp_template), str(tmp_project)])
+    content_before_update = DirectoryContent.from_fs(tmp_project)
+    cli(["infra", "update", str(tmp_template), str(tmp_project)])
+    content_after_update = DirectoryContent.from_fs(tmp_project)
+    assert content_before_update == content_after_update
