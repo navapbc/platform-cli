@@ -15,7 +15,9 @@ def infra():
 def install(template_dir, project_dir):
     answers_file = ".template-infra-base.yml"
     exclude = ["template-only-*"]
-    copier.run_copy(template_dir, project_dir, exclude=exclude)
+    copier.run_copy(
+        template_dir, project_dir, answers_file=answers_file, exclude=exclude
+    )
     # options
     # vcs_ref:str
     # data:dict[str,any]
