@@ -1,4 +1,4 @@
-from tests.lib import DirectoryState
+from tests.lib import Directory
 
 # Test cases
 
@@ -32,4 +32,26 @@ from tests.lib import DirectoryState
 
 def test_install(cli, tmp_template, tmp_project):
     cli(["infra", "install", str(tmp_template), str(tmp_project)])
-    assert DirectoryState.from_fs(tmp_project) == DirectoryState({})
+    assert Directory.from_fs(tmp_project) == Directory(
+        {
+            ".github": {
+                "actions": {},
+                "workflows": {
+                    "ci-app-pr-environment-checks.yml": "",
+                    "pr-environment-checks.yml": "",
+                    "template-only-cd.yml": "",
+                    "template-only-ci-infra.yml": "",
+                },
+            },
+            "bin": {},
+            "infra": {
+                "app1": {},
+                "app2": {},
+                "accounts": {},
+                "modules": {},
+                "networks": {},
+                "project-config": {},
+            },
+            "template-only-bin": {},
+        }
+    )

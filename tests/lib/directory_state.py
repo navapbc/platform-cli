@@ -3,11 +3,13 @@ import os
 from collections.abc import Mapping, MutableMapping
 from typing import cast, Union
 
-DirectoryStateConfig = Mapping[str, Union["DirectoryStateConfig", str]]
+DirectoryConfig = Mapping[str, Union["DirectoryConfig", str]]
 
 
 @dataclass
-class FileState:
+class File:
+    contents: str
+
     def __init__(self, contents: str) -> None:
         self.contents = contents
 
@@ -16,15 +18,17 @@ class FileState:
             f.write(self.contents)
 
     @staticmethod
-    def from_fs(path: str) -> "FileState":
+    def from_fs(path: str) -> "File":
         with open(path) as f:
             contents = f.read()
-        return FileState(contents)
+        return File(contents)
 
 
 @dataclass
-class DirectoryState:
-    def __init__(self, config: DirectoryStateConfig) -> None:
+class Directory:
+    items: MutableMapping[str, Union[File, "Directory"]]
+
+    def __init__(self, config: DirectoryConfig) -> None:
         """
         Given a configuration like the following, initialize the directory state.
         {
@@ -37,12 +41,12 @@ class DirectoryState:
             "file1": "file1 contents"
         }
         """
-        self.items: MutableMapping[str, FileState | DirectoryState] = {}
+        self.items: MutableMapping[str, File | Directory] = {}
         for key, value in config.items():
             if isinstance(value, str):
-                self.items[key] = FileState(value)
+                self.items[key] = File(value)
             else:
-                self.items[key] = DirectoryState(value)
+                self.items[key] = Directory(value)
 
     def to_fs(self, root_dir: str) -> None:
         """
@@ -53,23 +57,23 @@ class DirectoryState:
         """
         for key, value in self.items.items():
             path = os.path.join(root_dir, key)
-            if isinstance(value, FileState):
+            if isinstance(value, File):
                 value.to_fs(path)
             else:
-                assert isinstance(value, DirectoryState)
+                assert isinstance(value, Directory)
                 os.makedirs(path)
                 value.to_fs(path)
 
     @staticmethod
-    def from_fs(root_dir: str) -> "DirectoryState":
+    def from_fs(root_dir: str) -> "Directory":
         """
         Given a directory, return a DirectoryState object that represents its contents
         """
-        config = cast(DirectoryStateConfig, DirectoryState.config_from_fs(root_dir))
-        return DirectoryState(config)
+        config = cast(DirectoryConfig, Directory.config_from_fs(root_dir))
+        return Directory(config)
 
     @staticmethod
-    def config_from_fs(path: str) -> DirectoryStateConfig | str:
+    def config_from_fs(path: str) -> DirectoryConfig | str:
         """
         Given a directory, return a DirectoryState config that can be used to create a
         DirectoryState object that represents the directory's contents
@@ -78,7 +82,7 @@ class DirectoryState:
         for name in os.listdir(path):
             subpath = os.path.join(path, name)
             if os.path.isdir(subpath):
-                config[name] = DirectoryState.config_from_fs(subpath)
+                config[name] = Directory.config_from_fs(subpath)
             else:
                 with open(subpath) as f:
                     contents = f.read()

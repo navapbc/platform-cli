@@ -5,7 +5,7 @@ import pytest
 from click.testing import CliRunner
 
 from nava.cli import cli as nava_cli
-from tests.lib import DirectoryState
+from tests.lib import Directory
 from tests.lib import git
 
 pytest.register_assert_rewrite("tests.lib.asserts")
@@ -17,12 +17,18 @@ def tmp_template(tmp_path: Path) -> Path:
     template_dir.mkdir()
     git.init(template_dir)
 
-    DirectoryState(
+    Directory(
         {
             ".github": {
                 "actions": {},
-                "workflows": {},
+                "workflows": {
+                    "ci-app-pr-environment-checks.yml": "",
+                    "pr-environment-checks.yml": "",
+                    "template-only-cd.yml": "",
+                    "template-only-ci-infra.yml": "",
+                },
             },
+            "bin": {},
             "infra": {
                 "app1": {},
                 "app2": {},
@@ -31,6 +37,7 @@ def tmp_template(tmp_path: Path) -> Path:
                 "networks": {},
                 "project-config": {},
             },
+            "template-only-bin": {},
         }
     ).to_fs(str(template_dir))
 

@@ -1,2 +1,2 @@
 from .changeset import Change, ChangeSet, RenameChange, FileChange
-from .directory_state import DirectoryState, DirectoryStateConfig, FileState
+from .directory_state import Directory, DirectoryConfig, File
