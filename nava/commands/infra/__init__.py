@@ -13,6 +13,7 @@ def infra():
 @click.argument("template_dir")
 @click.argument("project_dir")
 def install(template_dir, project_dir):
+    answers_file = ".template-infra-base.yml"
     exclude = ["template-only-*"]
     copier.run_copy(template_dir, project_dir, exclude=exclude)
     # options

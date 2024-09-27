@@ -27,6 +27,9 @@ def tmp_template(tmp_path: Path) -> Path:
                     "template-only-ci-infra.yml": "",
                 },
             },
+            ".template": {
+                "{{_copier_conf.answers_file}}.jinja": "{{ _copier_answers|to_nice_yaml -}}",
+            },
             "bin": {
                 "publish-release": "",
             },

@@ -42,6 +42,11 @@ def test_install(cli, tmp_template, tmp_project):
                     "pr-environment-checks.yml": "",
                 },
             },
+            ".template": {
+                ".template-infra-app-bar.yml": "",
+                ".template-infra-app-foo.yml": "",
+                ".template-infra-base.yml": "",
+            },
             "bin": {
                 "publish-release": "",
             },
