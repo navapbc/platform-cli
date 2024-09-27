@@ -6,6 +6,8 @@ from click.testing import CliRunner
 
 from nava.cli import cli as nava_cli
 
+pytest.register_assert_rewrite("tests.lib.asserts")
+
 
 @pytest.fixture
 def tmp_template(tmp_path: Path) -> Path:
