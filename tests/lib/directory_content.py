@@ -39,16 +39,16 @@ class DirectoryContent(
         for key, value in self.data.items():
             if isinstance(value, str):
                 self.data[key] = FileContent(value)
-            else:
+            elif isinstance(value, dict):
                 self.data[key] = DirectoryContent(value)
 
     def without(self, item: str) -> "DirectoryContent":
         """
         Return a new Directory object with the given item removed.
         """
-        new_items = dict(self.data)
-        del new_items[item]
-        return DirectoryContent(new_items)
+        return DirectoryContent(
+            {path: content for path, content in self.data.items() if path != item}
+        )
 
     def to_fs(self, root_dir: str) -> None:
         """

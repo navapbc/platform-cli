@@ -33,6 +33,7 @@ from tests.lib import DirectoryContent
 def test_install(cli, tmp_template, tmp_project):
     cli(["infra", "install", str(tmp_template), str(tmp_project)])
     dir_contents = DirectoryContent.from_fs(tmp_project)
+
     assert dir_contents.without(".git") == DirectoryContent(
         {
             ".github": {
