@@ -63,9 +63,9 @@ def tmp_project(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def cli():
-    def fn(*args):
+    def fn(*args, **kwargs):
         runner = CliRunner()
-        return runner.invoke(nava_cli, *args)
+        return runner.invoke(nava_cli, *args, **kwargs)
 
     return fn
 

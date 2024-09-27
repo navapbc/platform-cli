@@ -31,7 +31,7 @@ from tests.lib import DirectoryContent, FileChange, RenameChange, git
 
 
 def test_install(cli, tmp_template, tmp_project):
-    cli(["infra", "install", str(tmp_template), str(tmp_project)])
+    cli(["infra", "install", str(tmp_template), str(tmp_project)], input="foo\n")
     dir_contents = DirectoryContent.from_fs(tmp_project)
 
     assert dir_contents.without(".git") == DirectoryContent(
@@ -43,7 +43,6 @@ def test_install(cli, tmp_template, tmp_project):
                 },
             },
             ".template": {
-                ".template-infra-app-bar.yml": "",
                 ".template-infra-app-foo.yml": "",
                 ".template-infra-base.yml": "",
             },
@@ -51,8 +50,7 @@ def test_install(cli, tmp_template, tmp_project):
                 "publish-release": "",
             },
             "infra": {
-                "app1": {"main.tf": ""},
-                "app2": {"main.tf": ""},
+                "foo": {"main.tf": ""},
                 "accounts": {"main.tf": ""},
                 "modules": {
                     "service": {"main.tf": ""},
