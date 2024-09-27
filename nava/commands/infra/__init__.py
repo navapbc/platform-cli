@@ -14,9 +14,18 @@ def infra():
 @click.argument("project_dir")
 def install(template_dir, project_dir):
     answers_file = ".template-infra-base.yml"
-    exclude = ["template-only-*"]
+    data = {"app_name": "template-only"}
+
+    app_includes = [".github/", "infra/{{app_name}}"]
+    global_excludes = ["*template-only*"]
+    base_excludes = global_excludes + app_includes
+
     copier.run_copy(
-        template_dir, project_dir, answers_file=answers_file, exclude=exclude
+        template_dir,
+        project_dir,
+        answers_file=answers_file,
+        data=data,
+        exclude=base_excludes,
     )
     # options
     # vcs_ref:str
