@@ -9,3 +9,9 @@ def init(dir: str | Path) -> None:
 def commit(dir: str | Path) -> None:
     subprocess.run(["git", "add", "."], cwd=dir)
     subprocess.run(["git", "commit", "-m", "commit msg"], cwd=dir)
+
+
+def diff(dir: str | Path) -> str:
+    return subprocess.run(
+        ["git", "diff"], cwd=dir, capture_output=True, text=True
+    ).stdout
