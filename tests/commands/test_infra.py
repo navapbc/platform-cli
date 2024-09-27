@@ -1,4 +1,4 @@
-from tests.lib import DirectoryContent
+from tests.lib import DirectoryContent, FileChange, RenameChange, git
 
 # Test cases
 
@@ -59,9 +59,25 @@ def test_install(cli, tmp_template, tmp_project):
     )
 
 
-def test_update(cli, tmp_template, tmp_project):
-    cli(["infra", "install", str(tmp_template), str(tmp_project)])
+def test_update_no_change(cli, tmp_template, tmp_project, clean_install):
     content_before_update = DirectoryContent.from_fs(tmp_project)
+
     cli(["infra", "update", str(tmp_template), str(tmp_project)])
+
     content_after_update = DirectoryContent.from_fs(tmp_project)
     assert content_before_update == content_after_update
+
+
+def test_update_with_change(cli, tmp_template, tmp_project, clean_install):
+    content_before_update = DirectoryContent.from_fs(tmp_project)
+
+    FileChange("infra/modules/service/main.tf", "", "changed").apply(tmp_template)
+
+    cli(["infra", "update", str(tmp_template), str(tmp_project)])
+
+    assert (
+        git.diff(tmp_project)
+        == """diff --git a/infra/modules/service/main.tf b/infra/modules/service/main.tf
+index e69de29..b6b4f9e 100644
+"""
+    )
