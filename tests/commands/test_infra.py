@@ -65,17 +65,12 @@ def test_install(cli, tmp_template, tmp_project):
 
 
 def test_update_no_change(cli, tmp_template, tmp_project, clean_install):
-    try:
-        content_before_update = DirectoryContent.from_fs(tmp_project, ignore=[".git"])
-    except Exception as e:
-        print(e)
-        print(traceback.format_exc())
-        raise e
+    content_before_update = DirectoryContent.from_fs(tmp_project, ignore=[".git"])
 
-    # cli(["infra", "update", str(tmp_template), str(tmp_project)])
+    cli(["infra", "update", str(tmp_template), str(tmp_project)])
 
-    # content_after_update = DirectoryContent.from_fs(tmp_project, ignore=[".git"])
-    # assert content_before_update == content_after_update
+    content_after_update = DirectoryContent.from_fs(tmp_project, ignore=[".git"])
+    assert content_before_update == content_after_update
 
 
 # def test_update_with_change(cli, tmp_template, tmp_project, clean_install):

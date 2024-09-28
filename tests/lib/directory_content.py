@@ -15,7 +15,6 @@ class FileContent(UserString):
     @staticmethod
     def from_fs(path: str) -> "FileContent":
         with open(path) as f:
-            print(path)
             contents = f.read()
         return FileContent(contents)
 
