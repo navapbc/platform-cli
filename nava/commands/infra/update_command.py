@@ -15,6 +15,7 @@ def update(template_dir: str, project_dir: str):
         project_dir,
         answers_file=answers_file,
         exclude=base_excludes,
+        overwrite=True,
         skip_answered=True,
     )
     # copier update --skip-answered --exclude "template-only*" --vcs-ref "${ref}" "${dest}" --answers-file ".template/.template-infra-base.yml" \
