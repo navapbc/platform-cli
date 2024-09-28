@@ -68,15 +68,15 @@ class DirectoryContent(
                 content.to_fs(path)
 
     @staticmethod
-    def from_fs(path: str, ignore: list[str]) -> "DirectoryContent":
+    def from_fs(path: str, ignore: list[str] | None = None) -> "DirectoryContent":
         """
         Given a directory, return a DirectoryState object that represents its contents
         """
         config = DirectoryContent({})
-        if str(Path(path).name) in ignore:
-            return config
         for name in os.listdir(path):
             subpath = os.path.join(path, name)
+            if ignore and str(Path(subpath).name) in ignore:
+                continue
             if os.path.isdir(subpath):
                 config[name] = DirectoryContent.from_fs(subpath, ignore)
             else:
