@@ -21,3 +21,7 @@ def commit_hash(dir: str | Path) -> str:
     return subprocess.run(
         ["git", "rev-parse", "HEAD"], cwd=dir, capture_output=True, text=True
     ).stdout.strip()
+
+
+def stash(dir: str | Path) -> None:
+    subprocess.run(["git", "stash"], cwd=dir)

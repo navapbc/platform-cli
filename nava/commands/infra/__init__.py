@@ -23,6 +23,7 @@ def add_app():
 
 
 @infra.command()
+@click.argument("template_dir")
 @click.argument("project_dir")
-def update(project_dir):
-    update_command.update(project_dir)
+def update(template_dir, project_dir):
+    update_command.update(template_dir, project_dir)

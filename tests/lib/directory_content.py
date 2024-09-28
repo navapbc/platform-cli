@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import os
 from collections import UserDict, UserString
 from collections.abc import Mapping, MutableMapping
+from pathlib import Path
 from typing import cast, Union
 
 
@@ -14,6 +15,7 @@ class FileContent(UserString):
     @staticmethod
     def from_fs(path: str) -> "FileContent":
         with open(path) as f:
+            print(path)
             contents = f.read()
         return FileContent(contents)
 
@@ -67,15 +69,17 @@ class DirectoryContent(
                 content.to_fs(path)
 
     @staticmethod
-    def from_fs(path: str) -> "DirectoryContent":
+    def from_fs(path: str, ignore: list[str]) -> "DirectoryContent":
         """
         Given a directory, return a DirectoryState object that represents its contents
         """
         config = DirectoryContent({})
+        if str(Path(path).name) in ignore:
+            return config
         for name in os.listdir(path):
             subpath = os.path.join(path, name)
             if os.path.isdir(subpath):
-                config[name] = DirectoryContent.from_fs(subpath)
+                config[name] = DirectoryContent.from_fs(subpath, ignore)
             else:
                 config[name] = FileContent.from_fs(subpath)
         return config

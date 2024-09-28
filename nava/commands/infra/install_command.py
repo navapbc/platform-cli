@@ -14,10 +14,6 @@ def install(template_dir: str, project_dir: str):
     answers_file = ".template-infra-base.yml"
     data = {"app_name": "template-only"}
 
-    # app_includes, _ = compute_app_includes_excludes(Path(template_dir))
-    # global_excludes = set(["*template-only*"])
-    # base_excludes = global_excludes | app_includes
-
     app_includes, _ = compute_app_includes_excludes(Path(template_dir))
     global_excludes = ["*template-only*"]
     base_excludes = global_excludes + list(app_includes)

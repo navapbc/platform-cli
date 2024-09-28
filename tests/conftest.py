@@ -82,3 +82,4 @@ def cli():
 @pytest.fixture
 def clean_install(tmp_template, tmp_project, cli):
     cli(["infra", "install", str(tmp_template), str(tmp_project)])
+    git.commit(tmp_project)
