@@ -2,7 +2,7 @@ import click
 
 import copier
 
-from . import install_command
+from . import install_command, update_command
 
 
 @click.group()
@@ -23,8 +23,6 @@ def add_app():
 
 
 @infra.command()
-@click.argument("template_dir")
 @click.argument("project_dir")
-def update(template_dir, project_dir):
-    exclude = ["template-only-*"]
-    copier.run_update(template_dir, project_dir, exclude=exclude)
+def update(project_dir):
+    update_command.update(project_dir)

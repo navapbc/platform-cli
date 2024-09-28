@@ -73,6 +73,7 @@ def cli():
         runner = CliRunner()
         result = runner.invoke(nava_cli, *args, **kwargs)
         print(result.output)
+        assert result.exit_code == 0
         return result
 
     return fn
