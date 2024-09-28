@@ -1,12 +1,6 @@
 from tests.lib import DirectoryContent, FileChange, RenameChange, git
 
-# Test cases
-
-# test install
-# check that all files and directories in the template directory are copied to the project directory except the excluded ones
-
-# test update
-# check that it's a no-op if the template version already matches
+# Remaining test cases to implement
 
 # test update
 # start with a clean install of the template
