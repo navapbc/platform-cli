@@ -12,12 +12,8 @@ pytest.register_assert_rewrite("tests.lib.asserts")
 
 
 @pytest.fixture
-def tmp_template(tmp_path: Path) -> Path:
-    template_dir = tmp_path / "template"
-    template_dir.mkdir()
-    git.init(template_dir)
-
-    DirectoryContent(
+def template_directory_content() -> DirectoryContent:
+    return DirectoryContent(
         {
             ".github": {
                 "workflows": {
@@ -38,6 +34,7 @@ def tmp_template(tmp_path: Path) -> Path:
                 "accounts": {"main.tf": ""},
                 "modules": {
                     "service": {"main.tf": ""},
+                    "database": {"main.tf": ""},
                 },
                 "networks": {"main.tf": ""},
                 "project-config": {"main.tf": ""},
@@ -47,7 +44,16 @@ def tmp_template(tmp_path: Path) -> Path:
                 "destroy-account": "",
             },
         }
-    ).to_fs(str(template_dir))
+    )
+
+
+@pytest.fixture
+def tmp_template(tmp_path: Path, template_directory_content: DirectoryContent) -> Path:
+    template_dir = tmp_path / "template"
+    template_dir.mkdir()
+    git.init(template_dir)
+
+    template_directory_content.to_fs(str(template_dir))
 
     git.commit(template_dir)
     return template_dir
