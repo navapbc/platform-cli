@@ -33,8 +33,8 @@ def template_directory_content() -> DirectoryContent:
                 "{{app_name}}": {"main.tf": ""},
                 "accounts": {"main.tf": ""},
                 "modules": {
-                    "service": {"main.tf": ""},
                     "database": {"main.tf": ""},
+                    "service": {"main.tf": ""},
                 },
                 "networks": {"main.tf": ""},
                 "project-config": {"main.tf": ""},

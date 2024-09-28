@@ -56,6 +56,7 @@ def test_install(cli, tmp_template, tmp_project):
                 "foo": {"main.tf": ""},
                 "accounts": {"main.tf": ""},
                 "modules": {
+                    "database": {"main.tf": ""},
                     "service": {"main.tf": ""},
                 },
                 "networks": {"main.tf": ""},
