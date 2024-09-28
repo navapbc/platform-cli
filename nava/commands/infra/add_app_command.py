@@ -1,27 +1,38 @@
 import os
+from pathlib import Path
 import copier
 
 
-def add_app(template_dir: str, project_dir: str, app_name: str):
+def add_app(template_dir: str | Path, project_dir: str, app_name: str):
     answers_file = f".template-infra-app-{app_name}.yml"
     data = {"app_name": app_name}
 
-    # compute app exclusions by doing:
-    # app includes = .github, infra/{{app_name}}
-    # global excludes = template-only* (unused)
-    # app excludes = global excludes + all – app includes
-    # app_excludes="${global_excludes}
-    # $(comm -23 <(echo "${all}" | sort) <(echo "${app_includes}" | sort))"
+    app_excludes = set([".template", ".git"])
+    template_dir = Path(template_dir)
+    paths = set(template_dir.iterdir())
+    while len(paths) > 0:
+        path = paths.pop()
 
-    app_includes = set([".github/", "infra/{{app_name}}"])
-    global_excludes = set(["*template-only*"])
-    all_except_infra = set(os.listdir(template_dir)) - set(["infra", ".template"])
-    infra_only = set(os.listdir(os.path.join(template_dir, "infra")))
-    all = all_except_infra.union(infra_only)
-    app_excludes = global_excludes.union(all) - app_includes
+        subpath = str(path.relative_to(template_dir))
+
+        if subpath in app_excludes:
+            continue
+
+        if "{{app_name}}" in subpath:
+            continue
+
+        if "template-only" in subpath:
+            app_excludes.add(subpath)
+            continue
+
+        if path.is_dir():
+            paths.update(path.iterdir())
+            continue
+
+        app_excludes.add(subpath)
 
     copier.run_copy(
-        template_dir,
+        str(template_dir),
         project_dir,
         answers_file=answers_file,
         data=data,

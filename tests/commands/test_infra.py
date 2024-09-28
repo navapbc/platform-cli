@@ -31,7 +31,10 @@ from tests.lib import DirectoryContent, FileChange, RenameChange, git
 
 
 def test_install(cli, tmp_template, tmp_project):
-    cli(["infra", "install", str(tmp_template), str(tmp_project)], input="foo\n")
+    result = cli(
+        ["infra", "install", str(tmp_template), str(tmp_project)], input="foo\n"
+    )
+    print(result.output)
     dir_contents = DirectoryContent.from_fs(tmp_project)
 
     assert dir_contents.without(".git") == DirectoryContent(

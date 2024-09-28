@@ -21,7 +21,7 @@ def tmp_template(tmp_path: Path) -> Path:
         {
             ".github": {
                 "workflows": {
-                    "ci-app-pr-environment-checks.yml": "",
+                    "ci-{{app_name}}-pr-environment-checks.yml": "",
                     "pr-environment-checks.yml": "",
                     "template-only-cd.yml": "",
                     "template-only-ci-infra.yml": "",

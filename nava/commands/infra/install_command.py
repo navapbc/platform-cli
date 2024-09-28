@@ -21,11 +21,12 @@ def install(template_dir: str, project_dir: str):
         exclude=base_excludes,
     )
 
-    if len(get_app_names(template_dir)) == 0:
-        app_name = click.prompt("What is the name of your application?")
+    # if len(get_app_names(template_dir)) == 0:
+    #     app_name = click.prompt("What is the name of your application?")
 
-        add_app_command.add_app(template_dir, project_dir, app_name)
+    #     add_app_command.add_app(template_dir, project_dir, app_name)
 
+    add_app_command.add_app(template_dir, project_dir, "foo")
     # options
     # vcs_ref:str
     # data:dict[str,any]
