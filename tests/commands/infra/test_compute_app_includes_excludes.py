@@ -1,6 +1,8 @@
 import pytest
 
-from nava.commands.infra.add_app_command import compute_app_includes_excludes
+from nava.commands.infra.compute_app_includes_excludes import (
+    compute_app_includes_excludes,
+)
 from tests.lib import DirectoryContent
 
 test_compute_app_includes_excludes_data = {

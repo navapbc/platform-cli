@@ -71,7 +71,9 @@ def tmp_project(tmp_path: Path) -> Path:
 def cli():
     def fn(*args, **kwargs):
         runner = CliRunner()
-        return runner.invoke(nava_cli, *args, **kwargs)
+        result = runner.invoke(nava_cli, *args, **kwargs)
+        print(result.output)
+        return result
 
     return fn
 
