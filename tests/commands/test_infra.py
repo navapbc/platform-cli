@@ -33,19 +33,15 @@ from tests.lib import DirectoryContent, FileChange, RenameChange, git
 def test_install(cli, tmp_template, tmp_project):
     cli(["infra", "install", str(tmp_template), str(tmp_project)], input="foo\n")
 
-    dir_contents = DirectoryContent.from_fs(tmp_project)
+    dir_content = DirectoryContent.from_fs(tmp_project)
 
-    assert dir_contents.without(".git") == DirectoryContent(
+    assert dir_content.without(".git").without(".template") == DirectoryContent(
         {
             ".github": {
                 "workflows": {
                     "ci-foo-pr-environment-checks.yml": "",
                     "pr-environment-checks.yml": "",
                 },
-            },
-            ".template": {
-                ".template-infra-app-foo.yml": "",
-                ".template-infra-base.yml": "",
             },
             "bin": {
                 "publish-release": "",
@@ -62,6 +58,15 @@ def test_install(cli, tmp_template, tmp_project):
             },
         }
     )
+
+    assert ".template" in dir_content
+    assert ".template-infra-app-foo.yml" in dir_content[".template"]
+    assert ".template-infra-base.yml" in dir_content[".template"]
+
+    template_commit_hash = git.commit_hash(tmp_template)
+    short_hash = template_commit_hash[:7]
+    assert short_hash in dir_content[".template"][".template-infra-app-foo.yml"]
+    assert short_hash in dir_content[".template"][".template-infra-base.yml"]
 
 
 def test_update_no_change(cli, tmp_template, tmp_project, clean_install):
