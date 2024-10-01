@@ -29,21 +29,4 @@ def test_update_with_change(cli, tmp_template, tmp_project, clean_install):
         template_short_commit_hash
         in (tmp_project / ".template/.template-infra-app-foo.yml").read_text()
     )
-
-    diff = git.diff(tmp_project, "infra/modules/service/main.tf")
-    expected_diff_regex = (
-        r"diff --git a/infra/modules/service/main\.tf b/infra/modules/service/main\.tf"
-        "\n"
-        r".*"
-        "\n"
-        r"--- a/infra/modules/service/main\.tf"
-        "\n"
-        r"\+\+\+ b/infra/modules/service/main\.tf"
-        "\n"
-        r"@@ -0,0 \+1 @@"
-        "\n"
-        r"\+changed"
-        "\n"
-    )
-
-    assert re.fullmatch(expected_diff_regex, diff) is not None
+    assert (tmp_project / "infra/modules/service/main.tf").read_text() == "changed\n"
