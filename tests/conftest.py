@@ -6,7 +6,7 @@ from click.testing import CliRunner
 
 from nava.cli import cli as nava_cli
 from tests.lib import DirectoryContent
-from tests.lib import git
+from nava import git
 
 pytest.register_assert_rewrite("tests.lib.asserts")
 

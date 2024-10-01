@@ -22,9 +22,7 @@ class FileChange(Change):
     new_contents: str
 
     def apply(self, root: Path):
-        content = (root / self.path).read_text()
-        content.replace(self.replaced_contents, self.new_contents)
-        (root / self.path).write_text(content)
+        (root / self.path).write_text(self.new_contents)
 
 
 ChangeSet = list[Change]

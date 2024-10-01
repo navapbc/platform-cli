@@ -1,4 +1,5 @@
-from tests.lib import DirectoryContent, FileChange, RenameChange, git
+from nava import git
+from tests.lib import DirectoryContent, FileChange, RenameChange
 
 # Remaining test cases to implement
 
