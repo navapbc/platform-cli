@@ -20,13 +20,14 @@ def test_update_with_change(cli, tmp_template, tmp_project, clean_install):
 
     cli(["infra", "update", str(tmp_template), str(tmp_project)])
 
-    template_short_commit_hash = git.commit_hash(tmp_template)[:7]
+    template_commit_hash = git.commit_hash(tmp_template)
+    short_hash = template_commit_hash[:7]
     assert (
-        template_short_commit_hash
+        f"_commit: {short_hash}"
         in (tmp_project / ".template/.template-infra-base.yml").read_text()
     )
     assert (
-        template_short_commit_hash
+        f"_commit: {short_hash}"
         in (tmp_project / ".template/.template-infra-app-foo.yml").read_text()
     )
     assert (tmp_project / "infra/modules/service/main.tf").read_text() == "changed\n"
