@@ -2,7 +2,7 @@ import click
 
 import copier
 
-from . import install_command, update_command
+from . import add_app_command, install_command, update_command
 
 
 @click.group()
@@ -18,8 +18,11 @@ def install(template_dir, project_dir):
 
 
 @infra.command()
-def add_app():
-    click.echo("Adding application to infrastructure...")
+@click.argument("template_dir")
+@click.argument("project_dir")
+@click.argument("app_name")
+def add_app(template_dir, project_dir, app_name):
+    add_app_command.add_app(template_dir, project_dir, app_name)
 
 
 @infra.command()

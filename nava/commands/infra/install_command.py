@@ -18,6 +18,12 @@ def install(template_dir: str, project_dir: str):
     global_excludes = ["*template-only*"]
     base_excludes = global_excludes + list(app_includes)
 
+    print("Running copier with parameters:")
+    print(f"  template_dir: {template_dir}")
+    print(f"  project_dir: {project_dir}")
+    print(f"  answers_file: {answers_file}")
+    print(f"  data: {data}")
+    print(f"  exclude: {base_excludes}")
     copier.run_copy(
         template_dir,
         project_dir,
