@@ -43,4 +43,9 @@ class Project:
 
     def _get_template_version_from_answers_file(self, answers_file: Path):
         answers_file_text = answers_file.read_text()
-        return self._template_version_regex.search(answers_file_text).group(1)
+        match = self._template_version_regex.search(answers_file_text)
+        if match is None:
+            raise Exception(
+                f"Could not find template version in answers file {answers_file} with content: {answers_file_text}"
+            )
+        return match.group(1)
