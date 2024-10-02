@@ -38,7 +38,7 @@ def test_install(cli, infra_template, new_project):
 
     dir_content = DirectoryContent.from_fs(new_project.project_dir, ignore=[".git"])
 
-    assert dir_content.without(".template") == DirectoryContent(
+    assert dir_content.without(".template-infra") == DirectoryContent(
         {
             ".github": {
                 "workflows": {

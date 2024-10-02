@@ -25,7 +25,7 @@ def template_directory_content() -> DirectoryContent:
                     "template-only-ci-infra.yml": "",
                 },
             },
-            ".template": {
+            ".template-infra": {
                 "{{_copier_conf.answers_file}}.jinja": "{{ _copier_answers|to_nice_yaml -}}",
             },
             "bin": {

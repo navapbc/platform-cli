@@ -69,7 +69,7 @@ test_compute_app_includes_excludes_data = {
                     "template-only-ci-infra.yml": "",
                 },
             },
-            ".template": {
+            ".template-infra": {
                 "{{_copier_conf.answers_file}}.jinja": "{{ _copier_answers|to_nice_yaml -}}",
             },
             "bin": {

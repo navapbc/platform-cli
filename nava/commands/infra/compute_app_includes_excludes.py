@@ -9,7 +9,7 @@ def compute_app_includes_excludes(template_dir: Path) -> tuple[set[str], set[str
     app_includes, app_excludes = compute_app_includes_excludes_helper(
         template_dir, template_dir
     )
-    app_excludes.difference_update([".template", ".git", "."])
+    app_excludes.difference_update([".template-infra", ".git", "."])
     app_excludes.update(["*template-only*"])
     return app_includes, app_excludes
 

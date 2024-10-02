@@ -15,7 +15,7 @@ def test_add_app(cli, infra_template, new_project, clean_install):
 
     dir_content = DirectoryContent.from_fs(new_project.project_dir, ignore=[".git"])
 
-    assert dir_content.without(".template") == DirectoryContent(
+    assert dir_content.without(".template-infra") == DirectoryContent(
         {
             ".github": {
                 "workflows": {

@@ -36,10 +36,10 @@ class Project:
         return get_app_names(self.project_dir)
 
     def base_answers_file(self) -> str:
-        return ".template/.template-infra-base.yml"
+        return ".template-infra/.template-infra-base.yml"
 
     def app_answers_file(self, app_name: str) -> str:
-        return f".template/.template-infra-app-{app_name}.yml"
+        return f".template-infra/.template-infra-app-{app_name}.yml"
 
     def _get_template_version_from_answers_file(self, answers_file: str):
         answers_file_text = (self.project_dir / answers_file).read_text()
