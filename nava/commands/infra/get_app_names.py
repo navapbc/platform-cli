@@ -1,19 +1,23 @@
 import os.path
+from pathlib import Path
 from typing import List
 
 
-def get_app_names(template_dir: str) -> List[str]:
+def get_app_names(template_dir: Path) -> List[str]:
     excluded_dirs = [
         "accounts",
         "modules",
         "networks",
         "project-config",
     ]
-    infra_path = os.path.join(template_dir, "infra")
-    with os.scandir(infra_path) as entries:
-        folders = [
-            entry.name
-            for entry in entries
-            if entry.is_dir() and entry.name not in excluded_dirs
-        ]
-    return folders
+    infra_dir = template_dir / "infra"
+    if not infra_dir.exists():
+        return []
+    if not infra_dir.is_dir():
+        return []
+
+    return [
+        dir.name
+        for dir in infra_dir.iterdir()
+        if dir.is_dir() and dir.name not in excluded_dirs
+    ]

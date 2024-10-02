@@ -25,7 +25,7 @@ def update(template_dir: str, project_dir: str):
     git.stash(project_dir)
     num_changes += 1
 
-    for app_name in get_app_names(project_dir):
+    for app_name in get_app_names(Path(project_dir)):
         app_answers_file = f".template/.template-infra-app-{app_name}.yml"
         copier.run_update(
             project_dir,

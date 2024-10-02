@@ -1,5 +1,4 @@
 from pathlib import Path
-import copier
 
 from nava.infra_template import InfraTemplate
 from nava.project import Project
