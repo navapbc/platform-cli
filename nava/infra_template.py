@@ -18,7 +18,7 @@ class InfraTemplate:
 
         self._compute_excludes()
 
-    def install(self, project: Project):
+    def install(self, project: Project, app_names: list[str]):
         data = {"app_name": "template-only"}
 
         print("Running copier with parameters:")
