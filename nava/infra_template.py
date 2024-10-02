@@ -10,11 +10,14 @@ from nava.project import Project
 
 class InfraTemplate:
     template_dir: Path
+    git_project: git.GitProject
+
     _base_excludes: list[str]
     _app_excludes: list[str]
 
     def __init__(self, template_dir: Path):
         self.template_dir = template_dir
+        self.git_project = git.GitProject(template_dir)
 
         self._compute_excludes()
 
@@ -40,8 +43,6 @@ class InfraTemplate:
     def update(self, project: Project):
         num_changes = 0
 
-        git_project = git.GitProject(project.project_dir)
-
         copier.run_update(
             project.project_dir,
             answers_file=self._base_answers_file_path(),
@@ -49,7 +50,7 @@ class InfraTemplate:
             overwrite=True,
             skip_answered=True,
         )
-        git_project.stash()
+        project.git_project.stash()
         num_changes += 1
 
         for app_name in project.app_names:
@@ -60,11 +61,11 @@ class InfraTemplate:
                 overwrite=True,
                 skip_answered=True,
             )
-            git_project.stash()
+            project.git_project.stash()
             num_changes += 1
 
         for i in range(num_changes):
-            git_project.pop()
+            project.git_project.pop()
 
     def add_app(self, project: Project, app_name: str):
         data = {"app_name": app_name}
