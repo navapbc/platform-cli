@@ -20,11 +20,11 @@ class Project:
     @property
     def template_version(self):
         base_version = self._get_template_version_from_answers_file(
-            self._base_answers_file()
+            self.base_answers_file()
         )
         app_versions = [
             self._get_template_version_from_answers_file(
-                self._app_answers_file(app_name)
+                self.app_answers_file(app_name)
             )
             for app_name in self.app_names
         ]
@@ -35,14 +35,14 @@ class Project:
     def app_names(self):
         return get_app_names(self.project_dir)
 
-    def _base_answers_file(self):
-        return self.project_dir / ".template/.template-infra-base.yml"
+    def base_answers_file(self) -> str:
+        return ".template/.template-infra-base.yml"
 
-    def _app_answers_file(self, app_name: str):
-        return self.project_dir / f".template/.template-infra-app-{app_name}.yml"
+    def app_answers_file(self, app_name: str) -> str:
+        return f".template/.template-infra-app-{app_name}.yml"
 
-    def _get_template_version_from_answers_file(self, answers_file: Path):
-        answers_file_text = answers_file.read_text()
+    def _get_template_version_from_answers_file(self, answers_file: str):
+        answers_file_text = (self.project_dir / answers_file).read_text()
         match = self._template_version_regex.search(answers_file_text)
         if match is None:
             raise Exception(
