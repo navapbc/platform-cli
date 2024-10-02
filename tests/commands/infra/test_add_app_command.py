@@ -1,4 +1,3 @@
-from nava import git
 from tests.lib import DirectoryContent, FileChange, RenameChange
 
 
@@ -42,15 +41,7 @@ def test_add_app(cli, infra_template, new_project, clean_install):
         }
     )
 
-    assert ".template" in dir_content
-    assert ".template-infra-app-foo.yml" in dir_content[".template"]
-    assert ".template-infra-app-bar.yml" in dir_content[".template"]
-    assert ".template-infra-base.yml" in dir_content[".template"]
-
-    short_hash = infra_template.short_version
-    assert short_hash in dir_content[".template"][".template-infra-app-foo.yml"]
-    assert short_hash in dir_content[".template"][".template-infra-app-bar.yml"]
-    assert short_hash in dir_content[".template"][".template-infra-base.yml"]
+    assert new_project.template_version == infra_template.short_version
 
     FileChange("infra/modules/service/main.tf", "", "changed\n").apply(
         infra_template.template_dir
@@ -71,9 +62,6 @@ def test_add_app(cli, infra_template, new_project, clean_install):
 
     dir_content = DirectoryContent.from_fs(new_project.project_dir, ignore=[".git"])
 
-    short_hash = infra_template.short_version
-    assert short_hash in dir_content[".template"][".template-infra-app-foo.yml"]
-    assert short_hash in dir_content[".template"][".template-infra-app-bar.yml"]
-    assert short_hash in dir_content[".template"][".template-infra-base.yml"]
+    assert new_project.template_version == infra_template.short_version
     assert dir_content["infra"]["foo"]["main.tf"] == "changed\n"
     assert dir_content["infra"]["bar"]["main.tf"] == "changed\n"

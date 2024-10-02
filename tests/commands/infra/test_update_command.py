@@ -1,5 +1,3 @@
-import re
-from nava import git
 from tests.lib import DirectoryContent, FileChange, RenameChange
 
 
@@ -44,6 +42,5 @@ def test_update_with_change(cli, infra_template, new_project, clean_install):
 
     dir_content = DirectoryContent.from_fs(new_project.project_dir, ignore=[".git"])
 
-    short_hash = infra_template.short_version
-    assert new_project.template_version == short_hash
+    assert new_project.template_version == infra_template.short_version
     assert dir_content["infra"]["modules"]["service"]["main.tf"] == "changed\n"
