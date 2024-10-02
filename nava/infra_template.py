@@ -1,4 +1,7 @@
+import functools
+import inspect
 from pathlib import Path
+from typing import Callable, ParamSpec, TypeVar, get_type_hints
 import copier
 
 from nava import git
@@ -6,6 +9,18 @@ from nava.commands.infra.compute_app_includes_excludes import (
     compute_app_includes_excludes,
 )
 from nava.project import Project
+
+P = ParamSpec("P")
+R = TypeVar("R")
+
+
+def print_method_call(func: Callable[P, R]) -> Callable[P, R]:
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        print(f"Calling: {func.__name__} with args:\n{args}\n and kwargs:\n{kwargs}")
+        return func(*args, **kwargs)
+
+    return wrapper
 
 
 class InfraTemplate:
@@ -20,17 +35,12 @@ class InfraTemplate:
         self.git_project = git.GitProject(template_dir)
 
         self._compute_excludes()
+        self._run_copy = print_method_call(copier.run_copy)
+        self._run_update = print_method_call(copier.run_update)
 
     def install(self, project: Project, app_names: list[str]):
         data = {"app_name": "template-only"}
-
-        print("Running copier with parameters:")
-        print(f"  template_dir: {self.template_dir}")
-        print(f"  project_dir: {project.project_dir}")
-        print(f"  answers_file: {self._base_answers_file()}")
-        print(f"  data: {data}")
-        print(f"  exclude: {self._base_excludes}")
-        copier.run_copy(
+        self._run_copy(
             str(self.template_dir),
             project.project_dir,
             answers_file=self._base_answers_file(),
@@ -46,14 +56,7 @@ class InfraTemplate:
 
         data = {"app_name": "template-only"}
 
-        print("Running copier with parameters:")
-        print(f"  project_dir: {project.project_dir}")
-        print(f"  data: {data}")
-        print(f"  answers_file: {project.base_answers_file()}")
-        print(f"  exclude: {self._base_excludes}")
-        print(f"  overwrite: True")
-        print(f"  skip_answered: True")
-        copier.run_update(
+        self._run_update(
             project.project_dir,
             data=data,
             answers_file=project.base_answers_file(),
@@ -66,14 +69,7 @@ class InfraTemplate:
 
         for app_name in project.app_names:
             data = {"app_name": app_name}
-            print("Running copier with parameters:")
-            print(f"  project_dir: {project.project_dir}")
-            print(f"  data: {data}")
-            print(f"  answers_file: {project.app_answers_file(app_name)}")
-            print(f"  exclude: {self._app_excludes}")
-            print(f"  overwrite: True")
-            print(f"  skip_answered: True")
-            copier.run_update(
+            self._run_update(
                 project.project_dir,
                 data=data,
                 answers_file=project.app_answers_file(app_name),
@@ -84,13 +80,12 @@ class InfraTemplate:
             project.git_project.stash()
             num_changes += 1
 
-        for i in range(num_changes):
+        for _ in range(num_changes):
             project.git_project.pop()
 
     def add_app(self, project: Project, app_name: str):
         data = {"app_name": app_name}
-
-        copier.run_copy(
+        self._run_copy(
             str(self.template_dir),
             project.project_dir,
             answers_file=self._app_answers_file(app_name),
