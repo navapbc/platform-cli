@@ -38,7 +38,8 @@ class InfraTemplate:
             exclude=self._base_excludes,
         )
 
-        self.add_app(project, "foo")
+        for app_name in app_names:
+            self.add_app(project, app_name)
 
     def update(self, project: Project):
         num_changes = 0
