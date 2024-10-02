@@ -25,6 +25,9 @@ def test_update_with_change(cli, infra_template, new_project, clean_install):
     FileChange("infra/modules/service/main.tf", "", "changed\n").apply(
         infra_template.template_dir
     )
+    FileChange("infra/{{app_name}}/main.tf", "", "changed\n").apply(
+        infra_template.template_dir
+    )
     infra_template.git_project.commit("Change template")
 
     cli(
@@ -40,3 +43,4 @@ def test_update_with_change(cli, infra_template, new_project, clean_install):
     assert (
         new_project.project_dir / "infra/modules/service/main.tf"
     ).read_text() == "changed\n"
+    assert (new_project.project_dir / "infra/foo/main.tf").read_text() == "changed\n"

@@ -44,8 +44,18 @@ class InfraTemplate:
     def update(self, project: Project):
         num_changes = 0
 
+        data = {"app_name": "template-only"}
+
+        print("Running copier with parameters:")
+        print(f"  project_dir: {project.project_dir}")
+        print(f"  data: {data}")
+        print(f"  answers_file: {project.base_answers_file()}")
+        print(f"  exclude: {self._base_excludes}")
+        print(f"  overwrite: True")
+        print(f"  skip_answered: True")
         copier.run_update(
             project.project_dir,
+            data=data,
             answers_file=project.base_answers_file(),
             exclude=self._base_excludes,
             overwrite=True,
@@ -55,8 +65,17 @@ class InfraTemplate:
         num_changes += 1
 
         for app_name in project.app_names:
+            data = {"app_name": app_name}
+            print("Running copier with parameters:")
+            print(f"  project_dir: {project.project_dir}")
+            print(f"  data: {data}")
+            print(f"  answers_file: {project.app_answers_file(app_name)}")
+            print(f"  exclude: {self._app_excludes}")
+            print(f"  overwrite: True")
+            print(f"  skip_answered: True")
             copier.run_update(
                 project.project_dir,
+                data=data,
                 answers_file=project.app_answers_file(app_name),
                 exclude=list(self._app_excludes),
                 overwrite=True,
