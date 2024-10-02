@@ -1,7 +1,7 @@
 from pathlib import Path
 import copier
 
-from nava.commands.infra import add_app_command
+from nava import git
 from nava.commands.infra.compute_app_includes_excludes import (
     compute_app_includes_excludes,
 )
@@ -38,7 +38,31 @@ class InfraTemplate:
         self.add_app(project, "foo")
 
     def update(self, project: Project):
-        pass
+        num_changes = 0
+
+        copier.run_update(
+            project.project_dir,
+            answers_file=self._base_answers_file(),
+            exclude=self._base_excludes,
+            overwrite=True,
+            skip_answered=True,
+        )
+        git.stash(project.project_dir)
+        num_changes += 1
+
+        for app_name in project.app_names:
+            copier.run_update(
+                project.project_dir,
+                answers_file=self._app_answers_file(app_name),
+                exclude=list(self._app_excludes),
+                overwrite=True,
+                skip_answered=True,
+            )
+            git.stash(project.project_dir)
+            num_changes += 1
+
+        for i in range(num_changes):
+            git.pop(project.project_dir)
 
     def add_app(self, project: Project, app_name: str):
         data = {"app_name": app_name}
