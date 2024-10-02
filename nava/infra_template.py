@@ -42,7 +42,7 @@ class InfraTemplate:
 
         copier.run_update(
             project.project_dir,
-            answers_file=self._base_answers_file(),
+            answers_file=self._base_answers_file_path(),
             exclude=self._base_excludes,
             overwrite=True,
             skip_answered=True,
@@ -53,7 +53,7 @@ class InfraTemplate:
         for app_name in project.app_names:
             copier.run_update(
                 project.project_dir,
-                answers_file=self._app_answers_file(app_name),
+                answers_file=self._app_answers_file_path(app_name),
                 exclude=list(self._app_excludes),
                 overwrite=True,
                 skip_answered=True,
@@ -87,5 +87,11 @@ class InfraTemplate:
     def _base_answers_file(self):
         return ".template-infra-base.yml"
 
+    def _base_answers_file_path(self):
+        return f".template/{self._base_answers_file()}"
+
     def _app_answers_file(self, app_name: str):
         return f".template-infra-app-{app_name}.yml"
+
+    def _app_answers_file_path(self, app_name: str):
+        return f".template/{self._app_answers_file(app_name)}"
