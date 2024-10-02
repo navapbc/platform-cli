@@ -60,8 +60,6 @@ def test_add_app(cli, infra_template, new_project, clean_install):
         ]
     )
 
-    dir_content = DirectoryContent.from_fs(new_project.project_dir, ignore=[".git"])
-
     assert new_project.template_version == infra_template.short_version
-    assert dir_content["infra"]["foo"]["main.tf"] == "changed\n"
-    assert dir_content["infra"]["bar"]["main.tf"] == "changed\n"
+    assert (new_project.project_dir / "infra/foo/main.tf").read_text() == "changed\n"
+    assert (new_project.project_dir / "infra/bar/main.tf").read_text() == "changed\n"

@@ -22,10 +22,6 @@ def test_update_no_change(cli, infra_template, new_project, clean_install):
 
 
 def test_update_with_change(cli, infra_template, new_project, clean_install):
-    content_before_update = DirectoryContent.from_fs(
-        new_project.project_dir, ignore=[".git"]
-    )
-
     FileChange("infra/modules/service/main.tf", "", "changed\n").apply(
         infra_template.template_dir
     )
@@ -40,7 +36,7 @@ def test_update_with_change(cli, infra_template, new_project, clean_install):
         ]
     )
 
-    dir_content = DirectoryContent.from_fs(new_project.project_dir, ignore=[".git"])
-
     assert new_project.template_version == infra_template.short_version
-    assert dir_content["infra"]["modules"]["service"]["main.tf"] == "changed\n"
+    assert (
+        new_project.project_dir / "infra/modules/service/main.tf"
+    ).read_text() == "changed\n"
