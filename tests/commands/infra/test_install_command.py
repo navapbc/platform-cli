@@ -66,6 +66,4 @@ def test_install(cli, infra_template, new_project):
     assert ".template-infra-app-foo.yml" in dir_content[".template"]
     assert ".template-infra-base.yml" in dir_content[".template"]
 
-    short_hash = infra_template.short_version
-    assert short_hash in dir_content[".template"][".template-infra-app-foo.yml"]
-    assert short_hash in dir_content[".template"][".template-infra-base.yml"]
+    assert new_project.template_version == infra_template.short_version

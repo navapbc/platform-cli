@@ -45,6 +45,5 @@ def test_update_with_change(cli, infra_template, new_project, clean_install):
     dir_content = DirectoryContent.from_fs(new_project.project_dir, ignore=[".git"])
 
     short_hash = infra_template.short_version
-    assert short_hash in dir_content[".template"][".template-infra-app-foo.yml"]
-    assert short_hash in dir_content[".template"][".template-infra-base.yml"]
+    assert new_project.template_version == short_hash
     assert dir_content["infra"]["modules"]["service"]["main.tf"] == "changed\n"
