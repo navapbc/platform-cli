@@ -79,8 +79,13 @@ class InfraTemplate:
             exclude=list(self._app_excludes),
         )
 
+    @property
     def version(self):
-        pass
+        return self.git_project.commit_hash()
+
+    @property
+    def short_version(self):
+        return self.version[:7]
 
     def _compute_excludes(self):
         app_includes, app_excludes = compute_app_includes_excludes(self.template_dir)

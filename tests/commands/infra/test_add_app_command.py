@@ -47,8 +47,7 @@ def test_add_app(cli, infra_template, new_project, clean_install):
     assert ".template-infra-app-bar.yml" in dir_content[".template"]
     assert ".template-infra-base.yml" in dir_content[".template"]
 
-    template_commit_hash = infra_template.git_project.commit_hash()
-    short_hash = template_commit_hash[:7]
+    short_hash = infra_template.short_version
     assert short_hash in dir_content[".template"][".template-infra-app-foo.yml"]
     assert short_hash in dir_content[".template"][".template-infra-app-bar.yml"]
     assert short_hash in dir_content[".template"][".template-infra-base.yml"]
@@ -72,8 +71,7 @@ def test_add_app(cli, infra_template, new_project, clean_install):
 
     dir_content = DirectoryContent.from_fs(new_project.project_dir, ignore=[".git"])
 
-    template_commit_hash = infra_template.git_project.commit_hash()
-    short_hash = template_commit_hash[:7]
+    short_hash = infra_template.short_version
     assert short_hash in dir_content[".template"][".template-infra-app-foo.yml"]
     assert short_hash in dir_content[".template"][".template-infra-app-bar.yml"]
     assert short_hash in dir_content[".template"][".template-infra-base.yml"]
