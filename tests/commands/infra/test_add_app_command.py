@@ -2,11 +2,19 @@ from nava import git
 from tests.lib import DirectoryContent, FileChange, RenameChange
 
 
-def test_add_app(cli, infra_template, tmp_project, clean_install):
-    cli(["infra", "add-app", str(infra_template.template_dir), str(tmp_project), "bar"])
-    git.commit(tmp_project)
+def test_add_app(cli, infra_template, new_project, clean_install):
+    cli(
+        [
+            "infra",
+            "add-app",
+            str(infra_template.template_dir),
+            str(new_project.project_dir),
+            "bar",
+        ]
+    )
+    new_project.git_project.commit("Add app bar")
 
-    dir_content = DirectoryContent.from_fs(tmp_project, ignore=[".git"])
+    dir_content = DirectoryContent.from_fs(new_project.project_dir, ignore=[".git"])
 
     assert dir_content.without(".template") == DirectoryContent(
         {
@@ -53,9 +61,16 @@ def test_add_app(cli, infra_template, tmp_project, clean_install):
     )
     infra_template.git_project.commit("Change template")
 
-    cli(["infra", "update", str(infra_template.template_dir), str(tmp_project)])
+    cli(
+        [
+            "infra",
+            "update",
+            str(infra_template.template_dir),
+            str(new_project.project_dir),
+        ]
+    )
 
-    dir_content = DirectoryContent.from_fs(tmp_project, ignore=[".git"])
+    dir_content = DirectoryContent.from_fs(new_project.project_dir, ignore=[".git"])
 
     template_commit_hash = infra_template.git_project.commit_hash()
     short_hash = template_commit_hash[:7]

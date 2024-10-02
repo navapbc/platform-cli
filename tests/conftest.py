@@ -6,6 +6,7 @@ from click.testing import CliRunner
 
 from nava.cli import cli as nava_cli
 from nava.infra_template import InfraTemplate
+from nava.project import Project
 from tests.lib import DirectoryContent
 from nava import git
 
@@ -63,11 +64,12 @@ def infra_template(
 
 
 @pytest.fixture
-def tmp_project(tmp_path: Path) -> Path:
+def new_project(tmp_path: Path) -> Project:
     project_dir = tmp_path / "project"
     project_dir.mkdir()
-    git.init(project_dir)
-    return project_dir
+    project = Project(project_dir)
+    project.git_project.init()
+    return project
 
 
 @pytest.fixture
@@ -83,9 +85,14 @@ def cli():
 
 
 @pytest.fixture
-def clean_install(infra_template, tmp_project, cli):
+def clean_install(infra_template, new_project, cli):
     cli(
-        ["infra", "install", str(infra_template.template_dir), str(tmp_project)],
+        [
+            "infra",
+            "install",
+            str(infra_template.template_dir),
+            str(new_project.project_dir),
+        ],
         input="foo\n",
     )
-    git.commit(tmp_project)
+    new_project.git_project.commit("Install template")

@@ -25,13 +25,18 @@ from tests.lib import DirectoryContent, FileChange, RenameChange
 #
 
 
-def test_install(cli, infra_template, tmp_project):
+def test_install(cli, infra_template, new_project):
     cli(
-        ["infra", "install", str(infra_template.template_dir), str(tmp_project)],
+        [
+            "infra",
+            "install",
+            str(infra_template.template_dir),
+            str(new_project.project_dir),
+        ],
         input="foo\n",
     )
 
-    dir_content = DirectoryContent.from_fs(tmp_project, ignore=[".git"])
+    dir_content = DirectoryContent.from_fs(new_project.project_dir, ignore=[".git"])
 
     assert dir_content.without(".template") == DirectoryContent(
         {
