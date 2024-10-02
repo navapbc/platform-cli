@@ -35,13 +35,21 @@ class InfraTemplate:
             exclude=self._base_excludes,
         )
 
-        add_app_command.add_app(self.template_dir, str(project.project_dir), "foo")
+        self.add_app(project, "foo")
 
     def update(self, project: Project):
         pass
 
     def add_app(self, project: Project, app_name: str):
-        pass
+        data = {"app_name": app_name}
+
+        copier.run_copy(
+            str(self.template_dir),
+            project.project_dir,
+            answers_file=self._app_answers_file(app_name),
+            data=data,
+            exclude=list(self._app_excludes),
+        )
 
     def version(self):
         pass
