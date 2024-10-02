@@ -5,6 +5,7 @@ import pytest
 from click.testing import CliRunner
 
 from nava.cli import cli as nava_cli
+from nava.infra_template import InfraTemplate
 from tests.lib import DirectoryContent
 from nava import git
 
@@ -48,15 +49,17 @@ def template_directory_content() -> DirectoryContent:
 
 
 @pytest.fixture
-def tmp_template(tmp_path: Path, template_directory_content: DirectoryContent) -> Path:
+def infra_template(
+    tmp_path: Path, template_directory_content: DirectoryContent
+) -> InfraTemplate:
     template_dir = tmp_path / "template"
     template_dir.mkdir()
-    git.init(template_dir)
-
     template_directory_content.to_fs(str(template_dir))
 
-    git.commit(template_dir)
-    return template_dir
+    template = InfraTemplate(template_dir)
+    template.git_project.init()
+    template.git_project.commit("Initial commit")
+    return template
 
 
 @pytest.fixture
@@ -80,6 +83,9 @@ def cli():
 
 
 @pytest.fixture
-def clean_install(tmp_template, tmp_project, cli):
-    cli(["infra", "install", str(tmp_template), str(tmp_project)], input="foo\n")
+def clean_install(infra_template, tmp_project, cli):
+    cli(
+        ["infra", "install", str(infra_template.template_dir), str(tmp_project)],
+        input="foo\n",
+    )
     git.commit(tmp_project)

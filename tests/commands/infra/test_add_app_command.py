@@ -2,8 +2,8 @@ from nava import git
 from tests.lib import DirectoryContent, FileChange, RenameChange
 
 
-def test_add_app(cli, tmp_template, tmp_project, clean_install):
-    cli(["infra", "add-app", str(tmp_template), str(tmp_project), "bar"])
+def test_add_app(cli, infra_template, tmp_project, clean_install):
+    cli(["infra", "add-app", str(infra_template.template_dir), str(tmp_project), "bar"])
     git.commit(tmp_project)
 
     dir_content = DirectoryContent.from_fs(tmp_project, ignore=[".git"])
@@ -39,21 +39,25 @@ def test_add_app(cli, tmp_template, tmp_project, clean_install):
     assert ".template-infra-app-bar.yml" in dir_content[".template"]
     assert ".template-infra-base.yml" in dir_content[".template"]
 
-    template_commit_hash = git.commit_hash(tmp_template)
+    template_commit_hash = infra_template.git_project.commit_hash()
     short_hash = template_commit_hash[:7]
     assert short_hash in dir_content[".template"][".template-infra-app-foo.yml"]
     assert short_hash in dir_content[".template"][".template-infra-app-bar.yml"]
     assert short_hash in dir_content[".template"][".template-infra-base.yml"]
 
-    FileChange("infra/modules/service/main.tf", "", "changed\n").apply(tmp_template)
-    FileChange("infra/{{app_name}}/main.tf", "", "changed\n").apply(tmp_template)
-    git.commit(tmp_template)
+    FileChange("infra/modules/service/main.tf", "", "changed\n").apply(
+        infra_template.template_dir
+    )
+    FileChange("infra/{{app_name}}/main.tf", "", "changed\n").apply(
+        infra_template.template_dir
+    )
+    infra_template.git_project.commit("Change template")
 
-    cli(["infra", "update", str(tmp_template), str(tmp_project)])
+    cli(["infra", "update", str(infra_template.template_dir), str(tmp_project)])
 
     dir_content = DirectoryContent.from_fs(tmp_project, ignore=[".git"])
 
-    template_commit_hash = git.commit_hash(tmp_template)
+    template_commit_hash = infra_template.git_project.commit_hash()
     short_hash = template_commit_hash[:7]
     assert short_hash in dir_content[".template"][".template-infra-app-foo.yml"]
     assert short_hash in dir_content[".template"][".template-infra-app-bar.yml"]

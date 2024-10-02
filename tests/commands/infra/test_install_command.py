@@ -25,8 +25,11 @@ from tests.lib import DirectoryContent, FileChange, RenameChange
 #
 
 
-def test_install(cli, tmp_template, tmp_project):
-    cli(["infra", "install", str(tmp_template), str(tmp_project)], input="foo\n")
+def test_install(cli, infra_template, tmp_project):
+    cli(
+        ["infra", "install", str(infra_template.template_dir), str(tmp_project)],
+        input="foo\n",
+    )
 
     dir_content = DirectoryContent.from_fs(tmp_project, ignore=[".git"])
 
@@ -58,7 +61,7 @@ def test_install(cli, tmp_template, tmp_project):
     assert ".template-infra-app-foo.yml" in dir_content[".template"]
     assert ".template-infra-base.yml" in dir_content[".template"]
 
-    template_commit_hash = git.commit_hash(tmp_template)
+    template_commit_hash = infra_template.git_project.commit_hash()
     short_hash = template_commit_hash[:7]
     assert short_hash in dir_content[".template"][".template-infra-app-foo.yml"]
     assert short_hash in dir_content[".template"][".template-infra-base.yml"]
