@@ -17,8 +17,13 @@ def infra():
     default="https://github.com/navapbc/template-infra.git",
     help="Path or URL to infra template. Can be a path to a local clone of template-infra. Defaults to the template-infra repository on GitHub.",
 )
-def install(project_dir, template_uri):
-    install_command.install(template_uri, project_dir)
+@click.option(
+    "--version",
+    default=None,
+    help="Template version to install. Can be a branch, tag, or commit hash. Defaults to the latest tag version.",
+)
+def install(project_dir, template_uri, version):
+    install_command.install(template_uri, project_dir, version=version)
 
 
 @infra.command()
@@ -40,5 +45,10 @@ def add_app(project_dir, app_name, template_uri):
     default="https://github.com/navapbc/template-infra.git",
     help="Path or URL to infra template. Can be a path to a local clone of template-infra. Defaults to the template-infra repository on GitHub.",
 )
-def update(project_dir, template_uri):
-    update_command.update(template_uri, project_dir)
+@click.option(
+    "--version",
+    default=None,
+    help="Template version to install. Can be a branch, tag, or commit hash. Defaults to the latest tag version.",
+)
+def update(project_dir, template_uri, version):
+    update_command.update(template_uri, project_dir, version=version)

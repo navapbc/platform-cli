@@ -6,7 +6,7 @@ from .compute_app_includes_excludes import compute_app_includes_excludes
 from .get_app_names import get_app_names
 
 
-def update(template_dir: str, project_dir: str):
+def update(template_dir: str, project_dir: str, version: str | None = None):
     template = InfraTemplate(Path(template_dir))
     project = Project(Path(project_dir))
-    template.update(project)
+    template.update(project, version=version)

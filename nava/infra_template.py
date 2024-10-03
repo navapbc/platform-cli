@@ -1,5 +1,4 @@
 import functools
-import inspect
 from pathlib import Path
 from typing import Callable, ParamSpec, TypeVar, get_type_hints
 import copier
@@ -38,7 +37,9 @@ class InfraTemplate:
         self._run_copy = print_method_call(copier.run_copy)
         self._run_update = print_method_call(copier.run_update)
 
-    def install(self, project: Project, app_names: list[str]):
+    def install(
+        self, project: Project, app_names: list[str], *, version: str | None = None
+    ):
         data = {"app_name": "template-only"}
         self._run_copy(
             str(self.template_dir),
@@ -46,12 +47,13 @@ class InfraTemplate:
             answers_file=self._base_answers_file(),
             data=data,
             exclude=self._base_excludes,
+            vcs_ref=version,
         )
 
         for app_name in app_names:
             self.add_app(project, app_name)
 
-    def update(self, project: Project):
+    def update(self, project: Project, *, version: str | None = None):
         num_changes = 0
 
         data = {"app_name": "template-only"}
@@ -63,6 +65,7 @@ class InfraTemplate:
             exclude=self._base_excludes,
             overwrite=True,
             skip_answered=True,
+            vcs_ref=version,
         )
         project.git_project.stash()
         num_changes += 1
@@ -76,6 +79,7 @@ class InfraTemplate:
                 exclude=list(self._app_excludes),
                 overwrite=True,
                 skip_answered=True,
+                vcs_ref=version,
             )
             project.git_project.stash()
             num_changes += 1
