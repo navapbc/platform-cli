@@ -7,6 +7,6 @@ WORKDIR /app
 COPY pyproject.toml poetry.lock* /app/
 RUN poetry install --no-dev
 
-COPY platform /app/platform
+COPY nava /app/nava
 
-ENTRYPOINT ["poetry", "run", "python", "-m", "platform.cli"]
+ENTRYPOINT ["poetry", "run", "python", "-m", "nava.cli"]
