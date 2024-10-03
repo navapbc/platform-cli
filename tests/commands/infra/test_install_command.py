@@ -57,3 +57,34 @@ def test_install(cli, infra_template, new_project):
     )
 
     assert new_project.template_version == infra_template.short_version
+
+
+def test_install_version(cli, infra_template, new_project):
+    infra_template.version = "v0.1.0"
+
+    FileChange("infra/modules/service/main.tf", "", "changed\n").apply(
+        infra_template.template_dir
+    )
+    FileChange("infra/{{app_name}}/main.tf", "", "changed\n").apply(
+        infra_template.template_dir
+    )
+    infra_template.git_project.commit("Change template")
+
+    infra_template.version = "v0.2.0"
+
+    cli(
+        [
+            "infra",
+            "install",
+            str(new_project.project_dir),
+            "--template-uri",
+            str(infra_template.template_dir),
+            "--version",
+            "v0.1.0",
+        ],
+        input="foo\n",
+    )
+
+    assert new_project.template_version == infra_template.short_version
+    assert (new_project.project_dir / "infra/modules/service/main.tf").read_text() == ""
+    assert (new_project.project_dir / "infra/foo/main.tf").read_text() == ""

@@ -101,6 +101,10 @@ class InfraTemplate:
     def version(self):
         return self.git_project.commit_hash()
 
+    @version.setter
+    def version(self, version):
+        self.git_project.tag(version)
+
     @property
     def short_version(self):
         return self.version[:7]

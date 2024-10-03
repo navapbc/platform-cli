@@ -25,6 +25,9 @@ class GitProject:
     def pop(self) -> None:
         subprocess.run(["git", "stash", "pop"], cwd=self.dir)
 
+    def tag(self, tag: str) -> None:
+        subprocess.run(["git", "tag", tag], cwd=self.dir)
+
 
 def init(dir: str | Path) -> None:
     subprocess.run(["git", "init"], cwd=dir)
