@@ -11,10 +11,14 @@ def infra():
 
 
 @infra.command()
-@click.argument("template_dir")
 @click.argument("project_dir")
-def install(template_dir, project_dir):
-    install_command.install(template_dir, project_dir)
+@click.option(
+    "--src",
+    default="https://github.com/navapbc/template-infra.git",
+    help="Path or URL to infra template. Can be a path to a local clone of template-infra. Defaults to the template-infra repository on GitHub.",
+)
+def install(project_dir, src):
+    install_command.install(src, project_dir)
 
 
 @infra.command()

@@ -5,24 +5,10 @@ from tests.lib import DirectoryContent, FileChange, RenameChange
 
 # test update
 # start with a clean install of the template
-# make a change to the template
-# run update
-# check that the change is reflected in the project directory
-
-# test update
-# start with a clean install of the template
 # make a change to the project
 # make a change to the template
 # run update
 # check that the change to the project is preserved and that the template change is also reflected in the project directory
-
-# test add app
-# start with a clean install of the template
-# add an app
-# check that the new folder was added
-
-# test add app and update
-#
 
 
 def test_install(cli, infra_template, new_project):
@@ -30,8 +16,9 @@ def test_install(cli, infra_template, new_project):
         [
             "infra",
             "install",
-            str(infra_template.template_dir),
             str(new_project.project_dir),
+            "--src",
+            str(infra_template.template_dir),
         ],
         input="foo\n",
     )
