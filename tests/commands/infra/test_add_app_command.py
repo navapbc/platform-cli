@@ -65,3 +65,33 @@ def test_add_app(cli, infra_template, new_project, clean_install):
     assert new_project.template_version == infra_template.short_version
     assert (new_project.project_dir / "infra/foo/main.tf").read_text() == "changed\n"
     assert (new_project.project_dir / "infra/bar/main.tf").read_text() == "changed\n"
+
+
+def test_add_app_uses_existing_template_version(
+    cli, infra_template, new_project, clean_install
+):
+    existing_template_version = new_project.template_version
+
+    FileChange("infra/modules/service/main.tf", "", "changed\n").apply(
+        infra_template.template_dir
+    )
+    FileChange("infra/{{app_name}}/main.tf", "", "changed\n").apply(
+        infra_template.template_dir
+    )
+    infra_template.git_project.commit("Change template")
+
+    cli(
+        [
+            "infra",
+            "add-app",
+            str(new_project.project_dir),
+            "bar",
+            "--template-uri",
+            str(infra_template.template_dir),
+        ]
+    )
+    new_project.git_project.commit("Add app bar")
+
+    assert new_project.template_version == existing_template_version
+    assert (new_project.project_dir / "infra/modules/service/main.tf").read_text() == ""
+    assert (new_project.project_dir / "infra/foo/main.tf").read_text() == ""
