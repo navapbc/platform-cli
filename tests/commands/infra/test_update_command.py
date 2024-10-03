@@ -1,4 +1,5 @@
 from tests.lib import DirectoryContent, FileChange, RenameChange
+from tests.lib.changeset import ChangeSet
 
 
 def test_update_no_change(cli, infra_template, new_project, clean_install):
@@ -23,12 +24,12 @@ def test_update_no_change(cli, infra_template, new_project, clean_install):
 
 
 def test_update_with_change(cli, infra_template, new_project, clean_install):
-    FileChange("infra/modules/service/main.tf", "", "changed\n").apply(
-        infra_template.template_dir
-    )
-    FileChange("infra/{{app_name}}/main.tf", "", "changed\n").apply(
-        infra_template.template_dir
-    )
+    ChangeSet(
+        [
+            FileChange("infra/modules/service/main.tf", "", "changed\n"),
+            FileChange("infra/{{app_name}}/main.tf", "", "changed\n"),
+        ]
+    ).apply(infra_template.template_dir)
     infra_template.git_project.commit("Change template")
 
     cli(

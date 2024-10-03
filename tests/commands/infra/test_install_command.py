@@ -1,5 +1,6 @@
 from nava import git
 from tests.lib import DirectoryContent, FileChange, RenameChange
+from tests.lib.changeset import ChangeSet
 
 # Remaining test cases to implement
 
@@ -62,12 +63,12 @@ def test_install(cli, infra_template, new_project):
 def test_install_version(cli, infra_template, new_project):
     infra_template.version = "v0.1.0"
 
-    FileChange("infra/modules/service/main.tf", "", "changed\n").apply(
-        infra_template.template_dir
-    )
-    FileChange("infra/{{app_name}}/main.tf", "", "changed\n").apply(
-        infra_template.template_dir
-    )
+    ChangeSet(
+        [
+            FileChange("infra/modules/service/main.tf", "", "changed\n"),
+            FileChange("infra/{{app_name}}/main.tf", "", "changed\n"),
+        ]
+    ).apply(infra_template.template_dir)
     infra_template.git_project.commit("Change template")
 
     infra_template.version = "v0.2.0"

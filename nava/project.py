@@ -1,6 +1,8 @@
 from pathlib import Path
 import re
 
+import yaml
+
 from nava import git
 from nava.commands.infra.get_app_names import get_app_names
 
@@ -9,13 +11,9 @@ class Project:
     project_dir: Path
     git_project: git.GitProject
 
-    _template_version_regex: re.Pattern
-
     def __init__(self, project_dir: Path):
         self.project_dir = project_dir
         self.git_project = git.GitProject(project_dir)
-
-        self._template_version_regex = re.compile(r"_commit: (\S+)")
 
     @property
     def template_version(self):
@@ -43,9 +41,5 @@ class Project:
 
     def _get_template_version_from_answers_file(self, answers_file: str):
         answers_file_text = (self.project_dir / answers_file).read_text()
-        match = self._template_version_regex.search(answers_file_text)
-        if match is None:
-            raise Exception(
-                f"Could not find template version in answers file {answers_file} with content: {answers_file_text}"
-            )
-        return match.group(1)
+        answers = yaml.safe_load(answers_file_text)
+        return answers["_commit"]

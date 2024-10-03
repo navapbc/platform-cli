@@ -1,4 +1,5 @@
 from tests.lib import DirectoryContent, FileChange, RenameChange
+from tests.lib.changeset import ChangeSet
 
 
 def test_add_app(cli, infra_template, new_project, clean_install):
@@ -44,12 +45,12 @@ def test_add_app(cli, infra_template, new_project, clean_install):
 
     assert new_project.template_version == infra_template.short_version
 
-    FileChange("infra/modules/service/main.tf", "", "changed\n").apply(
-        infra_template.template_dir
-    )
-    FileChange("infra/{{app_name}}/main.tf", "", "changed\n").apply(
-        infra_template.template_dir
-    )
+    ChangeSet(
+        [
+            FileChange("infra/modules/service/main.tf", "", "changed\n"),
+            FileChange("infra/{{app_name}}/main.tf", "", "changed\n"),
+        ]
+    ).apply(infra_template.template_dir)
     infra_template.git_project.commit("Change template")
 
     cli(
@@ -72,12 +73,12 @@ def test_add_app_uses_existing_template_version(
 ):
     existing_template_version = new_project.template_version
 
-    FileChange("infra/modules/service/main.tf", "", "changed\n").apply(
-        infra_template.template_dir
-    )
-    FileChange("infra/{{app_name}}/main.tf", "", "changed\n").apply(
-        infra_template.template_dir
-    )
+    ChangeSet(
+        [
+            FileChange("infra/modules/service/main.tf", "", "changed\n"),
+            FileChange("infra/{{app_name}}/main.tf", "", "changed\n"),
+        ]
+    ).apply(infra_template.template_dir)
     infra_template.git_project.commit("Change template")
 
     cli(

@@ -1,4 +1,5 @@
 import abc
+from collections import UserList
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -25,4 +26,7 @@ class FileChange(Change):
         (root / self.path).write_text(self.new_contents)
 
 
-ChangeSet = list[Change]
+class ChangeSet(UserList[Change]):
+    def apply(self, root: Path):
+        for change in self:
+            change.apply(root)
