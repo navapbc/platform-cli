@@ -15,7 +15,7 @@ class Project:
         self.project_dir = project_dir
         self.git_project = git.GitProject(project_dir)
 
-        self._template_version_regex = re.compile(r"_commit: (\w+)")
+        self._template_version_regex = re.compile(r"_commit: (\S+)")
 
     @property
     def template_version(self):

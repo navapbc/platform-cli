@@ -85,6 +85,6 @@ def test_install_version(cli, infra_template, new_project):
         input="foo\n",
     )
 
-    assert new_project.template_version == infra_template.short_version
+    assert new_project.template_version == "v0.1.0"
     assert (new_project.project_dir / "infra/modules/service/main.tf").read_text() == ""
     assert (new_project.project_dir / "infra/foo/main.tf").read_text() == ""

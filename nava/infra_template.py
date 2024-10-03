@@ -95,6 +95,8 @@ class InfraTemplate:
             answers_file=self._app_answers_file(app_name),
             data=data,
             exclude=list(self._app_excludes),
+            # Use the template version that the project is currently on
+            vcs_ref=project.template_version,
         )
 
     @property
