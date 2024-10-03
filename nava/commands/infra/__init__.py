@@ -13,24 +13,32 @@ def infra():
 @infra.command()
 @click.argument("project_dir")
 @click.option(
-    "--src",
+    "--template-uri",
     default="https://github.com/navapbc/template-infra.git",
     help="Path or URL to infra template. Can be a path to a local clone of template-infra. Defaults to the template-infra repository on GitHub.",
 )
-def install(project_dir, src):
-    install_command.install(src, project_dir)
+def install(project_dir, template_uri):
+    install_command.install(template_uri, project_dir)
 
 
 @infra.command()
-@click.argument("template_dir")
 @click.argument("project_dir")
 @click.argument("app_name")
-def add_app(template_dir, project_dir, app_name):
-    add_app_command.add_app(template_dir, project_dir, app_name)
+@click.option(
+    "--template-uri",
+    default="https://github.com/navapbc/template-infra.git",
+    help="Path or URL to infra template. Can be a path to a local clone of template-infra. Defaults to the template-infra repository on GitHub.",
+)
+def add_app(project_dir, app_name, template_uri):
+    add_app_command.add_app(template_uri, project_dir, app_name)
 
 
 @infra.command()
-@click.argument("template_dir")
 @click.argument("project_dir")
-def update(template_dir, project_dir):
-    update_command.update(template_dir, project_dir)
+@click.option(
+    "--template-uri",
+    default="https://github.com/navapbc/template-infra.git",
+    help="Path or URL to infra template. Can be a path to a local clone of template-infra. Defaults to the template-infra repository on GitHub.",
+)
+def update(project_dir, template_uri):
+    update_command.update(template_uri, project_dir)

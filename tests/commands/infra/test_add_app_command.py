@@ -6,9 +6,10 @@ def test_add_app(cli, infra_template, new_project, clean_install):
         [
             "infra",
             "add-app",
-            str(infra_template.template_dir),
             str(new_project.project_dir),
             "bar",
+            "--template-uri",
+            str(infra_template.template_dir),
         ]
     )
     new_project.git_project.commit("Add app bar")
@@ -55,8 +56,9 @@ def test_add_app(cli, infra_template, new_project, clean_install):
         [
             "infra",
             "update",
-            str(infra_template.template_dir),
             str(new_project.project_dir),
+            "--template-uri",
+            str(infra_template.template_dir),
         ]
     )
 

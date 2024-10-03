@@ -17,7 +17,7 @@ def test_install(cli, infra_template, new_project):
             "infra",
             "install",
             str(new_project.project_dir),
-            "--src",
+            "--template-uri",
             str(infra_template.template_dir),
         ],
         input="foo\n",

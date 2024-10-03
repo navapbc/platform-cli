@@ -91,7 +91,7 @@ def clean_install(infra_template, new_project, cli):
             "infra",
             "install",
             str(new_project.project_dir),
-            "--src",
+            "--template-uri",
             str(infra_template.template_dir),
         ],
         input="foo\n",

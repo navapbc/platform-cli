@@ -10,8 +10,9 @@ def test_update_no_change(cli, infra_template, new_project, clean_install):
         [
             "infra",
             "update",
-            str(infra_template.template_dir),
             str(new_project.project_dir),
+            "--template-uri",
+            str(infra_template.template_dir),
         ]
     )
 
@@ -34,8 +35,9 @@ def test_update_with_change(cli, infra_template, new_project, clean_install):
         [
             "infra",
             "update",
-            str(infra_template.template_dir),
             str(new_project.project_dir),
+            "--template-uri",
+            str(infra_template.template_dir),
         ]
     )
 
