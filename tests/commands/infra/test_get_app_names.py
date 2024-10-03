@@ -19,6 +19,7 @@ test_get_app_names_data: dict = {
                 },
                 "networks": {},
                 "project-config": {},
+                "test": {},
             }
         },
         ["app"],
@@ -34,6 +35,7 @@ test_get_app_names_data: dict = {
                 },
                 "networks": {},
                 "project-config": {},
+                "test": {},
             }
         },
         ["app1", "app2"],

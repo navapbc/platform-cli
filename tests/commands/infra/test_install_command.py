@@ -37,6 +37,7 @@ def test_install(cli, infra_template, new_project):
                 },
                 "networks": {"main.tf": ""},
                 "project-config": {"main.tf": ""},
+                "test": {"infra_test.go": ""},
             },
         }
     )

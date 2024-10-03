@@ -40,6 +40,7 @@ def template_directory_content() -> DirectoryContent:
                 },
                 "networks": {"main.tf": ""},
                 "project-config": {"main.tf": ""},
+                "test": {"infra_test.go": ""},
             },
             "template-only-bin": {
                 "install-template": "",

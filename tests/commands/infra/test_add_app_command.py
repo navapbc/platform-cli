@@ -39,6 +39,7 @@ def test_add_app(cli, infra_template, new_project, clean_install):
                 },
                 "networks": {"main.tf": ""},
                 "project-config": {"main.tf": ""},
+                "test": {"infra_test.go": ""},
             },
         }
     )

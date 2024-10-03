@@ -9,6 +9,7 @@ def get_app_names(template_dir: Path) -> List[str]:
         "modules",
         "networks",
         "project-config",
+        "test",
     ]
     infra_dir = template_dir / "infra"
     if not infra_dir.exists():
