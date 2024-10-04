@@ -1,7 +1,5 @@
 import click
 
-import copier
-
 from . import add_app_command, install_command, update_command
 
 

@@ -1,4 +1,4 @@
-from tests.lib import DirectoryContent, FileChange, RenameChange
+from tests.lib import DirectoryContent, FileChange
 from tests.lib.changeset import ChangeSet
 
 
@@ -69,9 +69,7 @@ def test_add_app(cli, infra_template, new_project, clean_install):
     assert (new_project.project_dir / "infra/bar/main.tf").read_text() == "changed\n"
 
 
-def test_add_app_uses_existing_template_version(
-    cli, infra_template, new_project, clean_install
-):
+def test_add_app_uses_existing_template_version(cli, infra_template, new_project, clean_install):
     existing_template_version = new_project.template_version
 
     ChangeSet(

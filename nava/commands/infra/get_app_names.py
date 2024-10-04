@@ -1,4 +1,3 @@
-import os.path
 from pathlib import Path
 from typing import List
 
@@ -18,7 +17,5 @@ def get_app_names(template_dir: Path) -> List[str]:
         return []
 
     return [
-        dir.name
-        for dir in infra_dir.iterdir()
-        if dir.is_dir() and dir.name not in excluded_dirs
+        dir.name for dir in infra_dir.iterdir() if dir.is_dir() and dir.name not in excluded_dirs
     ]

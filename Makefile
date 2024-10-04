@@ -4,8 +4,12 @@ build: ## Build docker image
 deps: ## Install dev dependencies
 	poetry install
 
+fmt: ## Run formatter
+	poetry run ruff format
+
 lint: ## Run linting
 	poetry run mypy .
+	poetry run ruff check --fix
 
 test: ## Run tests
 	poetry run pytest $(args)

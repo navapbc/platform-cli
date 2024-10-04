@@ -1,5 +1,4 @@
 from pathlib import Path
-import re
 
 import yaml
 
@@ -17,13 +16,9 @@ class Project:
 
     @property
     def template_version(self):
-        base_version = self._get_template_version_from_answers_file(
-            self.base_answers_file()
-        )
+        base_version = self._get_template_version_from_answers_file(self.base_answers_file())
         app_versions = [
-            self._get_template_version_from_answers_file(
-                self.app_answers_file(app_name)
-            )
+            self._get_template_version_from_answers_file(self.app_answers_file(app_name))
             for app_name in self.app_names
         ]
         assert all(app_version == base_version for app_version in app_versions)

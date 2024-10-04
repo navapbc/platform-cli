@@ -1,4 +1,3 @@
-import subprocess
 from pathlib import Path
 
 import pytest
@@ -8,7 +7,6 @@ from nava.cli import cli as nava_cli
 from nava.infra_template import InfraTemplate
 from nava.project import Project
 from tests.lib import DirectoryContent
-from nava import git
 
 pytest.register_assert_rewrite("tests.lib.asserts")
 
@@ -51,9 +49,7 @@ def template_directory_content() -> DirectoryContent:
 
 
 @pytest.fixture
-def infra_template(
-    tmp_path: Path, template_directory_content: DirectoryContent
-) -> InfraTemplate:
+def infra_template(tmp_path: Path, template_directory_content: DirectoryContent) -> InfraTemplate:
     template_dir = tmp_path / "template"
     template_dir.mkdir()
     template_directory_content.to_fs(str(template_dir))

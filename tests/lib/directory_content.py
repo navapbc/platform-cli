@@ -1,13 +1,11 @@
-from dataclasses import dataclass
 import os
 from collections import UserDict, UserString
-from collections.abc import Mapping, MutableMapping
+from collections.abc import MutableMapping
 from pathlib import Path
-from typing import cast, Union
+from typing import Union
 
 
 class FileContent(UserString):
-
     def to_fs(self, path: str) -> None:
         with open(path, "w") as f:
             f.write(self.data)
@@ -19,10 +17,7 @@ class FileContent(UserString):
         return FileContent(contents)
 
 
-class DirectoryContent(
-    UserDict, MutableMapping[str, Union[FileContent, "DirectoryContent"]]
-):
-
+class DirectoryContent(UserDict, MutableMapping[str, Union[FileContent, "DirectoryContent"]]):
     def __init__(self, *args, **kwargs) -> None:
         """
         Given a configuration like the following, initialize the directory state.

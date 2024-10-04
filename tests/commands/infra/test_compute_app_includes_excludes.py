@@ -112,9 +112,7 @@ test_compute_app_includes_excludes_data = {
     test_compute_app_includes_excludes_data.values(),
     ids=test_compute_app_includes_excludes_data.keys(),
 )
-def test_compute_app_includes_excludes(
-    tmp_path, dir_content, expected_includes, expected_excludes
-):
+def test_compute_app_includes_excludes(tmp_path, dir_content, expected_includes, expected_excludes):
     DirectoryContent(dir_content).to_fs(tmp_path)
     app_includes, app_excludes = compute_app_includes_excludes(tmp_path)
     assert app_includes == set(expected_includes)

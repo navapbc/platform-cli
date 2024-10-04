@@ -11,9 +11,7 @@ def test_directory_content_from_fs(tmp_path):
     assert directory_content == DirectoryContent(
         {
             "onedir": DirectoryContent({"onefile": "content"}),
-            "twodir": DirectoryContent(
-                {"threedir": DirectoryContent({"threefile": "content"})}
-            ),
+            "twodir": DirectoryContent({"threedir": DirectoryContent({"threefile": "content"})}),
         }
     )
 
@@ -30,8 +28,6 @@ def test_directory_content_from_fs_with_ignore(tmp_path):
     directory_content = DirectoryContent.from_fs(tmp_path, ignore=["ignore"])
     assert directory_content == DirectoryContent(
         {
-            "twodir": DirectoryContent(
-                {"threedir": DirectoryContent({"threefile": "content"})}
-            ),
+            "twodir": DirectoryContent({"threedir": DirectoryContent({"threefile": "content"})}),
         }
     )

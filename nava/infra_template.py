@@ -1,6 +1,6 @@
 import functools
 from pathlib import Path
-from typing import Callable, ParamSpec, TypeVar, get_type_hints
+from typing import Callable, ParamSpec, TypeVar
 import copier
 
 from nava import git
@@ -37,9 +37,7 @@ class InfraTemplate:
         self._run_copy = print_method_call(copier.run_copy)
         self._run_update = print_method_call(copier.run_update)
 
-    def install(
-        self, project: Project, app_names: list[str], *, version: str | None = None
-    ):
+    def install(self, project: Project, app_names: list[str], *, version: str | None = None):
         data = {"app_name": "template-only"}
         self._run_copy(
             str(self.template_dir),

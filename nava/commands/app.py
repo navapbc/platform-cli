@@ -1,5 +1,4 @@
 import click
-import copier
 
 
 @click.group()

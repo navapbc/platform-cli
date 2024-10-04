@@ -6,17 +6,13 @@ from pathlib import Path
 
 
 def compute_app_includes_excludes(template_dir: Path) -> tuple[set[str], set[str]]:
-    app_includes, app_excludes = compute_app_includes_excludes_helper(
-        template_dir, template_dir
-    )
+    app_includes, app_excludes = compute_app_includes_excludes_helper(template_dir, template_dir)
     app_excludes.difference_update([".template-infra", ".git", "."])
     app_excludes.update(["*template-only*"])
     return app_includes, app_excludes
 
 
-def compute_app_includes_excludes_helper(
-    root_dir: Path, path: Path
-) -> tuple[set[str], set[str]]:
+def compute_app_includes_excludes_helper(root_dir: Path, path: Path) -> tuple[set[str], set[str]]:
     relpath_str = str(path.relative_to(root_dir))
     if "{{app_name}}" in relpath_str:
         return (set([relpath_str]), set())

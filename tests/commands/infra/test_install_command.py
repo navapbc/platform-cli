@@ -1,5 +1,4 @@
-from nava import git
-from tests.lib import DirectoryContent, FileChange, RenameChange
+from tests.lib import DirectoryContent, FileChange
 from tests.lib.changeset import ChangeSet
 
 

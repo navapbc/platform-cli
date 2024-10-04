@@ -3,7 +3,6 @@ import subprocess
 
 
 class GitProject:
-
     def __init__(self, dir: Path):
         self.dir = Path(dir)
 
