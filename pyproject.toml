@@ -5,6 +5,7 @@ description = "Nava PBC's Platform CLI tool for managing platform templates"
 authors = ["Your Name <you@example.com>"]
 license = "Apache License Version 2.0"
 readme = "README.md"
+packages = [{ include = "nava" }]
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -16,6 +17,10 @@ pyyaml = "^6.0.2"
 pytest = "^8.3.3"
 pytest-watch = "^4.2.0"
 mypy = "^1.11.2"
+types-pyyaml = "^6.0.12.20240917"
+
+[tool.poetry.scripts]
+platform = "nava.cli:cli"
 
 [build-system]
 requires = ["poetry-core"]
