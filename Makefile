@@ -1,2 +1,2 @@
 build:
-	docker build -t platform .
+	docker build --tag platform .
