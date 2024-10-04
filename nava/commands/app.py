@@ -2,15 +2,15 @@ import click
 
 
 @click.group()
-def app():
+def app() -> None:
     pass
 
 
 @app.command()
-def install():
+def install() -> None:
     click.echo("Installing application...")
 
 
 @app.command()
-def update():
+def update() -> None:
     click.echo("Updating application...")

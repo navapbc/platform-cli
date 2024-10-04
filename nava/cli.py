@@ -4,7 +4,7 @@ import nava.commands.app as app
 
 
 @click.group()
-def cli():
+def cli() -> None:
     pass
 
 

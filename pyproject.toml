@@ -23,6 +23,15 @@ ruff = "^0.6.9"
 [tool.poetry.scripts]
 platform = "nava.cli:cli"
 
+[tool.mypy]
+strict = true
+pretty = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+
 [tool.ruff]
 line-length = 100
 

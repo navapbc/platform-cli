@@ -2,7 +2,7 @@ import os
 from collections import UserDict, UserString
 from collections.abc import MutableMapping
 from pathlib import Path
-from typing import Union
+from typing import Any, Union
 
 
 class FileContent(UserString):
@@ -17,7 +17,9 @@ class FileContent(UserString):
         return FileContent(contents)
 
 
-class DirectoryContent(UserDict, MutableMapping[str, Union[FileContent, "DirectoryContent"]]):
+class DirectoryContent(
+    UserDict[str, Any], MutableMapping[str, Union[FileContent, "DirectoryContent"]]
+):
     def __init__(self, *args, **kwargs) -> None:
         """
         Given a configuration like the following, initialize the directory state.

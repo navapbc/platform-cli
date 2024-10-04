@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -6,7 +7,7 @@ from nava.commands.infra.get_app_names import get_app_names
 from tests.lib import DirectoryContent
 
 
-test_get_app_names_data: dict = {
+get_app_names_test_data: dict[str, tuple[dict[str, dict[str, Any]], list[str]]] = {
     "empty_dir": ({}, []),
     "one_app": (
         {
@@ -44,8 +45,8 @@ test_get_app_names_data: dict = {
 
 @pytest.mark.parametrize(
     "dir_content,expected",
-    test_get_app_names_data.values(),
-    ids=test_get_app_names_data.keys(),
+    get_app_names_test_data.values(),
+    ids=get_app_names_test_data.keys(),
 )
 def test_get_app_names(tmp_path: Path, dir_content, expected) -> None:
     DirectoryContent(dir_content).to_fs(str(tmp_path))

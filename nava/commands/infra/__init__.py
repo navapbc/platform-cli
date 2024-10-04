@@ -4,7 +4,7 @@ from . import add_app_command, install_command, update_command
 
 
 @click.group()
-def infra():
+def infra() -> None:
     pass
 
 
@@ -20,7 +20,7 @@ def infra():
     default=None,
     help="Template version to install. Can be a branch, tag, or commit hash. Defaults to the latest tag version.",
 )
-def install(project_dir, template_uri, version):
+def install(project_dir: str, template_uri: str, version: str) -> None:
     install_command.install(template_uri, project_dir, version=version)
 
 
@@ -32,7 +32,7 @@ def install(project_dir, template_uri, version):
     default="https://github.com/navapbc/template-infra.git",
     help="Path or URL to infra template. Can be a path to a local clone of template-infra. Defaults to the template-infra repository on GitHub.",
 )
-def add_app(project_dir, app_name, template_uri):
+def add_app(project_dir: str, app_name: str, template_uri: str) -> None:
     add_app_command.add_app(template_uri, project_dir, app_name)
 
 
@@ -48,5 +48,5 @@ def add_app(project_dir, app_name, template_uri):
     default=None,
     help="Template version to install. Can be a branch, tag, or commit hash. Defaults to the latest tag version.",
 )
-def update(project_dir, template_uri, version):
+def update(project_dir: str, template_uri: str, version: str) -> None:
     update_command.update(template_uri, project_dir, version=version)

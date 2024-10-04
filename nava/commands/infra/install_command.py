@@ -5,7 +5,7 @@ from nava.infra_template import InfraTemplate
 from nava.project import Project
 
 
-def install(template_dir: str, project_dir: str, version: str | None = None):
+def install(template_dir: str, project_dir: str, version: str | None = None) -> None:
     template = InfraTemplate(Path(template_dir))
     project = Project(Path(project_dir))
     app_names = project.app_names
