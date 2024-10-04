@@ -1,6 +1,10 @@
 FROM python:3.11-slim
 
 RUN pip install poetry
+RUN apt-get update \
+ && apt-get install --no-install-recommends --yes \
+       git
+RUN git config --global --add safe.directory "*"
 
 ENV POETRY_NO_INTERACTION=true \
     POETRY_VIRTUALENVS_IN_PROJECT=true \

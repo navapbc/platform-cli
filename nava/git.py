@@ -29,3 +29,19 @@ class GitProject:
 
     def rename_branch(self, new_branch_name: str) -> None:
         subprocess.run(["git", "branch", "-m", new_branch_name], cwd=self.dir)
+
+    def is_path_ignored(self, path: str) -> bool:
+        result = subprocess.run(["git", "check-ignore", "-q", path], cwd=self.dir)
+        if result.returncode not in (0, 1):
+            result.check_returncode()
+
+        return result.returncode == 0
+
+    def get_untracked_files(self) -> list[str]:
+        result = subprocess.run(
+            ["git", "ls-files", "--exclude-standard", "--others"],
+            cwd=self.dir,
+            capture_output=True,
+            text=True,
+        )
+        return result.stdout.splitlines()

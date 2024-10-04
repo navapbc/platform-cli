@@ -2,16 +2,30 @@ import functools
 import operator
 from pathlib import Path
 
+from nava.git import GitProject
 
-def compute_app_includes_excludes(template_dir: Path) -> tuple[set[str], set[str]]:
-    app_includes, app_excludes = compute_app_includes_excludes_helper(template_dir, template_dir)
+
+def compute_app_includes_excludes(
+    template_dir: Path, template_git: GitProject
+) -> tuple[set[str], set[str]]:
+    app_includes, app_excludes = compute_app_includes_excludes_helper(
+        template_git, template_dir, template_dir
+    )
     app_excludes.difference_update([".template-infra", ".git", "."])
     app_excludes.update(["*template-only*"])
     return app_includes, app_excludes
 
 
-def compute_app_includes_excludes_helper(root_dir: Path, path: Path) -> tuple[set[str], set[str]]:
+def compute_app_includes_excludes_helper(
+    template_git: GitProject, root_dir: Path, path: Path
+) -> tuple[set[str], set[str]]:
+    untracked_files = template_git.get_untracked_files()
+
     relpath_str = str(path.relative_to(root_dir))
+
+    if relpath_str in untracked_files:
+        return (set(), set())
+
     if "{{app_name}}" in relpath_str:
         return (set([relpath_str]), set())
 
@@ -21,13 +35,20 @@ def compute_app_includes_excludes_helper(root_dir: Path, path: Path) -> tuple[se
     if path.is_file():
         return (set(), set([relpath_str]))
 
+    if template_git.is_path_ignored(str(path)):
+        return (set(), set())
+
+    # TODO: how to more gracefully handle other path types? Link symlinks.
+    # Instead of just crashing if it's not a directory.
+
     assert path.is_dir()
     subpaths = list(path.iterdir())
     if len(subpaths) == 0:
         return (set(), set())
 
     subresults = list(
-        compute_app_includes_excludes_helper(root_dir, subpath) for subpath in subpaths
+        compute_app_includes_excludes_helper(template_git, root_dir, subpath)
+        for subpath in subpaths
     )
 
     subincludes, subexcludes = zip(*subresults)

@@ -113,7 +113,9 @@ class InfraTemplate:
         return self.version[:7]
 
     def _compute_excludes(self) -> None:
-        app_includes, app_excludes = compute_app_includes_excludes(self.template_dir)
+        app_includes, app_excludes = compute_app_includes_excludes(
+            self.template_dir, self.git_project
+        )
         global_excludes = ["*template-only*"]
         self._base_excludes = global_excludes + list(app_includes)
         self._app_excludes = list(app_excludes)
