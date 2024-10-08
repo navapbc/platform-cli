@@ -118,7 +118,7 @@ class InfraTemplate:
         self._app_excludes = list(app_excludes)
 
     def _base_answers_file(self) -> str:
-        return ".template-infra-base.yml"
+        return "base.yml"
 
     def _app_answers_file(self, app_name: str) -> str:
-        return f".template-infra-app-{app_name}.yml"
+        return f"app-{app_name}.yml"
