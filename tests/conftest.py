@@ -57,6 +57,12 @@ def infra_template(tmp_path: Path, template_directory_content: DirectoryContent)
     template = InfraTemplate(template_dir)
     template.git_project.init()
     template.git_project.commit("Initial commit")
+
+    # Temporarily rename main to lorenyu/platform-cli since the rollout plan
+    # for the Platform CLI will temporarily default the --version option
+    # to lorenyu/platform-cli, so we want our tests to reflect that.
+    # TODO: Remove this once the rollout plan is complete
+    template.git_project.rename_branch("lorenyu/platform-cli")
     return template
 
 

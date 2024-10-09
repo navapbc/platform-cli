@@ -17,7 +17,10 @@ def infra() -> None:
 )
 @click.option(
     "--version",
-    default=None,
+    # Temporarily default to using lorenyu/platform-cli as the version
+    # until the rollout plan for the Platform CLI is complete
+    # TODO: Set the default back to None once the rollout plan is complete
+    default="lorenyu/platform-cli",
     help="Template version to install. Can be a branch, tag, or commit hash. Defaults to the latest tag version.",
 )
 def install(project_dir: str, template_uri: str, version: str) -> None:
