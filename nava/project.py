@@ -44,10 +44,7 @@ class Project:
     #
 
     @property
-    def is_legacy(self) -> bool:
-        if (self.project_dir / ".template-infra").exists():
-            return False
-
+    def has_legacy_version_file(self) -> bool:
         if not (self.project_dir / ".template-version").exists():
             return False
 
@@ -58,7 +55,7 @@ class Project:
         Create copier answers files in .template-infra
         from the legacy .template-version file
         """
-        assert self.is_legacy
+        assert self.has_legacy_version_file
         (self.project_dir / ".template-infra").mkdir()
 
         template_version = (self.project_dir / ".template-version").read_text()
