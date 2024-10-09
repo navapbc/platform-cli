@@ -12,7 +12,7 @@ def infra() -> None:
 @click.argument("project_dir")
 @click.option(
     "--template-uri",
-    default="https://github.com/navapbc/template-infra.git",
+    default="https://github.com/navapbc/template-infra",
     help="Path or URL to infra template. Can be a path to a local clone of template-infra. Defaults to the template-infra repository on GitHub.",
 )
 @click.option(
@@ -32,7 +32,7 @@ def install(project_dir: str, template_uri: str, version: str) -> None:
 @click.argument("app_name")
 @click.option(
     "--template-uri",
-    default="https://github.com/navapbc/template-infra.git",
+    default="https://github.com/navapbc/template-infra",
     help="Path or URL to infra template. Can be a path to a local clone of template-infra. Defaults to the template-infra repository on GitHub.",
 )
 def add_app(project_dir: str, app_name: str, template_uri: str) -> None:
@@ -43,7 +43,7 @@ def add_app(project_dir: str, app_name: str, template_uri: str) -> None:
 @click.argument("project_dir")
 @click.option(
     "--template-uri",
-    default="https://github.com/navapbc/template-infra.git",
+    default="https://github.com/navapbc/template-infra",
     help="Path or URL to infra template. Can be a path to a local clone of template-infra. Defaults to the template-infra repository on GitHub.",
 )
 @click.option(
@@ -59,7 +59,7 @@ def update(project_dir: str, template_uri: str, version: str) -> None:
 @click.argument("project_dir")
 @click.option(
     "--origin-template-uri",
-    default="https://github.com/navapbc/template-infra.git",
+    default="https://github.com/navapbc/template-infra",
     help="Path or URL to the legacy infra template that was used to set up the project. Can be a path to a local clone of template-infra. Defaults to the template-infra repository on GitHub.",
 )
 def migrate_from_legacy(project_dir: str, origin_template_uri: str) -> None:
