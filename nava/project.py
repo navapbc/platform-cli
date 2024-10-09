@@ -56,7 +56,8 @@ class Project:
         from the legacy .template-version file
         """
         assert self.has_legacy_version_file
-        (self.project_dir / ".template-infra").mkdir()
+        if not (self.project_dir / ".template-infra").exists():
+            (self.project_dir / ".template-infra").mkdir()
 
         template_version = (self.project_dir / ".template-version").read_text()
         short_version = template_version[:7]
