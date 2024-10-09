@@ -1,3 +1,5 @@
+from nava.infra_template import InfraTemplate
+from nava.project import Project
 from tests.lib import DirectoryContent, FileChange
 from tests.lib.changeset import ChangeSet
 

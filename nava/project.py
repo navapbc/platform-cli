@@ -38,3 +38,47 @@ class Project:
         answers_file_text = (self.project_dir / answers_file).read_text()
         answers = yaml.safe_load(answers_file_text)
         return str(answers["_commit"])
+
+
+    #
+    # Legacy projects
+    #
+
+    @property
+    def is_legacy(self) -> bool:
+        if (self.project_dir / ".template-infra").exists():
+            return False
+        
+        if not (self.project_dir / ".template-version").exists():
+            return False
+
+        return True
+    
+    def migrate_from_legacy(self, origin_template_uri: str) -> None:
+        """
+        Create copier answers files in .template-infra
+        from the legacy .template-version file
+        """
+        assert self.is_legacy
+        (self.project_dir / ".template-infra").mkdir()
+
+        template_version = (self.project_dir / ".template-version").read_text()
+        short_version = template_version[:7]
+        common_answers = {
+            "_commit": short_version,
+            # Copier requires this to be set to a valid template path, and that template git project
+            # needs to have _commit as a valid commit hash
+            # If _src_path is not set, run_update will raise 
+            #   UserMessageError("Cannot update because cannot obtain old template references from <answers_file>")
+            # If _src_path is set to a folder that does not have _commit as a valid commit hash, then run_update
+            # will trigger an error as part of an intenral _check_unsafe method call which will try to
+            # check out _commit from _src_path, resulting in the error
+            #   error: pathspec '<_commit>' did not match any file(s) known to git
+            "_src_path": origin_template_uri,
+        }
+
+        base_answers = common_answers | {"app_name": "template-only"}
+        (self.project_dir / self.base_answers_file()).write_text(yaml.dump(base_answers, default_flow_style=False))
+        for app_name in self.app_names:
+            app_answers = common_answers | {"app_name": app_name}
+            (self.project_dir / self.app_answers_file(app_name)).write_text(yaml.dump(app_answers, default_flow_style=False))

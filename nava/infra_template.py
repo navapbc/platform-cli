@@ -2,6 +2,7 @@ import functools
 from pathlib import Path
 from typing import Callable, ParamSpec, TypeVar
 import copier
+import yaml
 
 from nava import git
 from nava.commands.infra.compute_app_includes_excludes import (
@@ -57,9 +58,9 @@ class InfraTemplate:
         num_changes = 0
 
         data = {"app_name": "template-only"}
-
         self._run_update(
             project.project_dir,
+            src_path=str(self.template_dir),
             data=data,
             answers_file=project.base_answers_file(),
             exclude=self._base_excludes,
