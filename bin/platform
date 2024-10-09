@@ -4,36 +4,37 @@ set -euo pipefail
 # TODO: resolve paths to absolute, and mount them in same location in container,
 # some messages use expected paths
 
+processed_args=()
 docker_flags=("-v $HOME/.ssh:/home/root/.ssh:ro")
-for arg in "$@"; do
-  shift
+for ((i=1;i<=$#;i++))
+do
+  arg=${!i}
 
   if [[ "$arg" =~ --template-uri.* ]]; then
       if [[ "$arg" == *"="* ]]; then
         template_value="${arg#*=}"
       else
-        template_value="$1"
-        shift # skip over --template-uri
+        ((i += 1)) # next value should be the path
+        template_value="${!i}"
       fi
 
       # does it look like a local path?
       if [[ "${template_value}" =~ ^[\./] ]]; then
         docker_flags+=("-v ${template_value}:/template-dir")
-        set -- "$@" "--template-uri=/template-dir"
+        processed_args+=("--template-uri=/template-dir")
         continue
       fi
   fi
 
-  set -- "$@" "$arg"
+  processed_args+=("$arg")
 done
 
-# get last argument
-last_arg="${@: -1}"
-# set argument list to current minus the last element
-set -- "${@:1:$(($#-1))}"
+# pop the last argument, which should be the project path
+last_arg="${processed_args[-1]}"
+unset "processed_args[-1]"
 
 docker_flags+=("-v ${last_arg}:/project-dir")
-set -- "$@" "/project-dir"
+processed_args+=("/project-dir")
 
 
-docker run --rm ${docker_flags[@]} platform "$@"
+docker run --rm ${docker_flags[@]} platform ${processed_args[@]}
