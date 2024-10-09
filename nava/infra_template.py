@@ -2,7 +2,6 @@ import functools
 from pathlib import Path
 from typing import Callable, ParamSpec, TypeVar
 import copier
-import yaml
 
 from nava import git
 from nava.commands.infra.compute_app_includes_excludes import (

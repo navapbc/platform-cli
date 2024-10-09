@@ -6,9 +6,10 @@ from tests.lib.changeset import ChangeSet
 
 
 def test_migrate_from_legacy(cli, infra_template: InfraTemplate, legacy_project: Project):
-    migrate_from_legacy_command.migrate_from_legacy(str(legacy_project.project_dir), str(infra_template.template_dir))
+    migrate_from_legacy_command.migrate_from_legacy(
+        str(legacy_project.project_dir), str(infra_template.template_dir)
+    )
     legacy_project.git_project.commit("Migrate from legacy")
-
 
     print("infra_template.version")
     print(infra_template.version)
@@ -25,7 +26,7 @@ def test_migrate_from_legacy(cli, infra_template: InfraTemplate, legacy_project:
 
     assert legacy_project.template_version == infra_template.short_version
     assert (legacy_project.project_dir / "infra/modules/service/main.tf").read_text() == "changed\n"
-    assert (legacy_project.project_dir / "infra/foo/main.tf").read_text() == "changed\n"    
+    assert (legacy_project.project_dir / "infra/foo/main.tf").read_text() == "changed\n"
 
 
 # def test_update_multiapp_project_with_legacy_version_file(cli, infra_template: InfraTemplate, legacy_project: Project):
@@ -49,4 +50,4 @@ def test_migrate_from_legacy(cli, infra_template: InfraTemplate, legacy_project:
 
 #     assert legacy_project.template_version == infra_template.short_version
 #     assert (legacy_project.project_dir / "infra/modules/service/main.tf").read_text() == "changed\n"
-#     assert (legacy_project.project_dir / "infra/foo/main.tf").read_text() == "changed\n"    
+#     assert (legacy_project.project_dir / "infra/foo/main.tf").read_text() == "changed\n"
