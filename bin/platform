@@ -5,7 +5,7 @@ set -euo pipefail
 # some messages use expected paths
 
 processed_args=()
-docker_flags=("-v $HOME/.ssh:/home/root/.ssh:ro")
+docker_flags=("-v=$HOME/.ssh:/home/root/.ssh:ro")
 for ((i=1;i<=$#;i++))
 do
   arg=${!i}
@@ -20,7 +20,7 @@ do
 
       # does it look like a local path?
       if [[ "${template_value}" =~ ^[\./] ]]; then
-        docker_flags+=("-v ${template_value}:/template-dir")
+        docker_flags+=("-v=${template_value}:/template-dir")
         processed_args+=("--template-uri=/template-dir")
         continue
       fi
@@ -33,8 +33,8 @@ done
 last_arg="${processed_args[-1]}"
 unset "processed_args[-1]"
 
-docker_flags+=("-v ${last_arg}:/project-dir")
+docker_flags+=("-v=${last_arg}:/project-dir")
 processed_args+=("/project-dir")
 
 
-docker run --rm ${docker_flags[@]} platform ${processed_args[@]}
+docker run --rm "${docker_flags[@]}" platform "${processed_args[@]}"
