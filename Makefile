@@ -1,6 +1,12 @@
 build: ## Build docker image
 	docker build --tag platform .
 
+check: ## Run checks
+check: check-static test
+
+check-static: ## Run static code checks
+check-static: fmt lint
+
 deps: ## Install dev dependencies
 	poetry install
 
