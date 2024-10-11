@@ -3,6 +3,7 @@ import pytest
 from nava.commands.infra.compute_app_includes_excludes import (
     compute_app_includes_excludes,
 )
+from nava.git import GitProject
 from tests.lib import DirectoryContent
 
 test_compute_app_includes_excludes_data = {
@@ -114,6 +115,11 @@ test_compute_app_includes_excludes_data = {
 )
 def test_compute_app_includes_excludes(tmp_path, dir_content, expected_includes, expected_excludes):
     DirectoryContent(dir_content).to_fs(tmp_path)
-    app_includes, app_excludes = compute_app_includes_excludes(tmp_path)
+
+    git_project = GitProject(tmp_path)
+    git_project.init()
+    git_project.commit_all("Initial commit")
+
+    app_includes, app_excludes = compute_app_includes_excludes(tmp_path, git_project)
     assert app_includes == set(expected_includes)
     assert app_excludes == set(expected_excludes)

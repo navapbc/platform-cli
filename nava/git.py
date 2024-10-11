@@ -1,13 +1,24 @@
 import subprocess
 from pathlib import Path
+from typing import Self
 
 
 class GitProject:
     def __init__(self, dir: Path):
         self.dir = Path(dir)
 
+    @classmethod
+    def from_existing(cls, dir: Path) -> Self | None:
+        if not is_a_git_worktree(dir):
+            return None
+
+        return cls(dir)
+
+    def is_git(self) -> bool:
+        return is_a_git_worktree(self.dir)
+
     def init(self) -> None:
-        subprocess.run(["git", "init"], cwd=self.dir)
+        subprocess.run(["git", "init", "--initial-branch=main"], cwd=self.dir)
 
     def commit(self, msg: str) -> None:
         subprocess.run(["git", "commit", "-m", msg], cwd=self.dir)
@@ -32,3 +43,30 @@ class GitProject:
         return subprocess.run(
             ["git", "rev-parse", "HEAD"], cwd=self.dir, capture_output=True, text=True
         ).stdout.strip()
+
+    def is_path_ignored(self, path: str) -> bool:
+        result = subprocess.run(["git", "check-ignore", "-q", path], cwd=self.dir)
+        if result.returncode not in (0, 1):
+            result.check_returncode()
+
+        return result.returncode == 0
+
+    def get_untracked_files(self) -> list[str]:
+        result = subprocess.run(
+            ["git", "ls-files", "--exclude-standard", "--others"],
+            cwd=self.dir,
+            capture_output=True,
+            text=True,
+        )
+        return result.stdout.splitlines()
+
+
+def is_a_git_worktree(dir: Path) -> bool:
+    result = subprocess.run(
+        ["git", "rev-parse", "--is-inside-work-tree"],
+        cwd=dir,
+        capture_output=True,
+        text=True,
+    )
+
+    return result.stdout.strip() == "true"
