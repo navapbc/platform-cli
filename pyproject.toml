@@ -34,6 +34,24 @@ disallow_incomplete_defs = false
 
 [tool.ruff]
 line-length = 100
+lint.select = [
+    # pycodestyle, ones that don't deal with formatting
+    "E4", "E7", "E9",
+    # Pyflakes
+    "F",
+    # pep8-naming
+    "N",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # flake8-debugger
+    "T10",
+    # isort
+    "I",
+]
 
 [build-system]
 requires = ["poetry-core"]

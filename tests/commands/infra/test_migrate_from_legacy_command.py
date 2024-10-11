@@ -1,4 +1,5 @@
 import pytest
+
 from nava.commands.infra import migrate_from_legacy_command, update_command
 from nava.infra_template import InfraTemplate
 from nava.project import Project

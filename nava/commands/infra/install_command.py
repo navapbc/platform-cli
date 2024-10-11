@@ -1,4 +1,5 @@
 from pathlib import Path
+
 import click
 
 from nava.infra_template import InfraTemplate

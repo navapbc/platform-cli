@@ -6,7 +6,6 @@ import pytest
 from nava.commands.infra.get_app_names import get_app_names
 from tests.lib import DirectoryContent
 
-
 get_app_names_test_data: dict[str, tuple[dict[str, dict[str, Any]], list[str]]] = {
     "empty_dir": ({}, []),
     "one_app": (

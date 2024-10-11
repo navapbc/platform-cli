@@ -45,10 +45,7 @@ class Project:
 
     @property
     def has_legacy_version_file(self) -> bool:
-        if not (self.project_dir / ".template-version").exists():
-            return False
-
-        return True
+        return (self.project_dir / ".template-version").exists()
 
     def migrate_from_legacy(self, origin_template_uri: str) -> None:
         """

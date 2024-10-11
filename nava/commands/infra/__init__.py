@@ -1,6 +1,6 @@
 import click
 
-from . import add_app_command, install_command, update_command, migrate_from_legacy_command
+from . import add_app_command, install_command, migrate_from_legacy_command, update_command
 
 
 @click.group()

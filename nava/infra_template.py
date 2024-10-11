@@ -1,6 +1,7 @@
 import functools
 from pathlib import Path
 from typing import Callable, ParamSpec, TypeVar
+
 import copier
 
 from nava import git

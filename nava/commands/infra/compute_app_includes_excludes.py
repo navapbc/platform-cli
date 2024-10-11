@@ -1,7 +1,5 @@
 import functools
 import operator
-
-
 from pathlib import Path
 
 
