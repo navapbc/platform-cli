@@ -53,7 +53,7 @@ def test_install_version(cli, infra_template, new_project):
             FileChange("infra/{{app_name}}/main.tf", "", "changed\n"),
         ]
     ).apply(infra_template.template_dir)
-    infra_template.git_project.commit("Change template")
+    infra_template.git_project.commit_all("Change template")
 
     infra_template.version = "v0.2.0"
 

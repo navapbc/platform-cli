@@ -10,13 +10,11 @@ class GitProject:
         subprocess.run(["git", "init"], cwd=self.dir)
 
     def commit(self, msg: str) -> None:
-        subprocess.run(["git", "add", "."], cwd=self.dir)
         subprocess.run(["git", "commit", "-m", msg], cwd=self.dir)
 
-    def commit_hash(self) -> str:
-        return subprocess.run(
-            ["git", "rev-parse", "HEAD"], cwd=self.dir, capture_output=True, text=True
-        ).stdout.strip()
+    def commit_all(self, msg: str) -> None:
+        subprocess.run(["git", "add", "."], cwd=self.dir)
+        self.commit(msg)
 
     def stash(self) -> None:
         subprocess.run(["git", "stash"], cwd=self.dir)
@@ -29,3 +27,8 @@ class GitProject:
 
     def rename_branch(self, new_branch_name: str) -> None:
         subprocess.run(["git", "branch", "-m", new_branch_name], cwd=self.dir)
+
+    def get_commit_hash_for_head(self) -> str:
+        return subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=self.dir, capture_output=True, text=True
+        ).stdout.strip()

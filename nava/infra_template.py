@@ -102,7 +102,7 @@ class InfraTemplate:
 
     @property
     def version(self) -> str:
-        return self.git_project.commit_hash()
+        return self.git_project.get_commit_hash_for_head()
 
     @version.setter
     def version(self, version: str) -> None:

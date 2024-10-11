@@ -4,6 +4,7 @@ import pytest
 from click.testing import CliRunner
 
 from nava.cli import cli as nava_cli
+from nava.git import GitProject
 from nava.infra_template import InfraTemplate
 from nava.project import Project
 from tests.lib import DirectoryContent
@@ -54,9 +55,11 @@ def infra_template(tmp_path: Path, template_directory_content: DirectoryContent)
     template_dir.mkdir()
     template_directory_content.to_fs(str(template_dir))
 
+    git_project = GitProject(template_dir)
+    git_project.init()
+    git_project.commit_all("Initial commit")
+
     template = InfraTemplate(template_dir)
-    template.git_project.init()
-    template.git_project.commit("Initial commit")
 
     # Temporarily rename main to lorenyu/platform-cli since the rollout plan
     # for the Platform CLI will temporarily default the --version option
@@ -99,4 +102,4 @@ def clean_install(infra_template, new_project, cli):
         ],
         input="foo\n",
     )
-    new_project.git_project.commit("Install template")
+    new_project.git_project.commit_all("Install template")
