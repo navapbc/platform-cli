@@ -1,13 +1,24 @@
 import subprocess
 from pathlib import Path
+from typing import Self
 
 
 class GitProject:
     def __init__(self, dir: Path):
         self.dir = Path(dir)
 
+    @classmethod
+    def from_existing(cls, dir: Path) -> Self | None:
+        if not is_a_git_worktree(dir):
+            return None
+
+        return cls(dir)
+
+    def is_git(self) -> bool:
+        return is_a_git_worktree(self.dir)
+
     def init(self) -> None:
-        subprocess.run(["git", "init"], cwd=self.dir)
+        subprocess.run(["git", "init", "--initial-branch=main"], cwd=self.dir)
 
     def add_all_and_commit(self, msg: str) -> None:
         subprocess.run(["git", "add", "."], cwd=self.dir)
@@ -48,3 +59,14 @@ class GitProject:
             text=True,
         )
         return result.stdout.splitlines()
+
+
+def is_a_git_worktree(dir: Path) -> bool:
+    result = subprocess.run(
+        ["git", "rev-parse", "--is-inside-work-tree"],
+        cwd=dir,
+        capture_output=True,
+        text=True,
+    )
+
+    return result.stdout.strip() == "true"

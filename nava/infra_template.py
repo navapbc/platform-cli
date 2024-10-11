@@ -31,8 +31,13 @@ class InfraTemplate:
     _app_excludes: list[str]
 
     def __init__(self, template_dir: Path):
+        git_project = git.GitProject.from_existing(template_dir)
+
+        if git_project is None:
+            raise ValueError("Infra template must be a git working directory")
+
         self.template_dir = template_dir
-        self.git_project = git.GitProject(template_dir)
+        self.git_project = git_project
 
         self._compute_excludes()
         self._run_copy = print_method_call(copier.run_copy)
