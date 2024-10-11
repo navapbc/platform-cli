@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# TODO: resolve paths to absolute, and mount them in same location in container,
-# some messages use expected paths
-
 processed_args=()
+# TODO: correctly mount host SSH/other necessary stuff so if/when the tools
+# supports fetching remote repos, things work
 docker_flags=("-v=$HOME/.ssh:/home/root/.ssh:ro")
 for ((i=1;i<=$#;i++))
 do
@@ -20,7 +19,8 @@ do
 
       # does it look like a local path?
       if [[ "${template_value}" =~ ^[\./] ]]; then
-        docker_flags+=("-v=${template_value}:/template-dir")
+        abs_path=$(realpath "${template_value}")
+        docker_flags+=("-v=${abs_path}:/template-dir:ro")
         processed_args+=("--template-uri=/template-dir")
         continue
       fi
@@ -29,12 +29,15 @@ do
   processed_args+=("$arg")
 done
 
-# pop the last argument, which should be the project path
+# pop the last argument, which should be the project path, will need adjusted
+# if/when that's not the case for all commands
 last_arg="${processed_args[-1]}"
 unset "processed_args[-1]"
 
-docker_flags+=("-v=${last_arg}:/project-dir")
+abs_last_arg=$(realpath "${last_arg}")
+
+docker_flags+=("-v=${abs_last_arg}:/project-dir:z")
 processed_args+=("/project-dir")
 
 
-docker run --rm "${docker_flags[@]}" platform "${processed_args[@]}"
+docker run -it --rm "${docker_flags[@]}" platform "${processed_args[@]}"
