@@ -15,7 +15,7 @@ def legacy_project(infra_template: InfraTemplate, new_project: Project, cli) -> 
     """
     infra_template.install(new_project, ["foo"])
     convert_project_to_legacy(new_project, infra_template.version)
-    new_project.git_project.commit("Legacy install")
+    new_project.git_project.add_all_and_commit("Legacy install")
     return new_project
 
 
@@ -28,7 +28,7 @@ def legacy_multi_app_project(infra_template: InfraTemplate, new_project: Project
     infra_template.install(new_project, ["foo"])
     infra_template.add_app(new_project, "bar")
     convert_project_to_legacy(new_project, infra_template.version)
-    new_project.git_project.commit("Legacy install")
+    new_project.git_project.add_all_and_commit("Legacy install")
     return new_project
 
 
@@ -37,7 +37,7 @@ def test_migrate_from_legacy(cli, infra_template: InfraTemplate, legacy_project:
     migrate_from_legacy_command.migrate_from_legacy(
         str(project.project_dir), str(infra_template.template_dir)
     )
-    project.git_project.commit("Migrate from legacy")
+    project.git_project.add_all_and_commit("Migrate from legacy")
 
     ChangeSet(
         [
@@ -45,7 +45,7 @@ def test_migrate_from_legacy(cli, infra_template: InfraTemplate, legacy_project:
             FileChange("infra/{{app_name}}/main.tf", "", "changed\n"),
         ]
     ).apply(infra_template.template_dir)
-    infra_template.git_project.commit("Change template")
+    infra_template.git_project.add_all_and_commit("Change template")
 
     update_command.update(str(infra_template.template_dir), str(project.project_dir))
 
@@ -61,7 +61,7 @@ def test_migrate_from_legacy_with_multi_app_project(
     migrate_from_legacy_command.migrate_from_legacy(
         str(project.project_dir), str(infra_template.template_dir)
     )
-    project.git_project.commit("Migrate from legacy")
+    project.git_project.add_all_and_commit("Migrate from legacy")
 
     ChangeSet(
         [
@@ -69,7 +69,7 @@ def test_migrate_from_legacy_with_multi_app_project(
             FileChange("infra/{{app_name}}/main.tf", "", "changed\n"),
         ]
     ).apply(infra_template.template_dir)
-    infra_template.git_project.commit("Change template")
+    infra_template.git_project.add_all_and_commit("Change template")
 
     update_command.update(str(infra_template.template_dir), str(project.project_dir))
 

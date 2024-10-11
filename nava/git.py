@@ -9,8 +9,11 @@ class GitProject:
     def init(self) -> None:
         subprocess.run(["git", "init"], cwd=self.dir)
 
-    def commit(self, msg: str) -> None:
+    def add_all_and_commit(self, msg: str) -> None:
         subprocess.run(["git", "add", "."], cwd=self.dir)
+        self.commit(msg)
+
+    def commit(self, msg: str) -> None:
         subprocess.run(["git", "commit", "-m", msg], cwd=self.dir)
 
     def commit_hash(self) -> str:

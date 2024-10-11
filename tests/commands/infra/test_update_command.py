@@ -26,7 +26,7 @@ def test_update_with_template_change(cli, infra_template, new_project, clean_ins
             FileChange("infra/{{app_name}}/main.tf", "", "changed\n"),
         ]
     ).apply(infra_template.template_dir)
-    infra_template.git_project.commit("Change template")
+    infra_template.git_project.add_all_and_commit("Change template")
 
     cli(
         [
@@ -47,12 +47,12 @@ def test_update_with_project_change(cli, infra_template, new_project, clean_inst
     ChangeSet([FileChange("infra/foo/main.tf", "", "project change\n")]).apply(
         new_project.project_dir
     )
-    new_project.git_project.commit("Change project")
+    new_project.git_project.add_all_and_commit("Change project")
 
     ChangeSet([FileChange("infra/modules/service/main.tf", "", "template change\n")]).apply(
         infra_template.template_dir
     )
-    infra_template.git_project.commit("Change template")
+    infra_template.git_project.add_all_and_commit("Change template")
 
     cli(
         [

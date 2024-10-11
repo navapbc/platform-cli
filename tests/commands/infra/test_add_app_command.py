@@ -13,7 +13,7 @@ def test_add_app(cli, infra_template, new_project, clean_install):
             str(infra_template.template_dir),
         ]
     )
-    new_project.git_project.commit("Add app bar")
+    new_project.git_project.add_all_and_commit("Add app bar")
 
     dir_content = DirectoryContent.from_fs(new_project.project_dir, ignore=[".git"])
 
@@ -52,7 +52,7 @@ def test_add_app(cli, infra_template, new_project, clean_install):
             FileChange("infra/{{app_name}}/main.tf", "", "changed\n"),
         ]
     ).apply(infra_template.template_dir)
-    infra_template.git_project.commit("Change template")
+    infra_template.git_project.add_all_and_commit("Change template")
 
     cli(
         [
@@ -78,7 +78,7 @@ def test_add_app_uses_existing_template_version(cli, infra_template, new_project
             FileChange("infra/{{app_name}}/main.tf", "", "changed\n"),
         ]
     ).apply(infra_template.template_dir)
-    infra_template.git_project.commit("Change template")
+    infra_template.git_project.add_all_and_commit("Change template")
 
     cli(
         [
@@ -90,7 +90,7 @@ def test_add_app_uses_existing_template_version(cli, infra_template, new_project
             str(infra_template.template_dir),
         ]
     )
-    new_project.git_project.commit("Add app bar")
+    new_project.git_project.add_all_and_commit("Add app bar")
 
     assert new_project.template_version == existing_template_version
     assert (new_project.project_dir / "infra/modules/service/main.tf").read_text() == ""
