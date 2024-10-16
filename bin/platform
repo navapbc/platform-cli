@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-docker run --rm platform "$@"
+docker run --rm -it nava-platform-cli "$@"

@@ -16,4 +16,4 @@ RUN poetry install --without dev --no-root && rm -rf $POETRY_CACHE_DIR
 COPY nava /app/nava
 RUN poetry install --only-root
 
-ENTRYPOINT ["poetry", "run", "platform"]
+ENTRYPOINT ["poetry", "run", "nava-platform"]

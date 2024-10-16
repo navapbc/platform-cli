@@ -1,5 +1,8 @@
+APP_NAME := nava-platform
+PKG_NAME := nava-platform-cli
+
 build: ## Build docker image
-	docker build --tag platform .
+	docker build --tag $(PKG_NAME) .
 
 check: ## Run checks
 check: check-static test
@@ -25,3 +28,6 @@ help: ## Display this help screen
 	sort -d | \
 	awk -F':.*?## ' '{printf "\033[36m%s\033[0m\t%s\n", $$1, $$2}' | \
 	column -ts "$$(printf '\t')"
+	@echo ""
+	@echo "APP_NAME=$(APP_NAME)"
+	@echo "PKG_NAME=$(PKG_NAME)"

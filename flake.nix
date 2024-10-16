@@ -86,14 +86,14 @@
           docker = pkgs.dockerTools.buildLayeredImage {
             name = "nava-platform-cli";
             tag = "latest";
-            config.Cmd = "${pkgs.nava-platform-cli}/bin/platform";
+            config.Cmd = "${pkgs.nava-platform-cli}/bin/nava-platform";
           };
         };
 
         # nix run .
         apps.default = {
           type = "app";
-          program = "${pkgs.nava-platform-cli}/bin/platform";
+          program = "${pkgs.nava-platform-cli}/bin/nava-platform";
         };
 
         devShells = {
