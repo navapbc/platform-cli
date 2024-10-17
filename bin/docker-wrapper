@@ -4,11 +4,13 @@ set -euo pipefail
 processed_args=()
 # TODO: correctly mount host SSH/other necessary stuff so if/when the tools
 # supports fetching remote repos, things work
-docker_flags=("-v=$HOME/.ssh:/home/root/.ssh:ro")
+docker_flags=("-v=$HOME/.ssh:/root/.ssh:ro")
+docker_flags+=(--user "$(id -u):$(id -g)")
 for ((i=1;i<=$#;i++))
 do
   eval "arg=\${$i}"
 
+  # shellcheck disable=SC2154
   if [[ "${arg}" =~ --template-uri.* ]]; then
       if [[ "${arg}" == *"="* ]]; then
         template_value="${arg#*=}"
@@ -31,12 +33,22 @@ do
   if [[ $i == "$#" ]]; then
     last_arg="${arg}"
     abs_last_arg=$(realpath "${last_arg}")
-    docker_flags+=("-v=${abs_last_arg}:/project-dir:z")
-    processed_args+=("/project-dir")
+
+    host_project_dir=${abs_last_arg}
+    project_dir="/project-dir"
+
+    docker_flags+=("-v=${host_project_dir}:${project_dir}:z")
+    processed_args+=("${project_dir}")
     continue
   fi
 
   processed_args+=("${arg}")
 done
+
+# if the project path doesn't exist yet, create it before docker tries to (with
+# incorrect permissions)
+if [[ ! -d "${host_project_dir}" ]]; then
+    mkdir "${host_project_dir}"
+fi
 
 docker run --interactive --tty --rm "${docker_flags[@]}" nava-platform-cli "${processed_args[@]}"

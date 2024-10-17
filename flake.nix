@@ -92,16 +92,48 @@
           # python
           # pipx # if wanting to test pipx stuff
         ];
+
+        dockerEntryPkg =
+          let
+            scriptDeps = [
+              pkgs.coreutils # for id, stat
+              pkgs.util-linux # for setpriv
+            ];
+          in
+          pkgs.stdenv.mkDerivation {
+            name = "docker-entry";
+            src = pkgs.lib.fileset.toSource {
+              root = ./.;
+              fileset = ./bin/docker-entry;
+            };
+            nativeBuildInputs = [ pkgs.makeWrapper ];
+            installPhase = ''
+              mkdir -p $out/bin
+              install $src/bin/docker-entry $out/bin/docker-entry
+
+              wrapProgram $out/bin/docker-entry --prefix PATH : ${pkgs.lib.makeBinPath scriptDeps}
+            '';
+          };
+
+        dockerBuildArgs = {
+          name = "nava-platform-cli";
+          tag = "latest";
+          contents = [
+            dockerEntryPkg
+            pkgs.nava-platform-cli
+          ] ++ runtimePackages;
+          config = {
+            Entrypoint = "docker-entry";
+            WorkingDir = "/project-dir";
+          };
+        };
       in
       {
         packages = {
           default = pkgs.nava-platform-cli;
 
-          docker = pkgs.dockerTools.buildLayeredImage {
-            name = "nava-platform-cli";
-            tag = "latest";
-            config.Cmd = "${pkgs.nava-platform-cli}/bin/nava-platform";
-          };
+          docker = pkgs.dockerTools.buildLayeredImage dockerBuildArgs;
+          dockerStream = pkgs.dockerTools.streamLayeredImage dockerBuildArgs;
         };
 
         # nix run .
