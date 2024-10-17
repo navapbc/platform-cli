@@ -99,6 +99,9 @@ docker run --rm -it -v "$(pwd):/project-dir" nava-platform-cli infra install /pr
 (you may want to define some aliases in your shell for commons invocations like
 this)
 
+`bin/docker-wrapper` can automate some of this volume mounting, but also can be
+a little fragile, so treat gently.
+
 ## Getting Started
 
 After you have `nava-platform` installed, try
