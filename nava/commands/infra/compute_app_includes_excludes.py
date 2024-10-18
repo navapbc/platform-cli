@@ -35,7 +35,7 @@ def compute_app_includes_excludes_helper(
     if path.is_file():
         return (set(), set([relpath_str]))
 
-    if template_git.is_path_ignored(str(path)):
+    if template_git.is_path_ignored(relpath_str):
         return (set(), set())
 
     assert path.is_dir()
