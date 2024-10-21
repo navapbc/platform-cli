@@ -2,10 +2,13 @@
 set -euo pipefail
 
 processed_args=()
-# TODO: correctly mount host SSH/other necessary stuff so if/when the tools
-# supports fetching remote repos, things work
-docker_flags=("-v=$HOME/.ssh:/root/.ssh:ro")
+docker_flags=()
+
+# not strictly required with magic in `docker-entry` script and mostly for when
+# running on Linux, but explicitly run as host user to help avoid any file
+# permission issues with mounted locations from the host file system
 docker_flags+=(--user "$(id -u):$(id -g)")
+
 for ((i=1;i<=$#;i++))
 do
   eval "arg=\${$i}"
