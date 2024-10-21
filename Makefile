@@ -1,6 +1,8 @@
 APP_NAME := nava-platform
 PKG_NAME := nava-platform-cli
 
+PY_SRCS := nava tests
+
 build: ## Build docker image
 	docker build --tag $(PKG_NAME) .
 
@@ -14,11 +16,11 @@ deps: ## Install dev dependencies
 	poetry install
 
 fmt: ## Run formatter
-	poetry run ruff format
+	poetry run ruff format $(PY_SRCS)
 
 lint: ## Run linting
-	poetry run mypy .
-	poetry run ruff check --fix
+	poetry run mypy $(PY_SRCS)
+	poetry run ruff check --fix $(PY_SRCS)
 
 test: ## Run tests
 	poetry run pytest $(args)
