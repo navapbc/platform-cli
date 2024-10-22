@@ -74,7 +74,6 @@ class InfraTemplate:
         for _ in range(num_changes):
             project.git_project.pop()
 
-    
     def update_base(self, project: Project, *, version: str | None = None) -> None:
         data = {"app_name": "template-only"}
         self._run_update(
@@ -88,7 +87,6 @@ class InfraTemplate:
             vcs_ref=version,
         )
 
-    
     def update_app(self, project: Project, app_name: str, *, version: str | None = None) -> None:
         data = {"app_name": app_name}
         self._run_update(
@@ -100,7 +98,6 @@ class InfraTemplate:
             skip_answered=True,
             vcs_ref=version,
         )
-
 
     def add_app(self, project: Project, app_name: str) -> None:
         data = {"app_name": app_name}
