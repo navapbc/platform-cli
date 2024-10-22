@@ -1,5 +1,7 @@
 import click
 
+from nava.infra_template import MergeConflictsDuringUpdateError
+
 from . import add_app_command, install_command, migrate_from_legacy_command, update_command
 
 
@@ -52,7 +54,48 @@ def add_app(project_dir: str, app_name: str, template_uri: str) -> None:
     help="Template version to install. Can be a branch, tag, or commit hash. Defaults to the latest tag version.",
 )
 def update(project_dir: str, template_uri: str, version: str) -> None:
-    update_command.update(template_uri, project_dir, version=version)
+    try:
+        update_command.update(template_uri, project_dir, version=version)
+    except MergeConflictsDuringUpdateError as error:
+        click.echo()
+        message = (
+            "Merge conflicts found occurred during the update\n"
+            "Try running `infra update-base` and `infra update-app` commands separately and resolve conflicts as needed"
+        )
+        raise click.ClickException(message) from error
+
+
+@infra.command()
+@click.argument("project_dir")
+@click.option(
+    "--template-uri",
+    default="https://github.com/navapbc/template-infra",
+    help="Path or URL to infra template. Can be a path to a local clone of template-infra. Defaults to the template-infra repository on GitHub.",
+)
+@click.option(
+    "--version",
+    default=None,
+    help="Template version to install. Can be a branch, tag, or commit hash. Defaults to the latest tag version.",
+)
+def update_base(project_dir: str, template_uri: str, version: str) -> None:
+    update_command.update_base(template_uri, project_dir, version=version)
+
+
+@infra.command()
+@click.argument("project_dir")
+@click.argument("app_name")
+@click.option(
+    "--template-uri",
+    default="https://github.com/navapbc/template-infra",
+    help="Path or URL to infra template. Can be a path to a local clone of template-infra. Defaults to the template-infra repository on GitHub.",
+)
+@click.option(
+    "--version",
+    default=None,
+    help="Template version to install. Can be a branch, tag, or commit hash. Defaults to the latest tag version.",
+)
+def update_app(project_dir: str, app_name: str, template_uri: str, version: str) -> None:
+    update_command.update_app(template_uri, project_dir, app_name, version=version)
 
 
 @infra.command()

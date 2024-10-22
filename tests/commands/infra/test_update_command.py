@@ -1,3 +1,8 @@
+from click.testing import CliRunner
+
+from nava.cli import cli as nava_cli
+from nava.infra_template import InfraTemplate
+from nava.project import Project
 from tests.lib import DirectoryContent, FileChange
 from tests.lib.changeset import ChangeSet
 
@@ -43,7 +48,9 @@ def test_update_with_template_change(cli, infra_template, new_project, clean_ins
     assert (new_project.project_dir / "infra/foo/main.tf").read_text() == "changed\n"
 
 
-def test_update_with_project_change(cli, infra_template, new_project, clean_install):
+def test_update_with_project_change(
+    cli, infra_template: InfraTemplate, new_project: Project, clean_install
+):
     ChangeSet([FileChange("infra/foo/main.tf", "", "project change\n")]).apply(
         new_project.project_dir
     )
@@ -69,3 +76,21 @@ def test_update_with_project_change(cli, infra_template, new_project, clean_inst
     assert (
         new_project.project_dir / "infra/modules/service/main.tf"
     ).read_text() == "template change\n"
+
+
+def test_update_with_merge_conflict(
+    cli, infra_template: InfraTemplate, new_project: Project, merge_conflict
+):
+    runner = CliRunner()
+    result = runner.invoke(
+        nava_cli,
+        [
+            "infra",
+            "update",
+            str(new_project.project_dir),
+            "--template-uri",
+            str(infra_template.template_dir),
+        ],
+    )
+    assert result.exit_code == 1
+    assert "Try running" in result.output

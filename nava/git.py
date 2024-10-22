@@ -14,6 +14,15 @@ class GitProject:
 
         return cls(dir)
 
+    def has_merge_conflicts(self) -> bool:
+        result = subprocess.run(
+            ["git", "diff", "--name-only", "--diff-filter=U"],
+            cwd=self.dir,
+            capture_output=True,
+            text=True,
+        )
+        return bool(result.stdout)
+
     def is_git(self) -> bool:
         return is_a_git_worktree(self.dir)
 

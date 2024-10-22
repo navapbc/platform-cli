@@ -10,6 +10,11 @@ from nava.commands.infra.compute_app_includes_excludes import (
 )
 from nava.project import Project
 
+
+class MergeConflictsDuringUpdateError(Exception):
+    pass
+
+
 P = ParamSpec("P")
 R = TypeVar("R")
 
@@ -65,6 +70,9 @@ class InfraTemplate:
         self.update_base(project, version=version)
         project.git_project.stash()
         num_changes += 1
+
+        if project.git_project.has_merge_conflicts():
+            raise MergeConflictsDuringUpdateError()
 
         for app_name in project.app_names:
             self.update_app(project, app_name, version=version)

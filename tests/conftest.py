@@ -8,6 +8,7 @@ from nava.git import GitProject
 from nava.infra_template import InfraTemplate
 from nava.project import Project
 from tests.lib import DirectoryContent
+from tests.lib.changeset import ChangeSet, FileChange
 
 pytest.register_assert_rewrite("tests.lib.asserts")
 
@@ -103,3 +104,22 @@ def clean_install(infra_template, new_project, cli):
         input="foo\n",
     )
     new_project.git_project.commit_all("Install template")
+
+
+@pytest.fixture
+def merge_conflict(infra_template: InfraTemplate, new_project: Project, clean_install):
+    ChangeSet(
+        [
+            FileChange("infra/{{app_name}}/main.tf", "", "template app\n"),
+            FileChange("infra/project-config/main.tf", "", "template project config\n"),
+        ]
+    ).apply(infra_template.template_dir)
+    infra_template.git_project.commit_all("Change template")
+
+    ChangeSet(
+        [
+            FileChange("infra/foo/main.tf", "", "project app\n"),
+            FileChange("infra/project-config/main.tf", "", "project config\n"),
+        ]
+    ).apply(new_project.project_dir)
+    new_project.git_project.commit_all("Change project")
