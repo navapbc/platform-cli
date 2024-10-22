@@ -62,6 +62,20 @@ class InfraTemplate:
     def update(self, project: Project, *, version: str | None = None) -> None:
         num_changes = 0
 
+        self.update_base(project, version=version)
+        project.git_project.stash()
+        num_changes += 1
+
+        for app_name in project.app_names:
+            self.update_app(project, app_name, version=version)
+            project.git_project.stash()
+            num_changes += 1
+
+        for _ in range(num_changes):
+            project.git_project.pop()
+
+    
+    def update_base(self, project: Project, *, version: str | None = None) -> None:
         data = {"app_name": "template-only"}
         self._run_update(
             project.project_dir,
@@ -73,25 +87,20 @@ class InfraTemplate:
             skip_answered=True,
             vcs_ref=version,
         )
-        project.git_project.stash()
-        num_changes += 1
 
-        for app_name in project.app_names:
-            data = {"app_name": app_name}
-            self._run_update(
-                project.project_dir,
-                data=data,
-                answers_file=project.app_answers_file(app_name),
-                exclude=list(self._app_excludes),
-                overwrite=True,
-                skip_answered=True,
-                vcs_ref=version,
-            )
-            project.git_project.stash()
-            num_changes += 1
+    
+    def update_app(self, project: Project, app_name: str, *, version: str | None = None) -> None:
+        data = {"app_name": app_name}
+        self._run_update(
+            project.project_dir,
+            data=data,
+            answers_file=project.app_answers_file(app_name),
+            exclude=list(self._app_excludes),
+            overwrite=True,
+            skip_answered=True,
+            vcs_ref=version,
+        )
 
-        for _ in range(num_changes):
-            project.git_project.pop()
 
     def add_app(self, project: Project, app_name: str) -> None:
         data = {"app_name": app_name}
