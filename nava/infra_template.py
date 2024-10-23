@@ -65,22 +65,21 @@ class InfraTemplate:
             self.add_app(project, app_name)
 
     def update(self, project: Project, *, version: str | None = None) -> None:
-        num_changes = 0
-
         self.update_base(project, version=version)
-        project.git_project.stash()
-        num_changes += 1
 
         if project.git_project.has_merge_conflicts():
             raise MergeConflictsDuringUpdateError()
 
+        project.git_project.commit_all(f"Update base to version {version}")
+
         for app_name in project.app_names:
             self.update_app(project, app_name, version=version)
-            project.git_project.stash()
-            num_changes += 1
 
-        for _ in range(num_changes):
-            project.git_project.pop()
+            if project.git_project.has_merge_conflicts():
+                raise MergeConflictsDuringUpdateError()
+
+            project.git_project.commit_all(f"Update app {app_name} to version {version}")
+
 
     def update_base(self, project: Project, *, version: str | None = None) -> None:
         data = {"app_name": "template-only"}
