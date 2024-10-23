@@ -23,7 +23,7 @@ do
       fi
 
       # does it look like a local path?
-      if [[ "${template_value}" =~ ^[\./] ]]; then
+      if [[ -d "${template_value}" ]]; then
         abs_path=$(realpath "${template_value}")
         docker_flags+=("-v=${abs_path}:/template-dir:ro")
         processed_args+=("--template-uri=/template-dir")
