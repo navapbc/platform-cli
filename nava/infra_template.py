@@ -1,13 +1,14 @@
+import abc
 import functools
+import operator
+from collections.abc import Callable
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable, ParamSpec, TypeVar
+from typing import ParamSpec, TypeVar
 
 import copier
 
 from nava import git
-from nava.commands.infra.compute_app_includes_excludes import (
-    compute_app_includes_excludes,
-)
 from nava.project import Project
 
 
@@ -26,6 +27,53 @@ def print_method_call(func: Callable[P, R]) -> Callable[P, R]:
         return func(*args, **kwargs)
 
     return wrapper
+
+
+@dataclass
+class Inode(abc.ABC):
+    path: Path
+
+    @abc.abstractmethod
+    def is_file(self) -> bool:
+        raise NotImplementedError()
+
+
+class FileNode(Inode):
+    def is_file(self) -> bool:
+        return True
+
+
+@dataclass
+class DirNode(Inode):
+    children: dict[str, Inode] = field(default_factory=dict)
+
+    def is_file(self) -> bool:
+        return False
+
+    def add_file(self, path: Path) -> None:
+        """Add a file to the inode tree at the given path"""
+
+        if len(path.parts) < 1:
+            return
+
+        node = self
+        for i, part in enumerate(path.parts[:-1]):
+            if part not in node.children:
+                subpath = Path(*path.parts[: i + 1])
+                node.children[part] = DirNode(subpath)
+            child = node.children[part]
+            if not isinstance(child, DirNode):
+                raise ValueError(f"Cannot add path {path}. {node.children[part].path} is not a directory")
+            node = child
+        part = path.parts[-1]
+        node.children[part] = FileNode(path)
+
+    @staticmethod
+    def build_tree_from_paths(paths: list[Path]) -> "DirNode":
+        root = DirNode(Path("."))
+        for path in paths:
+            root.add_file(path)
+        return root
 
 
 class InfraTemplate:
@@ -80,7 +128,6 @@ class InfraTemplate:
 
             project.git_project.commit_all(f"Update app {app_name} to version {version}")
 
-
     def update_base(self, project: Project, *, version: str | None = None) -> None:
         data = {"app_name": "template-only"}
         self._run_update(
@@ -131,9 +178,8 @@ class InfraTemplate:
         return self.version[:7]
 
     def _compute_excludes(self) -> None:
-        app_includes, app_excludes = compute_app_includes_excludes(
-            self.template_dir, self.git_project
-        )
+        node = DirNode.build_tree_from_paths(self.git_project.get_tracked_files())
+        app_includes, app_excludes = self._compute_app_includes_excludes(node)
         global_excludes = ["*template-only*"]
         self._base_excludes = global_excludes + list(app_includes)
         self._app_excludes = list(app_excludes)
@@ -143,3 +189,37 @@ class InfraTemplate:
 
     def _app_answers_file(self, app_name: str) -> str:
         return f"app-{app_name}.yml"
+
+    def _compute_app_includes_excludes(self, node: Inode) -> tuple[set[str], set[str]]:
+        app_includes, app_excludes = self._compute_app_includes_excludes_helper(node)
+        app_excludes.difference_update([".template-infra", ".git", "."])
+        app_excludes.update(["*template-only*"])
+        return app_includes, app_excludes
+
+    def _compute_app_includes_excludes_helper(self, node: Inode) -> tuple[set[str], set[str]]:
+        relpath_str = str(node.path)
+
+        if "{{app_name}}" in relpath_str:
+            return (set([relpath_str]), set())
+
+        if "template-only" in relpath_str:
+            return (set(), set())
+
+        if node.is_file():
+            return (set(), set([relpath_str]))
+
+        assert isinstance(node, DirNode)
+        children = node.children.values()
+        if len(children) == 0:
+            return (set(), set())
+
+        subresults = list(self._compute_app_includes_excludes_helper(child) for child in children)
+
+        subincludes, subexcludes = zip(*subresults)
+        includes: set[str] = functools.reduce(operator.or_, subincludes, set())
+        excludes: set[str] = functools.reduce(operator.or_, subexcludes, set())
+
+        if len(includes) == 0:
+            return (set(), set([relpath_str]))
+
+        return (includes, excludes)

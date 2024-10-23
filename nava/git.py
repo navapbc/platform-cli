@@ -60,6 +60,18 @@ class GitProject:
 
         return result.returncode == 0
 
+    def get_tracked_files(self) -> list[Path]:
+        tracked_files = [
+            Path(file)
+            for file in subprocess.run(
+                ["git", "ls-files"],
+                cwd=self.dir,
+                capture_output=True,
+                text=True,
+            ).stdout.splitlines()
+        ]
+        return tracked_files
+
     def get_untracked_files(self) -> list[str]:
         result = subprocess.run(
             ["git", "ls-files", "--exclude-standard", "--others"],

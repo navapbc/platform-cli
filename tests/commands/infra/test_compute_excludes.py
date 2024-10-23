@@ -1,15 +1,13 @@
 import pytest
 
-from nava.commands.infra.compute_app_includes_excludes import (
-    compute_app_includes_excludes,
-)
 from nava.git import GitProject
+from nava.infra_template import InfraTemplate
 from tests.lib import DirectoryContent
 
-test_compute_app_includes_excludes_data = {
+test_compute_excludes_data = {
     "empty": (
         {},
-        [],
+        ["*template-only*"],
         ["*template-only*"],
     ),
     "files_only": (
@@ -18,7 +16,7 @@ test_compute_app_includes_excludes_data = {
             "prefix-{{app_name}}-suffix": "",
             "exclude": "",
         },
-        ["{{app_name}}", "prefix-{{app_name}}-suffix"],
+        ["*template-only*", "{{app_name}}", "prefix-{{app_name}}-suffix"],
         ["*template-only*", "exclude"],
     ),
     "nested_app_name_folders": (
@@ -29,7 +27,7 @@ test_compute_app_includes_excludes_data = {
                 }
             },
         },
-        ["{{app_name}}root"],
+        ["*template-only*", "{{app_name}}root"],
         ["*template-only*"],
     ),
     "buried_app_name": (
@@ -45,7 +43,7 @@ test_compute_app_includes_excludes_data = {
                 }
             },
         },
-        ["one/two/three-{{app_name}}"],
+        ["*template-only*", "one/two/three-{{app_name}}"],
         ["*template-only*", "one/two/three-exclude"],
     ),
     "ignore_template_only": (
@@ -57,7 +55,7 @@ test_compute_app_includes_excludes_data = {
                 "destroy-account": "",
             },
         },
-        [],
+        ["*template-only*"],
         ["*template-only*"],
     ),
     "infra_template": (
@@ -92,6 +90,7 @@ test_compute_app_includes_excludes_data = {
             },
         },
         [
+            "*template-only*",
             ".github/workflows/ci-{{app_name}}-pr-environment-checks.yml",
             "infra/{{app_name}}",
         ],
@@ -109,17 +108,18 @@ test_compute_app_includes_excludes_data = {
 
 
 @pytest.mark.parametrize(
-    "dir_content,expected_includes,expected_excludes",
-    test_compute_app_includes_excludes_data.values(),
-    ids=test_compute_app_includes_excludes_data.keys(),
+    "dir_content,expected_base_excludes,expected_app_excludes",
+    test_compute_excludes_data.values(),
+    ids=test_compute_excludes_data.keys(),
 )
-def test_compute_app_includes_excludes(tmp_path, dir_content, expected_includes, expected_excludes):
+def test_compute_excludes(tmp_path, dir_content, expected_base_excludes, expected_app_excludes):
     DirectoryContent(dir_content).to_fs(tmp_path)
 
     git_project = GitProject(tmp_path)
     git_project.init()
     git_project.commit_all("Initial commit")
 
-    app_includes, app_excludes = compute_app_includes_excludes(tmp_path, git_project)
-    assert app_includes == set(expected_includes)
-    assert app_excludes == set(expected_excludes)
+    infra_template = InfraTemplate(tmp_path)
+    infra_template._compute_excludes()
+    assert set(infra_template._base_excludes) == set(expected_base_excludes)
+    assert set(infra_template._app_excludes) == set(expected_app_excludes)
