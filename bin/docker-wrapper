@@ -1,4 +1,73 @@
 #!/usr/bin/env bash
+#
+# Wrap running `nava-platform` via Docker. Pass arguments as you would to
+#`nava-platform` itself.
+#
+# Since the tool heavily involves manipulating files on the host system, some of
+# which are in locations that may need created first, it can be fiddly to
+# manually run via Docker.
+#
+# So this script tries to automate the annoying parts for common situations. To
+# not explode in complexity, it does make some assumptions (or reserves the
+# right to):
+#
+# - There will always be a project directory argument present and it will always
+#   be the last argument passed in
+# - File path arguments will start with either `.` or `/`
+#
 set -euo pipefail
 
-docker run --rm -it nava-platform-cli "$@"
+processed_args=()
+docker_flags=()
+
+# not strictly required with magic in `docker-entry` script and mostly for when
+# running on Linux, but explicitly run as host user to help avoid any file
+# permission issues with mounted locations from the host file system
+docker_flags+=(--user "$(id -u):$(id -g)")
+
+for ((i=1;i<=$#;i++))
+do
+  eval "arg=\${$i}"
+
+  # shellcheck disable=SC2154
+  if [[ "${arg}" =~ --template-uri.* ]]; then
+      if [[ "${arg}" == *"="* ]]; then
+        template_value="${arg#*=}"
+      else
+        ((i += 1)) # next value should be the path
+        eval "template_value=\${$i}"
+      fi
+
+      # does it look like a local path?
+      if [[ -d "${template_value}" ]]; then
+        abs_path=$(realpath "${template_value}")
+        docker_flags+=("-v=${abs_path}:/template-dir:ro")
+        processed_args+=("--template-uri=/template-dir")
+        continue
+      fi
+  fi
+
+  # the last argument should be the project path, will need adjusted if/when
+  # that's not the case for all commands
+  if [[ $i == "$#" ]]; then
+    last_arg="${arg}"
+    abs_last_arg=$(realpath "${last_arg}")
+
+    host_project_dir=${abs_last_arg}
+    project_dir="/project-dir"
+
+    docker_flags+=("-v=${host_project_dir}:${project_dir}:z")
+    processed_args+=("${project_dir}")
+    continue
+  fi
+
+  processed_args+=("${arg}")
+done
+
+# if the project path doesn't exist yet, create it before Docker tries to (with
+# incorrect permissions)
+if [[ ! -d "${host_project_dir}" ]]; then
+    mkdir "${host_project_dir}"
+fi
+
+docker run --interactive --tty --rm "${docker_flags[@]}" nava-platform-cli "${processed_args[@]}"

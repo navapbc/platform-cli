@@ -82,15 +82,29 @@ To get a Docker image, clone the repository and run:
 make build
 ```
 
-You will now have a `nava-platform-cli` image locally available that you can run
-like:
+`bin/docker-wrapper` exists to streamline running via Docker, so you can just:
+
+```sh
+./bin/docker-wrapper infra install ~/my_project_directory
+```
+
+(it can be a little fragile, so treat gently and read about the assumptions it
+makes in the comments of the script)
+
+<details>
+
+<summary>Running manually</summary>
+
+After building, you will have a `nava-platform-cli` image locally available that
+you can run like:
 
 ```sh
 docker run --rm -it nava-platform-cli
 ```
 
 For pretty much anything useful, you will need to mount the relevant locations
-from your host system into the container. For example:
+from your host system into the container. For example if running the tool in the
+directory of your target project:
 
 ```sh
 docker run --rm -it -v "$(pwd):/project-dir" nava-platform-cli infra install /project-dir
@@ -98,6 +112,8 @@ docker run --rm -it -v "$(pwd):/project-dir" nava-platform-cli infra install /pr
 
 (you may want to define some aliases in your shell for commons invocations like
 this)
+
+</details>
 
 ## Getting Started
 
