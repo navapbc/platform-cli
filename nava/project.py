@@ -16,13 +16,19 @@ class Project:
 
     @property
     def template_version(self) -> str:
-        base_version = self._get_template_version_from_answers_file(self.base_answers_file())
-        app_versions = [
-            self._get_template_version_from_answers_file(self.app_answers_file(app_name))
-            for app_name in self.app_names
-        ]
+        base_version = self.base_template_version()
+        app_versions = [self.app_template_version(app_name) for app_name in self.app_names]
         assert all(app_version == base_version for app_version in app_versions)
         return base_version
+
+
+    def base_template_version(self) -> str:
+        return self._get_template_version_from_answers_file(self.base_answers_file())
+
+
+    def app_template_version(self, app_name: str) -> str:
+        return self._get_template_version_from_answers_file(self.app_answers_file(app_name))
+
 
     @property
     def app_names(self) -> list[str]:
