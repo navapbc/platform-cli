@@ -186,7 +186,7 @@ class InfraTemplate:
         app_includes, app_excludes = self._compute_app_includes_excludes(node)
         global_excludes = ["*template-only*"]
         self._base_excludes = global_excludes + list(app_includes)
-        self._app_excludes = list(app_excludes)
+        self._app_excludes = global_excludes + list(app_excludes)
 
     def _base_answers_file(self) -> str:
         return "base.yml"
@@ -196,8 +196,7 @@ class InfraTemplate:
 
     def _compute_app_includes_excludes(self, node: Inode) -> tuple[set[str], set[str]]:
         app_includes, app_excludes = self._compute_app_includes_excludes_helper(node)
-        app_excludes.difference_update([".template-infra", ".git", "."])
-        app_excludes.update(["*template-only*"])
+        app_excludes.difference_update([".template-infra", "."])
         return app_includes, app_excludes
 
     def _compute_app_includes_excludes_helper(self, node: Inode) -> tuple[set[str], set[str]]:
