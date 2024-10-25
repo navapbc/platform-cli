@@ -63,7 +63,9 @@ class DirNode(Inode):
                 node.children[part] = DirNode(subpath)
             child = node.children[part]
             if not isinstance(child, DirNode):
-                raise ValueError(f"Cannot add path {path}. {node.children[part].path} is not a directory")
+                raise ValueError(
+                    f"Cannot add path {path}. {node.children[part].path} is not a directory"
+                )
             node = child
         part = path.parts[-1]
         node.children[part] = FileNode(path)
@@ -126,7 +128,9 @@ class InfraTemplate:
             if project.git_project.has_merge_conflicts():
                 raise MergeConflictsDuringUpdateError()
 
-            project.git_project.commit_all(f"Update app {app_name} to version {project.app_template_version(app_name)}")
+            project.git_project.commit_all(
+                f"Update app {app_name} to version {project.app_template_version(app_name)}"
+            )
 
     def update_base(self, project: Project, *, version: str | None = None) -> None:
         data = {"app_name": "template-only"}
