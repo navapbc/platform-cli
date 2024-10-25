@@ -123,3 +123,28 @@ def test_compute_excludes(tmp_path, dir_content, expected_base_excludes, expecte
     infra_template._compute_excludes()
     assert set(infra_template._base_excludes) == set(expected_base_excludes)
     assert set(infra_template._app_excludes) == set(expected_app_excludes)
+
+
+def test_compute_excludes_from_dirty_repo(tmp_path):
+    dir_content = {
+        ".gitignore": "ignored_file.txt",
+        "ignored_file.txt": "foobar",
+        "untracked_file.txt": "untracked content",
+    }
+    expected_base_excludes = [
+        "*template-only*",
+    ]
+    expected_app_excludes = [
+        "*template-only*",
+    ]
+    DirectoryContent(dir_content).to_fs(tmp_path)
+
+    git_project = GitProject(tmp_path)
+    git_project.init()
+    git_project.add(".gitignore")
+    git_project.commit("Initial commit")
+
+    infra_template = InfraTemplate(tmp_path)
+    infra_template._compute_excludes()
+    assert set(infra_template._base_excludes) == set(expected_base_excludes)
+    assert set(infra_template._app_excludes) == set(expected_app_excludes)

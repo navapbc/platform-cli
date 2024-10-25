@@ -123,3 +123,17 @@ def merge_conflict(infra_template: InfraTemplate, new_project: Project, clean_in
         ]
     ).apply(new_project.project_dir)
     new_project.git_project.commit_all("Change project")
+
+
+@pytest.fixture
+def infra_template_dirty(infra_template: InfraTemplate, new_project: Project) -> InfraTemplate:
+    dir_content = {
+        ".gitignore": "ignored_file.txt",
+        "ignored_file.txt": "foobar",
+        "untracked_file.txt": "untracked content",
+    }
+    DirectoryContent(dir_content).to_fs(str(infra_template.template_dir))
+    infra_template.git_project.add(".gitignore")
+    infra_template.git_project.commit("Dirty state")
+
+    return infra_template

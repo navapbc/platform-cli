@@ -44,6 +44,26 @@ def test_install(cli, infra_template, new_project):
     assert new_project.template_version == infra_template.short_version
 
 
+def test_install_infra_template_dirty(cli, infra_template_dirty, new_project):
+    cli(
+        [
+            "infra",
+            "install",
+            str(new_project.project_dir),
+            "--template-uri",
+            str(infra_template_dirty.template_dir),
+        ],
+        input="foo\n",
+    )
+
+    dir_content = DirectoryContent.from_fs(new_project.project_dir, ignore=[".git"])
+
+    assert "ignored_file.txt" not in dir_content
+    assert "untracked_file.txt" not in dir_content
+
+    assert new_project.template_version == infra_template_dirty.short_version
+
+
 def test_install_version(cli, infra_template, new_project):
     infra_template.version = "v0.1.0"
 

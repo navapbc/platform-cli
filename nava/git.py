@@ -16,12 +16,18 @@ class GitProject:
 
     def has_merge_conflicts(self) -> bool:
         result = subprocess.run(
-            ["git", "diff", "--name-only", "--diff-filter=U"],
+            [
+                "git",
+                "-c",
+                "core.whitespace=-trailing-space,-space-before-tab,-indent-with-non-tab,-tab-in-indent,-cr-at-eol",
+                "diff",
+                "--check",
+            ],
             cwd=self.dir,
             capture_output=True,
             text=True,
         )
-        return bool(result.stdout)
+        return result.returncode != 0
 
     def is_git(self) -> bool:
         return is_a_git_worktree(self.dir)
@@ -29,11 +35,14 @@ class GitProject:
     def init(self) -> None:
         subprocess.run(["git", "init", "--initial-branch=main"], cwd=self.dir)
 
+    def add(self, *args: str) -> None:
+        subprocess.run(["git", "add"] + list(args), cwd=self.dir)
+
     def commit(self, msg: str) -> None:
         subprocess.run(["git", "commit", "-m", msg], cwd=self.dir)
 
     def commit_all(self, msg: str) -> None:
-        subprocess.run(["git", "add", "."], cwd=self.dir)
+        self.add(".")
         self.commit(msg)
 
     def stash(self) -> None:

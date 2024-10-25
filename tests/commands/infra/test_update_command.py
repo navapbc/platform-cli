@@ -1,3 +1,4 @@
+import pytest
 from click.testing import CliRunner
 
 from nava.cli import cli as nava_cli
@@ -46,6 +47,60 @@ def test_update_with_template_change(cli, infra_template, new_project, clean_ins
     assert new_project.template_version == infra_template.short_version
     assert (new_project.project_dir / "infra/modules/service/main.tf").read_text() == "changed\n"
     assert (new_project.project_dir / "infra/foo/main.tf").read_text() == "changed\n"
+
+
+@pytest.mark.skip(reason="is flaky")
+def test_update_with_dirty_template(cli, clean_install, infra_template_dirty, new_project):
+    cli(
+        [
+            "infra",
+            "update",
+            str(new_project.project_dir),
+            "--template-uri",
+            str(infra_template_dirty.template_dir),
+        ],
+        input="foo\n",
+    )
+
+    dir_content = DirectoryContent.from_fs(new_project.project_dir, ignore=[".git"])
+
+    assert "ignored_file.txt" not in dir_content
+    # if repo doesn't have a tag/no version is specified, copier defaults to
+    # HEAD, for which it includes dirty changes
+    assert "untracked_file.txt" in dir_content
+
+    # TODO: this inconsistently fails running `new_project.template_version` as
+    # the base and app versions in the answer file ends up different somehow,
+    # but not always
+    assert new_project.template_version == infra_template_dirty.short_version
+
+
+def test_update_with_dirty_template_with_version(
+    cli, clean_install, infra_template_dirty, new_project
+):
+    tag_name = "dirty-version"
+    infra_template_dirty.git_project.tag(tag_name)
+
+    cli(
+        [
+            "infra",
+            "update",
+            str(new_project.project_dir),
+            "--template-uri",
+            str(infra_template_dirty.template_dir),
+            "--version",
+            tag_name,
+        ],
+        input="foo\n",
+    )
+
+    dir_content = DirectoryContent.from_fs(new_project.project_dir, ignore=[".git"])
+
+    assert "ignored_file.txt" not in dir_content
+    # when specifying a version, copier does not include untracked changes
+    assert "untracked_file.txt" not in dir_content
+
+    assert new_project.template_version == tag_name
 
 
 def test_update_with_project_change(
