@@ -1,8 +1,7 @@
 from pathlib import Path
-from typing import List
 
 
-def get_app_names(template_dir: Path) -> List[str]:
+def get_app_names(template_dir: Path) -> list[str]:
     excluded_dirs = [
         "accounts",
         "modules",
@@ -16,6 +15,6 @@ def get_app_names(template_dir: Path) -> List[str]:
     if not infra_dir.is_dir():
         return []
 
-    return [
-        dir.name for dir in infra_dir.iterdir() if dir.is_dir() and dir.name not in excluded_dirs
-    ]
+    return sorted(
+        [dir.name for dir in infra_dir.iterdir() if dir.is_dir() and dir.name not in excluded_dirs]
+    )

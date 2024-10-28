@@ -83,7 +83,7 @@ def update_base(project_dir: str, template_uri: str, version: str) -> None:
 
 @infra.command()
 @click.argument("project_dir")
-@click.argument("app_name")
+@click.argument("app_name", required=False)
 @click.option(
     "--template-uri",
     default="https://github.com/navapbc/template-infra",
@@ -94,7 +94,7 @@ def update_base(project_dir: str, template_uri: str, version: str) -> None:
     default=None,
     help="Template version to install. Can be a branch, tag, or commit hash. Defaults to the latest tag version.",
 )
-def update_app(project_dir: str, app_name: str, template_uri: str, version: str) -> None:
+def update_app(project_dir: str, app_name: str | None, template_uri: str, version: str) -> None:
     update_command.update_app(template_uri, project_dir, app_name, version=version)
 
 
