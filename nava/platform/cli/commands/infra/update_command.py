@@ -7,20 +7,34 @@ from nava.platform.infra_template import InfraTemplate
 from nava.platform.project import Project
 
 
-def update(template_dir: str, project_dir: str, version: str | None = None) -> None:
+def update(
+    template_dir: str,
+    project_dir: str,
+    version: str | None = None,
+    data: dict[str, str] | None = None,
+) -> None:
     template = InfraTemplate(Path(template_dir))
     project = Project(Path(project_dir))
-    template.update(project, version=version)
+    template.update(project, version=version, data=data)
 
 
-def update_base(template_dir: str, project_dir: str, version: str | None = None) -> None:
+def update_base(
+    template_dir: str,
+    project_dir: str,
+    version: str | None = None,
+    data: dict[str, str] | None = None,
+) -> None:
     template = InfraTemplate(Path(template_dir))
     project = Project(Path(project_dir))
-    template.update_base(project, version=version)
+    template.update_base(project, version=version, data=data)
 
 
 def update_app(
-    template_dir: str, project_dir: str, app_name: str | None, version: str | None = None
+    template_dir: str,
+    project_dir: str,
+    app_name: str | None,
+    version: str | None = None,
+    data: dict[str, str] | None = None,
 ) -> None:
     template = InfraTemplate(Path(template_dir))
     project = Project(Path(project_dir))
@@ -36,4 +50,4 @@ def update_app(
             ),
         )
 
-    template.update_app(project, app_name, version=version)
+    template.update_app(project, app_name, version=version, data=data)

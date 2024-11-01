@@ -93,3 +93,27 @@ def test_install_version(cli, infra_template, new_project):
     assert new_project.template_version == "v0.1.0"
     assert (new_project.project_dir / "infra/modules/service/main.tf").read_text() == ""
     assert (new_project.project_dir / "infra/foo/main.tf").read_text() == ""
+
+
+def test_install_with_data(cli, infra_template, new_project):
+    ChangeSet(
+        [
+            FileChange("{{foo}}.txt", "", "new file\n"),
+        ]
+    ).apply(infra_template.template_dir)
+    infra_template.git_project.commit_all("Change template")
+
+    cli(
+        [
+            "infra",
+            "install",
+            str(new_project.project_dir),
+            "--template-uri",
+            str(infra_template.template_dir),
+            "--data",
+            "foo=bar",
+        ],
+        input="foo\n",
+    )
+
+    assert (new_project.project_dir / "bar.txt").read_text() == "new file\n"

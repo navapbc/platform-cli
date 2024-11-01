@@ -149,3 +149,22 @@ def test_update_with_merge_conflict(
     )
     assert result.exit_code == 1
     assert "Try running" in result.output
+
+
+def test_update_with_data(cli, infra_template: InfraTemplate, new_project: Project, clean_install):
+    ChangeSet([FileChange("{{foo}}.txt", "", "new file\n")]).apply(infra_template.template_dir)
+    infra_template.git_project.commit_all("Change template")
+
+    cli(
+        [
+            "infra",
+            "update",
+            str(new_project.project_dir),
+            "--template-uri",
+            str(infra_template.template_dir),
+            "--data",
+            "foo=bar",
+        ]
+    )
+
+    assert (new_project.project_dir / "bar.txt").read_text() == "new file\n"

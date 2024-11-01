@@ -34,9 +34,14 @@ class InfraTemplate:
         self._run_update = wrappers.print_call(copier.run_update)
 
     def install(
-        self, project: Project, app_names: list[str], *, version: str | None = None
+        self,
+        project: Project,
+        app_names: list[str],
+        *,
+        version: str | None = None,
+        data: dict[str, str] | None = None,
     ) -> None:
-        data = {"app_name": "template-only"}
+        data = {"app_name": "template-only"} | (data or {})
         self._run_copy(
             str(self.template_dir),
             project.project_dir,
@@ -49,8 +54,10 @@ class InfraTemplate:
         for app_name in app_names:
             self.add_app(project, app_name)
 
-    def update(self, project: Project, *, version: str | None = None) -> None:
-        self.update_base(project, version=version)
+    def update(
+        self, project: Project, *, version: str | None = None, data: dict[str, str] | None = None
+    ) -> None:
+        self.update_base(project, version=version, data=data)
 
         if project.git_project.has_merge_conflicts():
             raise MergeConflictsDuringUpdateError()
@@ -58,7 +65,7 @@ class InfraTemplate:
         project.git_project.commit_all(f"Update base to version {project.base_template_version()}")
 
         for app_name in project.app_names:
-            self.update_app(project, app_name, version=version)
+            self.update_app(project, app_name, version=version, data=data)
 
             if project.git_project.has_merge_conflicts():
                 raise MergeConflictsDuringUpdateError()
@@ -67,8 +74,10 @@ class InfraTemplate:
                 f"Update app {app_name} to version {project.app_template_version(app_name)}"
             )
 
-    def update_base(self, project: Project, *, version: str | None = None) -> None:
-        data = {"app_name": "template-only"}
+    def update_base(
+        self, project: Project, *, version: str | None = None, data: dict[str, str] | None = None
+    ) -> None:
+        data = {"app_name": "template-only"} | (data or {})
         self._run_update(
             project.project_dir,
             src_path=str(self.template_dir),
@@ -80,8 +89,15 @@ class InfraTemplate:
             vcs_ref=version,
         )
 
-    def update_app(self, project: Project, app_name: str, *, version: str | None = None) -> None:
-        data = {"app_name": app_name}
+    def update_app(
+        self,
+        project: Project,
+        app_name: str,
+        *,
+        version: str | None = None,
+        data: dict[str, str] | None = None,
+    ) -> None:
+        data = {"app_name": app_name} | (data or {})
         self._run_update(
             project.project_dir,
             data=data,
