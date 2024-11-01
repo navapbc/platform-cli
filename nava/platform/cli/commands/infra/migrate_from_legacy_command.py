@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from nava.project import Project
+from nava.platform.project import Project
 
 
 def migrate_from_legacy(project_dir: str, origin_template_uri: str) -> None:

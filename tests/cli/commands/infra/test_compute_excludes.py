@@ -1,7 +1,7 @@
 import pytest
 
-from nava.git import GitProject
-from nava.infra_template import InfraTemplate
+from nava.platform.infra_template import InfraTemplate
+from nava.platform.util.git import GitProject
 from tests.lib import DirectoryContent
 
 test_compute_excludes_data = {

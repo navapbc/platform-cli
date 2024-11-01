@@ -3,10 +3,10 @@ from pathlib import Path
 import pytest
 from click.testing import CliRunner
 
-from nava.cli import cli as nava_cli
-from nava.git import GitProject
-from nava.infra_template import InfraTemplate
-from nava.project import Project
+from nava.platform.cli.main import cli as nava_cli
+from nava.platform.infra_template import InfraTemplate
+from nava.platform.project import Project
+from nava.platform.util.git import GitProject
 from tests.lib import DirectoryContent
 from tests.lib.changeset import ChangeSet, FileChange
 

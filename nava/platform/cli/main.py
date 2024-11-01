@@ -1,7 +1,7 @@
 import click
 
-import nava.commands.app as app
-import nava.commands.infra as infra
+import nava.platform.cli.commands.app as app
+import nava.platform.cli.commands.infra as infra
 
 
 @click.group()

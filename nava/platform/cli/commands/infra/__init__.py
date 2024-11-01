@@ -1,6 +1,6 @@
 import click
 
-from nava.infra_template import MergeConflictsDuringUpdateError
+from nava.platform.infra_template import MergeConflictsDuringUpdateError
 
 from . import add_app_command, install_command, migrate_from_legacy_command, update_command
 

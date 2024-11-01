@@ -8,8 +8,8 @@ from typing import ParamSpec, TypeVar
 
 import copier
 
-from nava import git
-from nava.project import Project
+from nava.platform.project import Project
+from nava.platform.util import git
 
 
 class MergeConflictsDuringUpdateError(Exception):

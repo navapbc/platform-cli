@@ -3,8 +3,8 @@ from typing import cast
 
 import click
 
-from nava.infra_template import InfraTemplate
-from nava.project import Project
+from nava.platform.infra_template import InfraTemplate
+from nava.platform.project import Project
 
 
 def update(template_dir: str, project_dir: str, version: str | None = None) -> None:

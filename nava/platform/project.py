@@ -2,8 +2,9 @@ from pathlib import Path
 
 import yaml
 
-from nava import git
-from nava.commands.infra.get_app_names import get_app_names
+# TODO: move functionality out of CLI source code
+from nava.platform.cli.commands.infra.get_app_names import get_app_names
+from nava.platform.util import git
 
 
 class Project:
