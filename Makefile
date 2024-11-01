@@ -3,6 +3,8 @@ PKG_NAME := nava-platform-cli
 
 PY_SRCS := nava tests
 
+PY_RUN ?= poetry run
+
 build: ## Build docker image
 	docker build --tag $(PKG_NAME) .
 
@@ -12,18 +14,30 @@ check: check-static test
 check-static: ## Run static code checks
 check-static: fmt lint
 
+clean: ## Remove intermediate, cache, or build artifacts
+	find . -type f -name '*.py[cod]' -delete
+	find . -type d -name __pycache__ -print -exec rm -r {} +
+	find . -type d -name '*.egg-info' -print -exec rm -r {} +
+	find . -type d -name .mypy_cache -print -exec rm -r {} +
+	find . -type d -name .pytest_cache -print -exec rm -r {} +
+	$(PY_RUN) ruff clean
+	-docker image rm $(PKG_NAME)
+
+clean-venv: ## Remove active poetry virtualenv
+	rm -rf $(shell poetry env info --path)
+
 deps: ## Install dev dependencies
 	poetry install
 
 fmt: ## Run formatter
-	poetry run ruff format $(PY_SRCS)
+	$(PY_RUN) ruff format $(PY_SRCS)
 
 lint: ## Run linting
-	poetry run mypy $(PY_SRCS)
-	poetry run ruff check --fix $(PY_SRCS)
+	$(PY_RUN) mypy $(PY_SRCS)
+	$(PY_RUN) ruff check --fix $(PY_SRCS)
 
 test: ## Run tests
-	poetry run pytest $(args)
+	$(PY_RUN) pytest $(args)
 
 help: ## Display this help screen
 	@grep -Eh '^[[:print:]]+:.*?##' $(MAKEFILE_LIST) | \
@@ -33,3 +47,4 @@ help: ## Display this help screen
 	@echo ""
 	@echo "APP_NAME=$(APP_NAME)"
 	@echo "PKG_NAME=$(PKG_NAME)"
+	@echo "PY_RUN=$(PY_RUN)"
