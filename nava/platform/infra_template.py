@@ -1,31 +1,16 @@
 import functools
 import operator
-from collections.abc import Callable
 from pathlib import Path
-from typing import ParamSpec, TypeVar
 
 import copier
 
 from nava.platform.project import Project
-from nava.platform.util import git
+from nava.platform.util import git, wrappers
 from nava.platform.util.files.inode import DirNode, Inode
 
 
 class MergeConflictsDuringUpdateError(Exception):
     pass
-
-
-P = ParamSpec("P")
-R = TypeVar("R")
-
-
-def print_method_call(func: Callable[P, R]) -> Callable[P, R]:
-    @functools.wraps(func)
-    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
-        print(f"Calling: {func.__name__} with args:\n{args}\n and kwargs:\n{kwargs}")
-        return func(*args, **kwargs)
-
-    return wrapper
 
 
 class InfraTemplate:
@@ -45,8 +30,8 @@ class InfraTemplate:
         self.git_project = git_project
 
         self._compute_excludes()
-        self._run_copy = print_method_call(copier.run_copy)
-        self._run_update = print_method_call(copier.run_update)
+        self._run_copy = wrappers.print_call(copier.run_copy)
+        self._run_update = wrappers.print_call(copier.run_update)
 
     def install(
         self, project: Project, app_names: list[str], *, version: str | None = None
