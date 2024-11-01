@@ -1,7 +1,12 @@
 from pathlib import Path
 
 
-def get_app_names(template_dir: Path) -> list[str]:
+def get_app_names_from_infra_dir(dir: Path) -> list[str]:
+    """Get apps based on names in infra/
+
+    Args:
+        dir: Should be a location of `template-infra` or an instance of it
+    """
     excluded_dirs = [
         "accounts",
         "modules",
@@ -9,7 +14,7 @@ def get_app_names(template_dir: Path) -> list[str]:
         "project-config",
         "test",
     ]
-    infra_dir = template_dir / "infra"
+    infra_dir = dir / "infra"
     if not infra_dir.exists():
         return []
     if not infra_dir.is_dir():

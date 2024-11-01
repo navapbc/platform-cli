@@ -3,7 +3,7 @@ from typing import Any
 
 import pytest
 
-from nava.platform.cli.commands.infra.get_app_names import get_app_names
+from nava.platform.get_app_names_from_infra_dir import get_app_names_from_infra_dir
 from tests.lib import DirectoryContent
 
 get_app_names_test_data: dict[str, tuple[dict[str, dict[str, Any]], list[str]]] = {
@@ -50,6 +50,6 @@ get_app_names_test_data: dict[str, tuple[dict[str, dict[str, Any]], list[str]]] 
 def test_get_app_names(tmp_path: Path, dir_content, expected) -> None:
     DirectoryContent(dir_content).to_fs(str(tmp_path))
 
-    app_names = get_app_names(tmp_path)
+    app_names = get_app_names_from_infra_dir(tmp_path)
 
     assert set(app_names) == set(expected)

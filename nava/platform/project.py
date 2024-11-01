@@ -2,8 +2,7 @@ from pathlib import Path
 
 import yaml
 
-# TODO: move functionality out of CLI source code
-from nava.platform.cli.commands.infra.get_app_names import get_app_names
+from nava.platform.get_app_names_from_infra_dir import get_app_names_from_infra_dir
 from nava.platform.util import git
 
 
@@ -32,7 +31,7 @@ class Project:
 
     @property
     def app_names(self) -> list[str]:
-        return get_app_names(self.project_dir)
+        return get_app_names_from_infra_dir(self.project_dir)
 
     def base_answers_file(self) -> str:
         return ".template-infra/base.yml"
