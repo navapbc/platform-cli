@@ -41,7 +41,7 @@ class InfraTemplate:
         self._run_copy(
             str(self.template_dir),
             project.project_dir,
-            answers_file=self._base_answers_file(),
+            answers_file=project.base_answers_file_rel(),
             data=base_data,
             src_exclude=self._base_src_excludes,
             vcs_ref=version,
@@ -75,7 +75,7 @@ class InfraTemplate:
             # https://github.com/navapbc/platform-cli/issues/5
             src_path=str(self.template_dir),
             data=data,
-            answers_file=project.base_answers_file(),
+            answers_file=project.base_answers_file_rel(),
             src_exclude=self._base_src_excludes,
             overwrite=True,
             skip_answered=True,
@@ -115,7 +115,7 @@ class InfraTemplate:
             # https://github.com/navapbc/platform-cli/issues/5
             src_path=str(self.template_dir),
             data=data,
-            answers_file=project.app_answers_file(app_name),
+            answers_file=project.app_answers_file_rel(app_name),
             src_exclude=self._app_src_excludes,
             overwrite=True,
             skip_answered=True,
@@ -143,7 +143,7 @@ class InfraTemplate:
         self._run_copy(
             str(self.template_dir),
             project.project_dir,
-            answers_file=self._app_answers_file(app_name),
+            answers_file=project.app_answers_file_rel(app_name),
             data=data,
             src_exclude=self._app_src_excludes,
             # Use the template version that the project is currently on, unless
@@ -212,9 +212,3 @@ class InfraTemplate:
             "!*{{app_name}}*",
             "!/.template-infra/",
         ]
-
-    def _base_answers_file(self) -> str:
-        return "base.yml"
-
-    def _app_answers_file(self, app_name: str) -> str:
-        return f"app-{app_name}.yml"

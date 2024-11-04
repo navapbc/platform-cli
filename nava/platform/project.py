@@ -5,6 +5,8 @@ import yaml
 from nava.platform.get_app_names_from_infra_dir import get_app_names_from_infra_dir
 from nava.platform.util import git
 
+RelativePath = Path
+
 
 class Project:
     project_dir: Path
@@ -40,14 +42,20 @@ class Project:
             map(lambda f: f.name.removeprefix("app-").removesuffix(".yml"), app_answer_files)
         )
 
-    def base_answers_file(self) -> str:
-        return ".template-infra/base.yml"
+    def base_answers_file_rel(self) -> RelativePath:
+        return self.base_answers_file().relative_to(self.project_dir)
 
-    def app_answers_file(self, app_name: str) -> str:
-        return f".template-infra/app-{app_name}.yml"
+    def base_answers_file(self) -> Path:
+        return self.project_dir / ".template-infra/base.yml"
 
-    def _get_template_version_from_answers_file(self, answers_file: str) -> str:
-        answers_file_text = (self.project_dir / answers_file).read_text()
+    def app_answers_file_rel(self, app_name: str) -> RelativePath:
+        return self.app_answers_file(app_name).relative_to(self.project_dir)
+
+    def app_answers_file(self, app_name: str) -> Path:
+        return self.project_dir / f".template-infra/app-{app_name}.yml"
+
+    def _get_template_version_from_answers_file(self, answers_file: Path) -> str:
+        answers_file_text = answers_file.read_text()
         answers = yaml.safe_load(answers_file_text)
         return str(answers["_commit"])
 
@@ -57,7 +65,10 @@ class Project:
 
     @property
     def has_legacy_version_file(self) -> bool:
-        return (self.project_dir / ".template-version").exists()
+        return self.legacy_version_file_path().exists()
+
+    def legacy_version_file_path(self) -> Path:
+        return self.project_dir / ".template-version"
 
     def migrate_from_legacy(self, origin_template_uri: str) -> None:
         """
@@ -68,7 +79,7 @@ class Project:
         if not (self.project_dir / ".template-infra").exists():
             (self.project_dir / ".template-infra").mkdir()
 
-        template_version = (self.project_dir / ".template-version").read_text()
+        template_version = self.legacy_version_file_path().read_text()
         short_version = template_version[:7]
         common_answers = {
             "_commit": short_version,
@@ -86,12 +97,10 @@ class Project:
         base_project_config_answers = self._answers_from_project_config()
 
         base_answers = common_answers | base_project_config_answers | {"template": "base"}
-        (self.project_dir / self.base_answers_file()).write_text(
-            yaml.dump(base_answers, default_flow_style=False)
-        )
+        self.base_answers_file().write_text(yaml.dump(base_answers, default_flow_style=False))
         for app_name in self.app_names_possible:
             app_answers = common_answers | {"app_name": app_name, "template": "app"}
-            (self.project_dir / self.app_answers_file(app_name)).write_text(
+            self.app_answers_file(app_name).write_text(
                 yaml.dump(app_answers, default_flow_style=False)
             )
 
