@@ -1,4 +1,7 @@
+import logging
+from collections.abc import Callable
 from pathlib import Path
+from typing import ParamSpec, TypeVar
 
 import pytest
 from click.testing import CliRunner
@@ -11,6 +14,36 @@ from tests.lib import DirectoryContent
 from tests.lib.changeset import ChangeSet, FileChange
 
 pytest.register_assert_rewrite("tests.lib.asserts")
+
+P = ParamSpec("P")
+R = TypeVar("R")
+
+
+def retain_pytest_handlers(f: Callable[P, R]) -> Callable[P, R]:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+        pytest_handlers = [
+            handler for handler in logging.root.handlers if handler.__module__ == "_pytest.logging"
+        ]
+        ret = f(*args, **kwargs)
+        for handler in pytest_handlers:
+            if handler not in logging.root.handlers:
+                logging.root.addHandler(handler)
+        return ret
+
+    return wrapper
+
+
+# borrowed from https://github.com/pytest-dev/pytest/discussions/11618#discussioncomment-9699934
+@pytest.fixture(autouse=True)
+def keep_pytest_handlers_during_dict_config(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr(
+        logging.config, "dictConfig", retain_pytest_handlers(logging.config.dictConfig)
+    )
+
+
+@pytest.fixture(autouse=True)
+def disable_file_logging(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("LOG_TO_FILE", "false")
 
 
 @pytest.fixture

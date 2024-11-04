@@ -12,6 +12,9 @@ python = "^3.11"
 click = "^8.1.7"
 copier = "^9.4.1"
 pyyaml = "^6.0.2"
+rich = "^13.9.4"
+structlog = "^24.4.0"
+platformdirs = "^4.3.6"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.3"
