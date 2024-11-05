@@ -62,7 +62,8 @@ def install(project_dir: str, template_uri: str, version: str, data: dict[str, s
 @click.argument("project_dir")
 @click.argument("app_name")
 @opt_template_uri
-def add_app(project_dir: str, app_name: str, template_uri: str) -> None:
+@opt_data
+def add_app(project_dir: str, app_name: str, template_uri: str, data: dict[str, str] | None) -> None:
     add_app_command.add_app(template_uri, project_dir, app_name)
 
 

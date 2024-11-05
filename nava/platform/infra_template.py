@@ -52,7 +52,7 @@ class InfraTemplate:
         )
 
         for app_name in app_names:
-            self.add_app(project, app_name)
+            self.add_app(project, app_name, version=version, data=data)
 
     def update(
         self, project: Project, *, version: str | None = None, data: dict[str, str] | None = None
@@ -108,16 +108,17 @@ class InfraTemplate:
             vcs_ref=version,
         )
 
-    def add_app(self, project: Project, app_name: str) -> None:
-        data = {"app_name": app_name}
+    def add_app(self, project: Project, app_name: str, *, version: str | None = None, data: dict[str, str] | None = None) -> None:
+        data = {"app_name": app_name} | (data or {})
         self._run_copy(
             str(self.template_dir),
             project.project_dir,
             answers_file=self._app_answers_file(app_name),
             data=data,
             exclude=list(self._app_excludes),
-            # Use the template version that the project is currently on
-            vcs_ref=project.template_version,
+            # Use the template version that the project is currently on, unless
+            # an override is provided (mainly during initial install)
+            vcs_ref=version if version is not None else project.template_version,
         )
 
     @property
