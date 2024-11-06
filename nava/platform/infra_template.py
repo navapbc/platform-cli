@@ -108,7 +108,14 @@ class InfraTemplate:
             vcs_ref=version,
         )
 
-    def add_app(self, project: Project, app_name: str, *, version: str | None = None, data: dict[str, str] | None = None) -> None:
+    def add_app(
+        self,
+        project: Project,
+        app_name: str,
+        *,
+        version: str | None = None,
+        data: dict[str, str] | None = None,
+    ) -> None:
         data = {"app_name": app_name} | (data or {})
         self._run_copy(
             str(self.template_dir),
