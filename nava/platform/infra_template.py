@@ -41,12 +41,12 @@ class InfraTemplate:
         version: str | None = None,
         data: dict[str, str] | None = None,
     ) -> None:
-        data = {"app_name": "template-only"} | (data or {})
+        base_data = (data or {}) | {"app_name": "template-only"}
         self._run_copy(
             str(self.template_dir),
             project.project_dir,
             answers_file=self._base_answers_file(),
-            data=data,
+            data=base_data,
             exclude=self._base_excludes,
             vcs_ref=version,
         )
@@ -77,7 +77,7 @@ class InfraTemplate:
     def update_base(
         self, project: Project, *, version: str | None = None, data: dict[str, str] | None = None
     ) -> None:
-        data = {"app_name": "template-only"} | (data or {})
+        data = (data or {}) | {"app_name": "template-only"}
         self._run_update(
             project.project_dir,
             src_path=str(self.template_dir),
@@ -97,7 +97,7 @@ class InfraTemplate:
         version: str | None = None,
         data: dict[str, str] | None = None,
     ) -> None:
-        data = {"app_name": app_name} | (data or {})
+        data = (data or {}) | {"app_name": app_name}
         self._run_update(
             project.project_dir,
             data=data,
@@ -116,7 +116,7 @@ class InfraTemplate:
         version: str | None = None,
         data: dict[str, str] | None = None,
     ) -> None:
-        data = {"app_name": app_name} | (data or {})
+        data = (data or {}) | {"app_name": app_name}
         self._run_copy(
             str(self.template_dir),
             project.project_dir,
