@@ -71,10 +71,16 @@ def infra_template(tmp_path: Path, template_directory_content: DirectoryContent)
 
 
 @pytest.fixture
-def new_project(tmp_path: Path) -> Project:
+def new_project_no_git(tmp_path: Path) -> Project:
     project_dir = tmp_path / "project"
     project_dir.mkdir()
     project = Project(project_dir)
+    return project
+
+
+@pytest.fixture
+def new_project(new_project_no_git: Project) -> Project:
+    project = new_project_no_git
     project.git_project.init()
     return project
 

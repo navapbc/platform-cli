@@ -16,8 +16,8 @@ test_compute_excludes_data = {
             "prefix-{{app_name}}-suffix": "",
             "exclude": "",
         },
-        ["*template-only*", "{{app_name}}", "prefix-{{app_name}}-suffix"],
-        ["*template-only*", "exclude"],
+        ["*template-only*", "/{{app_name}}", "/prefix-{{app_name}}-suffix"],
+        ["*template-only*", "/exclude"],
     ),
     "nested_app_name_folders": (
         {
@@ -27,7 +27,7 @@ test_compute_excludes_data = {
                 }
             },
         },
-        ["*template-only*", "{{app_name}}root"],
+        ["*template-only*", "/{{app_name}}root"],
         ["*template-only*"],
     ),
     "buried_app_name": (
@@ -43,8 +43,8 @@ test_compute_excludes_data = {
                 }
             },
         },
-        ["*template-only*", "one/two/three-{{app_name}}"],
-        ["*template-only*", "one/two/three-exclude"],
+        ["*template-only*", "/one/two/three-{{app_name}}"],
+        ["*template-only*", "/one/two/three-exclude/"],
     ),
     "ignore_template_only": (
         {
@@ -91,17 +91,17 @@ test_compute_excludes_data = {
         },
         [
             "*template-only*",
-            ".github/workflows/ci-{{app_name}}-pr-environment-checks.yml",
-            "infra/{{app_name}}",
+            "/.github/workflows/ci-{{app_name}}-pr-environment-checks.yml",
+            "/infra/{{app_name}}",
         ],
         [
             "*template-only*",
-            ".github/workflows/pr-environment-checks.yml",
-            "bin",
-            "infra/accounts",
-            "infra/modules",
-            "infra/networks",
-            "infra/project-config",
+            "/.github/workflows/pr-environment-checks.yml",
+            "/bin/",
+            "/infra/accounts/",
+            "/infra/modules/",
+            "/infra/networks/",
+            "/infra/project-config/",
         ],
     ),
 }

@@ -155,11 +155,16 @@ class InfraTemplate:
 
     def _compute_app_includes_excludes(self, node: Inode) -> tuple[set[str], set[str]]:
         app_includes, app_excludes = self._compute_app_includes_excludes_helper(node)
-        app_excludes.difference_update([".template-infra", "."])
+        app_excludes.difference_update(["/.template-infra/", "/./"])
         return app_includes, app_excludes
 
     def _compute_app_includes_excludes_helper(self, node: Inode) -> tuple[set[str], set[str]]:
-        relpath_str = str(node.path)
+        # as these include/exclude patterns are interpreted in the same way as a
+        # `.gitignore` entry would be, refer to the specific individual files by
+        # prefixing the entries with `/` to make them explicity from the root of
+        # the template (otherwise we'll catch any files that might share the
+        # same name as the file/dir elsewhere in the template)
+        relpath_str = "/" + str(node.path)
 
         if "{{app_name}}" in relpath_str:
             return (set([relpath_str]), set())
@@ -182,6 +187,6 @@ class InfraTemplate:
         excludes: set[str] = functools.reduce(operator.or_, subexcludes, set())
 
         if len(includes) == 0:
-            return (set(), set([relpath_str]))
+            return (set(), set([relpath_str + "/"]))
 
         return (includes, excludes)
