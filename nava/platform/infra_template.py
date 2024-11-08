@@ -1,12 +1,8 @@
-import functools
-import operator
 from pathlib import Path
 
-import copier
-
+from nava.platform.copier_worker import run_copy, run_update
 from nava.platform.project import Project
 from nava.platform.util import git, wrappers
-from nava.platform.util.files.inode import DirNode, Inode
 
 
 class MergeConflictsDuringUpdateError(Exception):
@@ -17,8 +13,8 @@ class InfraTemplate:
     template_dir: Path
     git_project: git.GitProject
 
-    _base_excludes: list[str]
-    _app_excludes: list[str]
+    _base_src_excludes: list[str]
+    _app_src_excludes: list[str]
 
     def __init__(self, template_dir: Path):
         git_project = git.GitProject.from_existing(template_dir)
@@ -30,8 +26,8 @@ class InfraTemplate:
         self.git_project = git_project
 
         self._compute_excludes()
-        self._run_copy = wrappers.print_call(copier.run_copy)
-        self._run_update = wrappers.print_call(copier.run_update)
+        self._run_copy = wrappers.print_call(run_copy)
+        self._run_update = wrappers.print_call(run_update)
 
     def install(
         self,
@@ -41,13 +37,13 @@ class InfraTemplate:
         version: str | None = None,
         data: dict[str, str] | None = None,
     ) -> None:
-        base_data = (data or {}) | {"app_name": "template-only", "template": "base"}
+        base_data = (data or {}) | {"template": "base"}
         self._run_copy(
             str(self.template_dir),
             project.project_dir,
             answers_file=self._base_answers_file(),
             data=base_data,
-            exclude=self._base_excludes,
+            src_exclude=self._base_src_excludes,
             vcs_ref=version,
         )
 
@@ -77,13 +73,13 @@ class InfraTemplate:
     def update_base(
         self, project: Project, *, version: str | None = None, data: dict[str, str] | None = None
     ) -> None:
-        data = (data or {}) | {"app_name": "template-only", "template": "base"}
+        data = (data or {}) | {"template": "base"}
         self._run_update(
             project.project_dir,
             src_path=str(self.template_dir),
             data=data,
             answers_file=project.base_answers_file(),
-            exclude=self._base_excludes,
+            src_exclude=self._base_src_excludes,
             overwrite=True,
             skip_answered=True,
             vcs_ref=version,
@@ -102,7 +98,7 @@ class InfraTemplate:
             project.project_dir,
             data=data,
             answers_file=project.app_answers_file(app_name),
-            exclude=list(self._app_excludes),
+            src_exclude=self._app_src_excludes,
             overwrite=True,
             skip_answered=True,
             vcs_ref=version,
@@ -122,7 +118,7 @@ class InfraTemplate:
             project.project_dir,
             answers_file=self._app_answers_file(app_name),
             data=data,
-            exclude=list(self._app_excludes),
+            src_exclude=self._app_src_excludes,
             # Use the template version that the project is currently on, unless
             # an override is provided (mainly during initial install)
             vcs_ref=version if version is not None else project.template_version,
@@ -141,52 +137,16 @@ class InfraTemplate:
         return self.version[:7]
 
     def _compute_excludes(self) -> None:
-        node = DirNode.build_tree_from_paths(self.git_project.get_tracked_files())
-        app_includes, app_excludes = self._compute_app_includes_excludes(node)
-        global_excludes = ["*template-only*"]
-        self._base_excludes = global_excludes + list(app_includes)
-        self._app_excludes = global_excludes + list(app_excludes)
+        global_src_excludes = ["*template-only*"]
+        self._base_src_excludes = global_src_excludes + ["*{{app_name}}*"]
+        self._app_src_excludes = global_src_excludes + [
+            "*",
+            "!*{{app_name}}*",
+            "!/.template-infra/",
+        ]
 
     def _base_answers_file(self) -> str:
         return "base.yml"
 
     def _app_answers_file(self, app_name: str) -> str:
         return f"app-{app_name}.yml"
-
-    def _compute_app_includes_excludes(self, node: Inode) -> tuple[set[str], set[str]]:
-        app_includes, app_excludes = self._compute_app_includes_excludes_helper(node)
-        app_excludes.difference_update(["/.template-infra/", "/./"])
-        return app_includes, app_excludes
-
-    def _compute_app_includes_excludes_helper(self, node: Inode) -> tuple[set[str], set[str]]:
-        # as these include/exclude patterns are interpreted in the same way as a
-        # `.gitignore` entry would be, refer to the specific individual files by
-        # prefixing the entries with `/` to make them explicity from the root of
-        # the template (otherwise we'll catch any files that might share the
-        # same name as the file/dir elsewhere in the template)
-        relpath_str = "/" + str(node.path)
-
-        if "{{app_name}}" in relpath_str:
-            return (set([relpath_str]), set())
-
-        if "template-only" in relpath_str:
-            return (set(), set())
-
-        if node.is_file():
-            return (set(), set([relpath_str]))
-
-        assert isinstance(node, DirNode)
-        children = node.children.values()
-        if len(children) == 0:
-            return (set(), set())
-
-        subresults = list(self._compute_app_includes_excludes_helper(child) for child in children)
-
-        subincludes, subexcludes = zip(*subresults)
-        includes: set[str] = functools.reduce(operator.or_, subincludes, set())
-        excludes: set[str] = functools.reduce(operator.or_, subexcludes, set())
-
-        if len(includes) == 0:
-            return (set(), set([relpath_str + "/"]))
-
-        return (includes, excludes)
