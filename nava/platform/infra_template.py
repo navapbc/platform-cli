@@ -76,6 +76,10 @@ class InfraTemplate:
         data = (data or {}) | {"template": "base"}
         self._run_update(
             project.project_dir,
+            # note `src_path` currently has no effect on updates, the path from
+            # answers file is used
+            #
+            # https://github.com/navapbc/platform-cli/issues/5
             src_path=str(self.template_dir),
             data=data,
             answers_file=project.base_answers_file(),
@@ -96,6 +100,11 @@ class InfraTemplate:
         data = (data or {}) | {"app_name": app_name, "template": "app"}
         self._run_update(
             project.project_dir,
+            # note `src_path` currently has no effect on updates, the path from
+            # answers file is used
+            #
+            # https://github.com/navapbc/platform-cli/issues/5
+            src_path=str(self.template_dir),
             data=data,
             answers_file=project.app_answers_file(app_name),
             src_exclude=self._app_src_excludes,
