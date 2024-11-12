@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from nava.platform.copier_worker import run_copy, run_update
+from nava.platform.copier_worker import render_template_file, run_copy, run_update
 from nava.platform.project import Project
 from nava.platform.util import git, wrappers
 
@@ -89,6 +89,13 @@ class InfraTemplate:
             vcs_ref=version,
         )
 
+        # the network file needs re-rendered with the app_names
+        self._update_network_config(
+            project,
+            app_names=project.app_names,
+            version=version,
+        )
+
     def update_app(
         self,
         project: Project,
@@ -120,6 +127,7 @@ class InfraTemplate:
         *,
         version: str | None = None,
         data: dict[str, str] | None = None,
+        existing_apps: list[str] | None = None,
     ) -> None:
         data = (data or {}) | {"app_name": app_name, "template": "app"}
         self._run_copy(
@@ -132,6 +140,47 @@ class InfraTemplate:
             # an override is provided (mainly during initial install)
             vcs_ref=version if version is not None else project.template_version,
         )
+
+        # the network config is added/maintained in the base template, but it is
+        # supposed to import every app config module, so update it for the added app
+        self._update_network_config(
+            project,
+            # `project.app_names` should already include the just added app,
+            # but in case caching is ever added there, be sure to included the
+            # new app name
+            app_names=sorted(set((existing_apps or project.app_names) + [app_name])),
+            version=version,
+        )
+
+    def _update_network_config(
+        self, project: Project, app_names: list[str], *, version: str | None = None
+    ) -> None:
+        data = {"app_names": list(app_names)}
+        path = "infra/networks/main.tf.jinja"
+
+        if not (self.template_dir / path).exists():
+            return
+
+        print(f"Regenerating {path.removesuffix('.jinja')}")
+
+        # TODO: this might conceivably need to include the base template
+        # data/answers at some point
+        render_template_file(
+            src_path=str(self.template_dir),
+            src_file_path=path,
+            dst_path=project.project_dir,
+            data=data,
+            # Use the template version that the project is currently on, unless
+            # an override is provided (mainly during initial install)
+            vcs_ref=version if version is not None else project.template_version,
+            overwrite=True,
+            # this will basically always show a conflict for the update, so
+            # mimic upstream behavior and be quiet about it
+            quiet=True,
+        )
+
+        # TODO: run `terraform fmt` after? Currently left for folks to do
+        # manually.
 
     @property
     def version(self) -> str:
