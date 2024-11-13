@@ -76,12 +76,75 @@ class Project:
             "_src_path": origin_template_uri,
         }
 
-        base_answers = common_answers | {"app_name": "template-only"}
+        base_project_config_answers = self._answers_from_project_config()
+
+        base_answers = common_answers | base_project_config_answers | {"template": "base"}
         (self.project_dir / self.base_answers_file()).write_text(
             yaml.dump(base_answers, default_flow_style=False)
         )
         for app_name in self.app_names:
-            app_answers = common_answers | {"app_name": app_name}
+            app_answers = common_answers | {"app_name": app_name, "template": "app"}
             (self.project_dir / self.app_answers_file(app_name)).write_text(
                 yaml.dump(app_answers, default_flow_style=False)
             )
+
+    def _answers_from_project_config(self) -> dict[str, str]:
+        import json
+        import shutil
+        import subprocess
+
+        is_terraform_available = shutil.which("terraform") is not None
+        project_config_dir = self.project_dir / "infra/project-config"
+        project_config_file = project_config_dir / "main.tf"
+
+        if not (project_config_file.exists() and is_terraform_available):
+            return {}
+
+        # be sure the local project has the lastest data
+        subprocess.run(["terraform", "refresh"], cwd=project_config_dir, stdout=subprocess.DEVNULL)
+
+        # attempt to read the project-config
+        result = subprocess.run(
+            ["terraform", "output", "-json"],
+            cwd=project_config_dir,
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            print(
+                "Error from terraform getting project config. Skipping migrating project config automatically."
+            )
+            return {}
+
+        try:
+            project_config = json.loads(result.stdout)
+        except json.JSONDecodeError:
+            print(
+                "Error parsing JSON response from terraform. Skipping migrating project config automatically."
+            )
+            return {}
+
+        if not isinstance(project_config, dict):
+            print(
+                "Project config is not in the expected format. Skipping migrating project config automatically."
+            )
+            return {}
+
+        mapping = {
+            "base_project_name": "project_name",
+            "base_owner": "owner",
+            "base_code_repository_url": "code_repository_url",
+            "base_default_region": "default_region",
+        }
+
+        answers = {}
+        for answer_key, project_config_key in mapping.items():
+            project_config_output = project_config.get(project_config_key, None)
+            if not project_config_output:
+                continue
+
+            project_config_value = project_config_output.get("value", None)
+            if clean_answer := str(project_config_value).strip():
+                answers[answer_key] = clean_answer
+
+        return answers
