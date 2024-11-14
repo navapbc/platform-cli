@@ -58,7 +58,9 @@ class InfraTemplate:
         if project.git_project.has_merge_conflicts():
             raise MergeConflictsDuringUpdateError()
 
-        project.git_project.commit_all(f"Update base to version {project.base_template_version()}")
+        project.git_project.commit_all(
+            f"Update infra base to version {project.base_template_version()}"
+        )
 
         for app_name in project.app_names:
             self.update_app(project, app_name, version=version, data=data)
@@ -67,7 +69,7 @@ class InfraTemplate:
                 raise MergeConflictsDuringUpdateError()
 
             project.git_project.commit_all(
-                f"Update app {app_name} to version {project.app_template_version(app_name)}"
+                f"Update infra app {app_name} to version {project.app_template_version(app_name)}"
             )
 
     def update_base(
