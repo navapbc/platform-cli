@@ -30,8 +30,15 @@ class Project:
         return self._get_template_version_from_answers_file(self.app_answers_file(app_name))
 
     @property
-    def app_names(self) -> list[str]:
+    def app_names_possible(self) -> list[str]:
         return get_app_names_from_infra_dir(self.project_dir)
+
+    @property
+    def app_names(self) -> list[str]:
+        app_answer_files = self.project_dir.glob(".template-infra/app-*.yml")
+        return list(
+            map(lambda f: f.name.removeprefix("app-").removesuffix(".yml"), app_answer_files)
+        )
 
     def base_answers_file(self) -> str:
         return ".template-infra/base.yml"
@@ -82,7 +89,7 @@ class Project:
         (self.project_dir / self.base_answers_file()).write_text(
             yaml.dump(base_answers, default_flow_style=False)
         )
-        for app_name in self.app_names:
+        for app_name in self.app_names_possible:
             app_answers = common_answers | {"app_name": app_name, "template": "app"}
             (self.project_dir / self.app_answers_file(app_name)).write_text(
                 yaml.dump(app_answers, default_flow_style=False)
