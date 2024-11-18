@@ -53,27 +53,18 @@ class InfraTemplate:
     def update(
         self, project: Project, *, version: str | None = None, data: dict[str, str] | None = None
     ) -> None:
-        self.update_base(project, version=version, data=data)
-
-        if project.git_project.has_merge_conflicts():
-            raise MergeConflictsDuringUpdateError()
-
-        project.git_project.commit_all(
-            f"Update infra base to version {project.base_template_version()}"
-        )
+        self.update_base(project, version=version, data=data, commit=True)
 
         for app_name in project.app_names:
-            self.update_app(project, app_name, version=version, data=data)
-
-            if project.git_project.has_merge_conflicts():
-                raise MergeConflictsDuringUpdateError()
-
-            project.git_project.commit_all(
-                f"Update infra app {app_name} to version {project.app_template_version(app_name)}"
-            )
+            self.update_app(project, app_name, version=version, data=data, commit=True)
 
     def update_base(
-        self, project: Project, *, version: str | None = None, data: dict[str, str] | None = None
+        self,
+        project: Project,
+        *,
+        version: str | None = None,
+        data: dict[str, str] | None = None,
+        commit: bool = False,
     ) -> None:
         data = (data or {}) | {"template": "base"}
         self._run_update(
@@ -98,6 +89,14 @@ class InfraTemplate:
             version=version,
         )
 
+        if commit:
+            if project.git_project.has_merge_conflicts():
+                raise MergeConflictsDuringUpdateError()
+
+            project.git_project.commit_all(
+                f"Update infra base to version {project.base_template_version()}"
+            )
+
     def update_app(
         self,
         project: Project,
@@ -105,6 +104,7 @@ class InfraTemplate:
         *,
         version: str | None = None,
         data: dict[str, str] | None = None,
+        commit: bool = False,
     ) -> None:
         data = (data or {}) | {"app_name": app_name, "template": "app"}
         self._run_update(
@@ -121,6 +121,14 @@ class InfraTemplate:
             skip_answered=True,
             vcs_ref=version,
         )
+
+        if commit:
+            if project.git_project.has_merge_conflicts():
+                raise MergeConflictsDuringUpdateError()
+
+            project.git_project.commit_all(
+                f"Update infra app {app_name} to version {project.app_template_version(app_name)}"
+            )
 
     def add_app(
         self,

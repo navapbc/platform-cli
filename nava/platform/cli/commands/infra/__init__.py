@@ -91,10 +91,13 @@ def update(project_dir: str, template_uri: str, version: str, data: dict[str, st
 @opt_template_uri
 @opt_version
 @opt_data
+@click.option(
+    "--commit/--no-commit", default=False, help="Commit changes with standard message if able."
+)
 def update_base(
-    project_dir: str, template_uri: str, version: str, data: dict[str, str] | None
+    project_dir: str, template_uri: str, version: str, data: dict[str, str] | None, commit: bool
 ) -> None:
-    update_command.update_base(template_uri, project_dir, version=version, data=data)
+    update_command.update_base(template_uri, project_dir, version=version, data=data, commit=commit)
 
 
 @infra.command()
@@ -103,14 +106,22 @@ def update_base(
 @opt_template_uri
 @opt_version
 @opt_data
+@click.option(
+    "--commit/--no-commit", default=False, help="Commit changes with standard message if able."
+)
+@click.option("--all", is_flag=True, default=False, help="Attempt to update all known apps.")
 def update_app(
     project_dir: str,
     app_name: str | None,
     template_uri: str,
     version: str,
     data: dict[str, str] | None,
+    commit: bool,
+    all: bool,
 ) -> None:
-    update_command.update_app(template_uri, project_dir, app_name, version=version, data=data)
+    update_command.update_app(
+        template_uri, project_dir, app_name, version=version, data=data, commit=commit, all=all
+    )
 
 
 @infra.command()

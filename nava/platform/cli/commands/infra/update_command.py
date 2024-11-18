@@ -23,10 +23,11 @@ def update_base(
     project_dir: str,
     version: str | None = None,
     data: dict[str, str] | None = None,
+    commit: bool = False,
 ) -> None:
     template = InfraTemplate(Path(template_dir))
     project = Project(Path(project_dir))
-    template.update_base(project, version=version, data=data)
+    template.update_base(project, version=version, data=data, commit=commit)
 
 
 def update_app(
@@ -35,19 +36,28 @@ def update_app(
     app_name: str | None,
     version: str | None = None,
     data: dict[str, str] | None = None,
+    commit: bool = False,
+    all: bool = True,
 ) -> None:
     template = InfraTemplate(Path(template_dir))
     project = Project(Path(project_dir))
 
-    if not app_name:
-        app_name = cast(
-            str,
-            click.prompt(
-                "Which app",
-                prompt_suffix="? ",
-                type=click.Choice(project.app_names),
-                show_choices=True,
-            ),
-        )
+    if all:
+        if not commit:
+            raise click.UsageError("If using --all, must also specify --commit.")
 
-    template.update_app(project, app_name, version=version, data=data)
+        for app_name in project.app_names:
+            template.update_app(project, app_name, version=version, data=data, commit=commit)
+    else:
+        if not app_name:
+            app_name = cast(
+                str,
+                click.prompt(
+                    "Which app",
+                    prompt_suffix="? ",
+                    type=click.Choice(project.app_names),
+                    show_choices=True,
+                ),
+            )
+
+        template.update_app(project, app_name, version=version, data=data, commit=commit)
