@@ -26,6 +26,7 @@ nava-platform = "nava.platform.cli.__main__:__main__"
 [tool.mypy]
 strict = true
 pretty = true
+enable_error_code = ["ignore-without-code"]
 
 [[tool.mypy.overrides]]
 module = "tests.*"
