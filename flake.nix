@@ -78,6 +78,12 @@
             "nava-platform-cli" = ./.;
           };
           overrides = poetryOverrides;
+          extraPackages =
+            ps: with ps; [
+              jedi-language-server
+              python-lsp-server
+              pyflakes
+            ];
         };
 
         # TODO: could add docker-client here?
