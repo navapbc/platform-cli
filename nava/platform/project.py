@@ -2,6 +2,7 @@ from pathlib import Path
 
 import yaml
 
+from nava.platform.cli.context import CliContext
 from nava.platform.get_app_names_from_infra_dir import get_app_names_from_infra_dir
 from nava.platform.util import git
 
@@ -70,7 +71,7 @@ class Project:
     def legacy_version_file_path(self) -> Path:
         return self.project_dir / ".template-version"
 
-    def migrate_from_legacy(self, origin_template_uri: str) -> None:
+    def migrate_from_legacy(self, ctx: CliContext, origin_template_uri: str) -> None:
         """
         Create copier answers files in .template-infra
         from the legacy .template-version file
@@ -94,7 +95,7 @@ class Project:
             "_src_path": origin_template_uri,
         }
 
-        base_project_config_answers = self._answers_from_project_config()
+        base_project_config_answers = self._answers_from_project_config(ctx)
 
         base_answers = common_answers | base_project_config_answers | {"template": "base"}
         self.base_answers_file().write_text(yaml.dump(base_answers, default_flow_style=False))
@@ -104,7 +105,7 @@ class Project:
                 yaml.dump(app_answers, default_flow_style=False)
             )
 
-    def _answers_from_project_config(self) -> dict[str, str]:
+    def _answers_from_project_config(self, ctx: CliContext) -> dict[str, str]:
         import json
         import shutil
         import subprocess
@@ -127,7 +128,7 @@ class Project:
             text=True,
         )
         if result.returncode != 0:
-            print(
+            ctx.console.warning.print(
                 "Error from terraform getting project config. Skipping migrating project config automatically."
             )
             return {}
@@ -135,13 +136,13 @@ class Project:
         try:
             project_config = json.loads(result.stdout)
         except json.JSONDecodeError:
-            print(
+            ctx.console.warning.print(
                 "Error parsing JSON response from terraform. Skipping migrating project config automatically."
             )
             return {}
 
         if not isinstance(project_config, dict):
-            print(
+            ctx.console.warning.print(
                 "Project config is not in the expected format. Skipping migrating project config automatically."
             )
             return {}

@@ -163,6 +163,7 @@ def update_app(
     "--origin-template-uri",
     default="https://github.com/navapbc/template-infra",
     help="Path or URL to the legacy infra template that was used to set up the project. Can be a path to a local clone of template-infra. Defaults to the template-infra repository on GitHub.",
+    required=True,
 )
 @pass_cli_ctx
 def migrate_from_legacy(ctx: CliContext, project_dir: str, origin_template_uri: str) -> None:
