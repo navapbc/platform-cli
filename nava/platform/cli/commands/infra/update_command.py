@@ -1,8 +1,9 @@
 from pathlib import Path
 from typing import cast
 
-import click
+import questionary
 
+from nava.platform.cli.context import CliContext
 from nava.platform.infra_template import InfraTemplate
 from nava.platform.project import Project
 
@@ -31,9 +32,10 @@ def update_base(
 
 
 def update_app(
+    ctx: CliContext,
     template_dir: str,
     project_dir: str,
-    app_name: str | None,
+    app_names: list[str],
     version: str | None = None,
     data: dict[str, str] | None = None,
     commit: bool = False,
@@ -44,20 +46,36 @@ def update_app(
 
     if all:
         if not commit:
-            raise click.UsageError("If using --all, must also specify --commit.")
+            ctx.fail("If using --all, must also specify --commit.")
 
-        for app_name in project.app_names:
-            template.update_app(project, app_name, version=version, data=data, commit=commit)
+        if app_names:
+            ctx.fail("If using --all, don't specify app names as arguments")
+
+        app_names = project.app_names
     else:
-        if not app_name:
-            app_name = cast(
-                str,
-                click.prompt(
-                    "Which app",
-                    prompt_suffix="? ",
-                    type=click.Choice(project.app_names),
-                    show_choices=True,
-                ),
-            )
+        if not app_names:
+            if len(project.app_names) == 1:
+                app_names = project.app_names
+                ctx.console.print(f"Only one app detected, updating '{app_names[0]}'")
+            else:
+                app_names = cast(
+                    list[str],
+                    questionary.checkbox(
+                        "Which app(s)?",
+                        choices=project.app_names,
+                        use_search_filter=True,
+                        use_jk_keys=False,
+                        validate=lambda choices: "You must choose at least one app to update"
+                        if not choices
+                        else True,
+                    ).unsafe_ask(),
+                )
+        elif wrong_app_names := sorted(list(set(app_names).difference(project.app_names))):
+            if len(wrong_app_names) == 1:
+                ctx.console.error.print(f"App '{wrong_app_names[0]}' does not exist in the project")
+            else:
+                ctx.console.error.print(f"Apps {wrong_app_names} do not exist in the project")
+            ctx.exit(1)
 
-        template.update_app(project, app_name, version=version, data=data, commit=commit)
+        for app_name in app_names:
+            template.update_app(project, app_name, version=version, data=data, commit=commit)

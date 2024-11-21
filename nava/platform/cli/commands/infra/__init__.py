@@ -1,5 +1,6 @@
 import click
 
+from nava.platform.cli.context import CliContext, pass_cli_ctx
 from nava.platform.infra_template import MergeConflictsDuringUpdateError
 
 from . import add_app_command, install_command, migrate_from_legacy_command, update_command
@@ -102,7 +103,7 @@ def update_base(
 
 @infra.command()
 @click.argument("project_dir")
-@click.argument("app_name", required=False)
+@click.argument("app_name", nargs=-1)
 @opt_template_uri
 @opt_version
 @opt_data
@@ -110,9 +111,11 @@ def update_base(
     "--commit/--no-commit", default=False, help="Commit changes with standard message if able."
 )
 @click.option("--all", is_flag=True, default=False, help="Attempt to update all known apps.")
+@pass_cli_ctx
 def update_app(
+    ctx: CliContext,
     project_dir: str,
-    app_name: str | None,
+    app_name: list[str],
     template_uri: str,
     version: str,
     data: dict[str, str] | None,
@@ -120,7 +123,14 @@ def update_app(
     all: bool,
 ) -> None:
     update_command.update_app(
-        template_uri, project_dir, app_name, version=version, data=data, commit=commit, all=all
+        ctx,
+        template_uri,
+        project_dir,
+        app_names=app_name,
+        version=version,
+        data=data,
+        commit=commit,
+        all=all,
     )
 
 

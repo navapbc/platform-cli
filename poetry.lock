@@ -654,13 +654,17 @@ version = "2.0.1"
 description = "Python library to build pretty command line user prompts ⭐️"
 optional = false
 python-versions = ">=3.8"
-files = [
-    {file = "questionary-2.0.1-py3-none-any.whl", hash = "sha256:8ab9a01d0b91b68444dff7f6652c1e754105533f083cbe27597c8110ecc230a2"},
-    {file = "questionary-2.0.1.tar.gz", hash = "sha256:bcce898bf3dbb446ff62830c86c5c6fb9a22a54146f0f5597d3da43b10d8fc8b"},
-]
+files = []
+develop = false
 
 [package.dependencies]
-prompt_toolkit = ">=2.0,<=3.0.36"
+prompt_toolkit = ">=2.0,<4.0"
+
+[package.source]
+type = "git"
+url = "https://github.com/tmbo/questionary.git"
+reference = "HEAD"
+resolved_reference = "ff22aeae1cd9c1c734f14329934e349bec7873bc"
 
 [[package]]
 name = "rich"
@@ -802,4 +806,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "1b8fa90b32cc48e5767d8cbb7e6268cd944c9d1e622355506d2d00fb81d641e7"
+content-hash = "df852529ab902263e4f7bb7ac85e3a36803bae91d9a042e39f3ceaeda4fd00bc"

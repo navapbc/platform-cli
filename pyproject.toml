@@ -15,6 +15,7 @@ pyyaml = "^6.0.2"
 rich = "^13.9.4"
 structlog = "^24.4.0"
 platformdirs = "^4.3.6"
+questionary = {git = "https://github.com/tmbo/questionary.git"}
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.3"
