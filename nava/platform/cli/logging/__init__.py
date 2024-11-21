@@ -38,7 +38,7 @@ def initialize(
         log_file=log_file,
     )
 
-    log.info("start", argv=sys.argv)
+    log.info("start", argv=sys.argv, cwd=os.getcwd())
     atexit.register(exit_handler, log)
 
     return log
