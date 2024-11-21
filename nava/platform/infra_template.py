@@ -90,11 +90,9 @@ class InfraTemplate:
         )
 
         if commit:
-            if project.git_project.has_merge_conflicts():
-                raise MergeConflictsDuringUpdateError()
-
-            project.git_project.commit_all(
-                f"Update infra base to version {project.base_template_version()}"
+            self._commit_project(
+                project,
+                f"Update infra-base to version {project.base_template_version()}",
             )
 
     def update_app(
@@ -123,12 +121,16 @@ class InfraTemplate:
         )
 
         if commit:
-            if project.git_project.has_merge_conflicts():
-                raise MergeConflictsDuringUpdateError()
-
-            project.git_project.commit_all(
-                f"Update infra app {app_name} to version {project.app_template_version(app_name)}"
+            self._commit_project(
+                project,
+                f"Update infra-app `{app_name}` to version {project.app_template_version(app_name)}",
             )
+
+    def _commit_project(self, project: Project, msg: str) -> None:
+        if project.git_project.has_merge_conflicts():
+            raise MergeConflictsDuringUpdateError()
+
+        project.git_project.commit_all(msg)
 
     def add_app(
         self,
