@@ -2,10 +2,12 @@ import logging
 from collections.abc import Callable
 from pathlib import Path
 from typing import ParamSpec, TypeVar
+from unittest.mock import create_autospec
 
 import pytest
 from click.testing import CliRunner
 
+from nava.platform.cli.context import CliContext
 from nava.platform.cli.main import cli as nava_cli
 from nava.platform.infra_template import InfraTemplate
 from nava.platform.project import Project
@@ -176,3 +178,23 @@ def infra_template_dirty(infra_template: InfraTemplate, new_project: Project) ->
     infra_template.git_project.commit("Dirty state")
 
     return infra_template
+
+
+@pytest.fixture
+def cli_context(mocker) -> CliContext:
+    # in Python 3.14 this could just be:
+    #
+    #   return create_autospec(CliContext, instance=True)  # type: ignore[no-any-return]
+    #
+    # see https://github.com/python/cpython/issues/124176
+
+    import dataclasses
+
+    fields = dataclasses.fields(CliContext)
+
+    mock: CliContext = create_autospec(CliContext, instance=True)
+
+    for f in fields:
+        setattr(mock, f.name, create_autospec(f.type))
+
+    return mock

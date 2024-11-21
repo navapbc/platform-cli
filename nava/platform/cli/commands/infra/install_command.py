@@ -2,11 +2,13 @@ from pathlib import Path
 
 import click
 
+from nava.platform.cli.context import CliContext
 from nava.platform.infra_template import InfraTemplate
 from nava.platform.project import Project
 
 
 def install(
+    ctx: CliContext,
     template_dir: str,
     project_dir: str,
     version: str | None = None,

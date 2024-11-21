@@ -24,6 +24,7 @@ pytest-watch = "^4.2.0"
 mypy = "^1.11.2"
 types-pyyaml = "^6.0.12.20240917"
 ruff = "0.6.1"
+pytest-mock = "^3.14.0"
 
 [tool.poetry.scripts]
 nava-platform = "nava.platform.cli.__main__:__main__"

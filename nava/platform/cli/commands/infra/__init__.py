@@ -63,8 +63,11 @@ opt_data = click.option(
 @opt_template_uri
 @opt_version
 @opt_data
-def install(project_dir: str, template_uri: str, version: str, data: dict[str, str] | None) -> None:
-    install_command.install(template_uri, project_dir, version=version, data=data)
+@pass_cli_ctx
+def install(
+    ctx: CliContext, project_dir: str, template_uri: str, version: str, data: dict[str, str] | None
+) -> None:
+    install_command.install(ctx, template_uri, project_dir, version=version, data=data)
 
 
 @infra.command()
@@ -72,10 +75,11 @@ def install(project_dir: str, template_uri: str, version: str, data: dict[str, s
 @click.argument("app_name")
 @opt_template_uri
 @opt_data
+@pass_cli_ctx
 def add_app(
-    project_dir: str, app_name: str, template_uri: str, data: dict[str, str] | None
+    ctx: CliContext, project_dir: str, app_name: str, template_uri: str, data: dict[str, str] | None
 ) -> None:
-    add_app_command.add_app(template_uri, project_dir, app_name, data=data)
+    add_app_command.add_app(ctx, template_uri, project_dir, app_name, data=data)
 
 
 @infra.command()
@@ -83,9 +87,12 @@ def add_app(
 @opt_template_uri
 @opt_version
 @opt_data
-def update(project_dir: str, template_uri: str, version: str, data: dict[str, str] | None) -> None:
+@pass_cli_ctx
+def update(
+    ctx: CliContext, project_dir: str, template_uri: str, version: str, data: dict[str, str] | None
+) -> None:
     try:
-        update_command.update(template_uri, project_dir, version=version, data=data)
+        update_command.update(ctx, template_uri, project_dir, version=version, data=data)
     except MergeConflictsDuringUpdateError as error:
         click.echo()
         message = (
@@ -103,10 +110,18 @@ def update(project_dir: str, template_uri: str, version: str, data: dict[str, st
 @click.option(
     "--commit/--no-commit", default=False, help="Commit changes with standard message if able."
 )
+@pass_cli_ctx
 def update_base(
-    project_dir: str, template_uri: str, version: str, data: dict[str, str] | None, commit: bool
+    ctx: CliContext,
+    project_dir: str,
+    template_uri: str,
+    version: str,
+    data: dict[str, str] | None,
+    commit: bool,
 ) -> None:
-    update_command.update_base(template_uri, project_dir, version=version, data=data, commit=commit)
+    update_command.update_base(
+        ctx, template_uri, project_dir, version=version, data=data, commit=commit
+    )
 
 
 @infra.command()
@@ -149,8 +164,9 @@ def update_app(
     default="https://github.com/navapbc/template-infra",
     help="Path or URL to the legacy infra template that was used to set up the project. Can be a path to a local clone of template-infra. Defaults to the template-infra repository on GitHub.",
 )
-def migrate_from_legacy(project_dir: str, origin_template_uri: str) -> None:
-    migrate_from_legacy_command.migrate_from_legacy(project_dir, origin_template_uri)
+@pass_cli_ctx
+def migrate_from_legacy(ctx: CliContext, project_dir: str, origin_template_uri: str) -> None:
+    migrate_from_legacy_command.migrate_from_legacy(ctx, project_dir, origin_template_uri)
 
 
 @infra.command()

@@ -1,6 +1,7 @@
 import pytest
 
 from nava.platform.cli.commands.infra import migrate_from_legacy_command, update_command
+from nava.platform.cli.context import CliContext
 from nava.platform.infra_template import InfraTemplate
 from nava.platform.project import Project
 from tests.lib import FileChange
@@ -8,7 +9,7 @@ from tests.lib.changeset import ChangeSet
 
 
 @pytest.fixture
-def legacy_project(infra_template: InfraTemplate, new_project: Project, cli) -> Project:
+def legacy_project(infra_template: InfraTemplate, new_project: Project) -> Project:
     """
     Return a project with a clean install of the infra template
     but with the legacy .template-version file
@@ -20,7 +21,7 @@ def legacy_project(infra_template: InfraTemplate, new_project: Project, cli) -> 
 
 
 @pytest.fixture
-def legacy_multi_app_project(infra_template: InfraTemplate, new_project: Project, cli) -> Project:
+def legacy_multi_app_project(infra_template: InfraTemplate, new_project: Project) -> Project:
     """
     Return a project with multiple apps
     that has a legacy .template-version file
@@ -32,10 +33,12 @@ def legacy_multi_app_project(infra_template: InfraTemplate, new_project: Project
     return new_project
 
 
-def test_migrate_from_legacy(cli, infra_template: InfraTemplate, legacy_project: Project):
+def test_migrate_from_legacy(
+    infra_template: InfraTemplate, legacy_project: Project, cli_context: CliContext
+):
     project = legacy_project
     migrate_from_legacy_command.migrate_from_legacy(
-        str(project.project_dir), str(infra_template.template_dir)
+        cli_context, str(project.project_dir), str(infra_template.template_dir)
     )
     project.git_project.commit_all("Migrate from legacy")
 
@@ -47,7 +50,7 @@ def test_migrate_from_legacy(cli, infra_template: InfraTemplate, legacy_project:
     ).apply(infra_template.template_dir)
     infra_template.git_project.commit_all("Change template")
 
-    update_command.update(str(infra_template.template_dir), str(project.project_dir))
+    update_command.update(cli_context, str(infra_template.template_dir), str(project.project_dir))
 
     assert project.template_version == infra_template.short_version
     assert (project.project_dir / "infra/modules/service/main.tf").read_text() == "changed\n"
@@ -55,11 +58,11 @@ def test_migrate_from_legacy(cli, infra_template: InfraTemplate, legacy_project:
 
 
 def test_migrate_from_legacy_with_multi_app_project(
-    cli, infra_template: InfraTemplate, legacy_multi_app_project: Project
+    infra_template: InfraTemplate, legacy_multi_app_project: Project, cli_context: CliContext
 ):
     project = legacy_multi_app_project
     migrate_from_legacy_command.migrate_from_legacy(
-        str(project.project_dir), str(infra_template.template_dir)
+        cli_context, str(project.project_dir), str(infra_template.template_dir)
     )
     project.git_project.commit_all("Migrate from legacy")
 
@@ -71,7 +74,7 @@ def test_migrate_from_legacy_with_multi_app_project(
     ).apply(infra_template.template_dir)
     infra_template.git_project.commit_all("Change template")
 
-    update_command.update(str(infra_template.template_dir), str(project.project_dir))
+    update_command.update(cli_context, str(infra_template.template_dir), str(project.project_dir))
 
     assert project.template_version == infra_template.short_version
     assert (project.project_dir / "infra/modules/service/main.tf").read_text() == "changed\n"

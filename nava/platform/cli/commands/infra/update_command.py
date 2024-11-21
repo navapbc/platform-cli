@@ -9,6 +9,7 @@ from nava.platform.project import Project
 
 
 def update(
+    ctx: CliContext,
     template_dir: str,
     project_dir: str,
     version: str | None = None,
@@ -20,6 +21,7 @@ def update(
 
 
 def update_base(
+    ctx: CliContext,
     template_dir: str,
     project_dir: str,
     version: str | None = None,
