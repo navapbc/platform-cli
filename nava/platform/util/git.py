@@ -90,6 +90,29 @@ class GitProject:
         )
         return result.stdout.splitlines()
 
+    def get_tags(self, *args: str) -> list[str]:
+        result = subprocess.run(
+            ["git", "tag"] + list(args),
+            cwd=self.dir,
+            capture_output=True,
+            text=True,
+        )
+        return result.stdout.splitlines()
+
+    def get_closest_tag(self, commit_hash: str) -> str | None:
+        result = subprocess.run(
+            ["git", "describe", "--exclude", commit_hash, "--contains", commit_hash],
+            cwd=self.dir,
+            capture_output=True,
+            text=True,
+        )
+
+        if result.returncode != 0:
+            return None
+
+        first_tag = result.stdout.partition("~")[0]
+        return first_tag
+
 
 def is_a_git_worktree(dir: Path) -> bool:
     result = subprocess.run(

@@ -1,9 +1,17 @@
+from pathlib import Path
+
 import click
 
 from nava.platform.cli.context import CliContext, pass_cli_ctx
 from nava.platform.infra_template import MergeConflictsDuringUpdateError
 
-from . import add_app_command, install_command, migrate_from_legacy_command, update_command
+from . import (
+    add_app_command,
+    info_command,
+    install_command,
+    migrate_from_legacy_command,
+    update_command,
+)
 
 
 @click.group()
@@ -143,3 +151,14 @@ def update_app(
 )
 def migrate_from_legacy(project_dir: str, origin_template_uri: str) -> None:
     migrate_from_legacy_command.migrate_from_legacy(project_dir, origin_template_uri)
+
+
+@infra.command()
+@click.argument("project_dir", type=click.Path(exists=True, file_okay=False, path_type=Path))
+@click.option(
+    "--template-uri",
+    help="Path or URL to infra template. Can be a path to a local clone of template-infra. Defaults to the template-infra repository on GitHub.",
+)
+@pass_cli_ctx
+def info(ctx: CliContext, project_dir: Path, template_uri: str | None) -> None:
+    info_command.info(ctx, project_dir, template_uri)
