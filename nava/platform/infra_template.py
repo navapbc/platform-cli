@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from nava.platform.cli.context import CliContext
 from nava.platform.copier_worker import render_template_file, run_copy, run_update
 from nava.platform.project import Project
 from nava.platform.util import git, wrappers
@@ -10,13 +11,16 @@ class MergeConflictsDuringUpdateError(Exception):
 
 
 class InfraTemplate:
+    ctx: CliContext
     template_dir: Path
     git_project: git.GitProject
 
     _base_src_excludes: list[str]
     _app_src_excludes: list[str]
 
-    def __init__(self, template_dir: Path):
+    def __init__(self, ctx: CliContext, template_dir: Path):
+        self.ctx = ctx
+
         git_project = git.GitProject.from_existing(template_dir)
 
         if git_project is None:
@@ -26,8 +30,8 @@ class InfraTemplate:
         self.git_project = git_project
 
         self._compute_excludes()
-        self._run_copy = wrappers.print_call(run_copy)
-        self._run_update = wrappers.print_call(run_update)
+        self._run_copy = wrappers.log_call(run_copy, logger=ctx.log.info)
+        self._run_update = wrappers.log_call(run_update, logger=ctx.log.info)
 
     def install(
         self,
@@ -173,7 +177,7 @@ class InfraTemplate:
         if not (self.template_dir / path).exists():
             return
 
-        print(f"Regenerating {path.removesuffix('.jinja')}")
+        self.ctx.console.print(f"Regenerating {path.removesuffix('.jinja')}")
 
         # TODO: this might conceivably need to include the base template
         # data/answers at some point

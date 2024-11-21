@@ -86,7 +86,9 @@ def template_directory_content() -> DirectoryContent:
 
 
 @pytest.fixture
-def infra_template(tmp_path: Path, template_directory_content: DirectoryContent) -> InfraTemplate:
+def infra_template(
+    tmp_path: Path, template_directory_content: DirectoryContent, cli_context: CliContext
+) -> InfraTemplate:
     template_dir = tmp_path / "template"
     template_dir.mkdir()
     template_directory_content.to_fs(str(template_dir))
@@ -95,7 +97,7 @@ def infra_template(tmp_path: Path, template_directory_content: DirectoryContent)
     git_project.init()
     git_project.commit_all("Initial commit")
 
-    template = InfraTemplate(template_dir)
+    template = InfraTemplate(cli_context, template_dir)
 
     # Temporarily rename main to lorenyu/platform-cli since the rollout plan
     # for the Platform CLI will temporarily default the --version option

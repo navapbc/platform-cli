@@ -14,7 +14,7 @@ def install(
     version: str | None = None,
     data: dict[str, str] | None = None,
 ) -> None:
-    template = InfraTemplate(Path(template_dir))
+    template = InfraTemplate(ctx, Path(template_dir))
     project = Project(Path(project_dir))
     app_names = project.app_names
 

@@ -15,7 +15,7 @@ def update(
     version: str | None = None,
     data: dict[str, str] | None = None,
 ) -> None:
-    template = InfraTemplate(Path(template_dir))
+    template = InfraTemplate(ctx, Path(template_dir))
     project = Project(Path(project_dir))
     template.update(project, version=version, data=data)
 
@@ -28,7 +28,7 @@ def update_base(
     data: dict[str, str] | None = None,
     commit: bool = False,
 ) -> None:
-    template = InfraTemplate(Path(template_dir))
+    template = InfraTemplate(ctx, Path(template_dir))
     project = Project(Path(project_dir))
     template.update_base(project, version=version, data=data, commit=commit)
 
@@ -43,7 +43,7 @@ def update_app(
     commit: bool = False,
     all: bool = True,
 ) -> None:
-    template = InfraTemplate(Path(template_dir))
+    template = InfraTemplate(ctx, Path(template_dir))
     project = Project(Path(project_dir))
 
     if all:

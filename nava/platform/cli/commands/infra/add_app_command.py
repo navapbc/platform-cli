@@ -12,6 +12,6 @@ def add_app(
     app_name: str,
     data: dict[str, str] | None = None,
 ) -> None:
-    template = InfraTemplate(Path(template_dir))
+    template = InfraTemplate(ctx, Path(template_dir))
     project = Project(Path(project_dir))
     template.add_app(project, app_name, data=data)
