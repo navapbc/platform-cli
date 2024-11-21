@@ -75,7 +75,7 @@ def install(project_dir: str, template_uri: str, version: str, data: dict[str, s
 def add_app(
     project_dir: str, app_name: str, template_uri: str, data: dict[str, str] | None
 ) -> None:
-    add_app_command.add_app(template_uri, project_dir, app_name)
+    add_app_command.add_app(template_uri, project_dir, app_name, data=data)
 
 
 @infra.command()
