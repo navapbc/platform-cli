@@ -45,7 +45,10 @@ def resolve_verbosity(verbose: int, quiet: bool) -> OutputLevel:
     if verbose == 1:
         return OutputLevel.VERBOSE
 
-    return OutputLevel.DEBUG
+    if verbose == 2:
+        return OutputLevel.DEBUG
+
+    return OutputLevel.TRACE
 
 
 cli.add_command(infra.infra)

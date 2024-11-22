@@ -11,6 +11,7 @@ class OutputLevel(Enum):
     NORMAL = auto()
     VERBOSE = auto()
     DEBUG = auto()
+    TRACE = auto()
 
     def to_standard_logging_level(self) -> int:
         match self:
@@ -20,7 +21,7 @@ class OutputLevel(Enum):
                 return logging.INFO
             case OutputLevel.VERBOSE:
                 return logging.DEBUG
-            case OutputLevel.DEBUG:
+            case OutputLevel.DEBUG | OutputLevel.TRACE:
                 return logging.NOTSET
 
 

@@ -10,7 +10,7 @@ import structlog
 import nava.platform.cli.config as cli_config
 from nava.platform.util.strings import str_to_bool
 
-from . import config
+from . import audit, config
 
 Logger = structlog.stdlib.BoundLogger
 
@@ -22,7 +22,9 @@ def initialize(
     level: cli_config.OutputLevel, *, log_to_file: bool | None = None, log_file: Path | None = None
 ) -> Logger:
     log_level = level.to_standard_logging_level()
-    log_to_console = level is cli_config.OutputLevel.DEBUG
+    log_to_console = level in (cli_config.OutputLevel.DEBUG, cli_config.OutputLevel.TRACE)
+
+    enable_audit = level is cli_config.OutputLevel.TRACE
 
     if log_to_file is None:
         log_to_file = str_to_bool(os.getenv("LOG_TO_FILE", "true"))
@@ -37,6 +39,9 @@ def initialize(
         log_to_file=log_to_file,
         log_file=log_file,
     )
+
+    if enable_audit:
+        audit.initialize(log.debug)
 
     log.info("start", argv=sys.argv, cwd=os.getcwd())
     atexit.register(exit_handler, log)
