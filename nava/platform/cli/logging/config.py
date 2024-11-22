@@ -112,3 +112,5 @@ def configure(
         wrapper_class=structlog.make_filtering_bound_logger(log_level),
         logger_factory=structlog.stdlib.LoggerFactory(),
     )
+
+    logging.captureWarnings(True)
