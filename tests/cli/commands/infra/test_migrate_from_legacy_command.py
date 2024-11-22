@@ -2,14 +2,14 @@ import pytest
 
 from nava.platform.cli.commands.infra import migrate_from_legacy_command, update_command
 from nava.platform.cli.context import CliContext
+from nava.platform.infra_project import InfraProject
 from nava.platform.infra_template import InfraTemplate
-from nava.platform.project import Project
 from tests.lib import FileChange
 from tests.lib.changeset import ChangeSet
 
 
 @pytest.fixture
-def legacy_project(infra_template: InfraTemplate, new_project: Project) -> Project:
+def legacy_project(infra_template: InfraTemplate, new_project: InfraProject) -> InfraProject:
     """
     Return a project with a clean install of the infra template
     but with the legacy .template-version file
@@ -21,7 +21,9 @@ def legacy_project(infra_template: InfraTemplate, new_project: Project) -> Proje
 
 
 @pytest.fixture
-def legacy_multi_app_project(infra_template: InfraTemplate, new_project: Project) -> Project:
+def legacy_multi_app_project(
+    infra_template: InfraTemplate, new_project: InfraProject
+) -> InfraProject:
     """
     Return a project with multiple apps
     that has a legacy .template-version file
@@ -34,7 +36,7 @@ def legacy_multi_app_project(infra_template: InfraTemplate, new_project: Project
 
 
 def test_migrate_from_legacy(
-    infra_template: InfraTemplate, legacy_project: Project, cli_context: CliContext
+    infra_template: InfraTemplate, legacy_project: InfraProject, cli_context: CliContext
 ):
     project = legacy_project
     migrate_from_legacy_command.migrate_from_legacy(
@@ -58,7 +60,7 @@ def test_migrate_from_legacy(
 
 
 def test_migrate_from_legacy_with_multi_app_project(
-    infra_template: InfraTemplate, legacy_multi_app_project: Project, cli_context: CliContext
+    infra_template: InfraTemplate, legacy_multi_app_project: InfraProject, cli_context: CliContext
 ):
     project = legacy_multi_app_project
     migrate_from_legacy_command.migrate_from_legacy(
@@ -82,7 +84,7 @@ def test_migrate_from_legacy_with_multi_app_project(
     assert (project.project_dir / "infra/bar/main.tf").read_text() == "changed\n"
 
 
-def convert_project_to_legacy(project: Project, template_version: str) -> None:
+def convert_project_to_legacy(project: InfraProject, template_version: str) -> None:
     # Delete .infra-template folder
     for path in (project.project_dir / ".template-infra").iterdir():
         path.unlink()

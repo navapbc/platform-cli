@@ -1,9 +1,9 @@
 import pytest
-from click.testing import CliRunner
+from typer.testing import CliRunner
 
 from nava.platform.cli.main import app as nava_cli
+from nava.platform.infra_project import InfraProject
 from nava.platform.infra_template import InfraTemplate
-from nava.platform.project import Project
 from tests.lib import DirectoryContent, FileChange
 from tests.lib.changeset import ChangeSet
 
@@ -104,7 +104,7 @@ def test_update_with_dirty_template_with_version(
 
 
 def test_update_with_project_change(
-    cli, infra_template: InfraTemplate, new_project: Project, clean_install
+    cli, infra_template: InfraTemplate, new_project: InfraProject, clean_install
 ):
     ChangeSet([FileChange("infra/foo/main.tf", "", "project change\n")]).apply(
         new_project.project_dir
@@ -134,7 +134,7 @@ def test_update_with_project_change(
 
 
 def test_update_with_merge_conflict(
-    cli, infra_template: InfraTemplate, new_project: Project, merge_conflict
+    cli, infra_template: InfraTemplate, new_project: InfraProject, merge_conflict
 ):
     runner = CliRunner()
     result = runner.invoke(
@@ -151,7 +151,9 @@ def test_update_with_merge_conflict(
     assert "Try running" in result.output
 
 
-def test_update_with_data(cli, infra_template: InfraTemplate, new_project: Project, clean_install):
+def test_update_with_data(
+    cli, infra_template: InfraTemplate, new_project: InfraProject, clean_install
+):
     ChangeSet([FileChange("{{foo}}.txt", "", "new file\n")]).apply(infra_template.template_dir)
     infra_template.git_project.commit_all("Change template")
 

@@ -4,8 +4,8 @@ from typing import cast
 import questionary
 
 from nava.platform.cli.context import CliContext
+from nava.platform.infra_project import InfraProject
 from nava.platform.infra_template import InfraTemplate
-from nava.platform.project import Project
 
 
 def update(
@@ -16,7 +16,7 @@ def update(
     data: dict[str, str] | None = None,
 ) -> None:
     template = InfraTemplate(ctx, Path(template_dir))
-    project = Project(Path(project_dir))
+    project = InfraProject(Path(project_dir))
     template.update(project, version=version, data=data)
 
 
@@ -29,7 +29,7 @@ def update_base(
     commit: bool = False,
 ) -> None:
     template = InfraTemplate(ctx, Path(template_dir))
-    project = Project(Path(project_dir))
+    project = InfraProject(Path(project_dir))
     template.update_base(project, version=version, data=data, commit=commit)
 
 
@@ -44,7 +44,7 @@ def update_app(
     all: bool = True,
 ) -> None:
     template = InfraTemplate(ctx, Path(template_dir))
-    project = Project(Path(project_dir))
+    project = InfraProject(Path(project_dir))
 
     if all:
         if not commit:

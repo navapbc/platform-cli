@@ -9,7 +9,7 @@ from nava.platform.util import git
 RelativePath = Path
 
 
-class Project:
+class InfraProject:
     project_dir: Path
     git_project: git.GitProject
 

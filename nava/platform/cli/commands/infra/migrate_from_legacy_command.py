@@ -1,11 +1,11 @@
 from pathlib import Path
 
 from nava.platform.cli.context import CliContext
-from nava.platform.project import Project
+from nava.platform.infra_project import InfraProject
 
 
 def migrate_from_legacy(ctx: CliContext, project_dir: str, origin_template_uri: str) -> None:
-    project = Project(Path(project_dir))
+    project = InfraProject(Path(project_dir))
 
     if not project.has_legacy_version_file:
         ctx.console.error.print(

@@ -1,8 +1,8 @@
 from pathlib import Path
 
 from nava.platform.cli.context import CliContext
+from nava.platform.infra_project import InfraProject
 from nava.platform.infra_template import InfraTemplate
-from nava.platform.project import Project
 
 
 def add_app(
@@ -13,5 +13,5 @@ def add_app(
     data: dict[str, str] | None = None,
 ) -> None:
     template = InfraTemplate(ctx, Path(template_dir))
-    project = Project(Path(project_dir))
+    project = InfraProject(Path(project_dir))
     template.add_app(project, app_name, data=data)

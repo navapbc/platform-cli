@@ -9,8 +9,8 @@ from typer.testing import CliRunner
 
 from nava.platform.cli.context import CliContext
 from nava.platform.cli.main import app as nava_cli
+from nava.platform.infra_project import InfraProject
 from nava.platform.infra_template import InfraTemplate
-from nava.platform.project import Project
 from nava.platform.util.git import GitProject
 from tests.lib import DirectoryContent
 from tests.lib.changeset import ChangeSet, FileChange
@@ -108,15 +108,15 @@ def infra_template(
 
 
 @pytest.fixture
-def new_project_no_git(tmp_path: Path) -> Project:
+def new_project_no_git(tmp_path: Path) -> InfraProject:
     project_dir = tmp_path / "project"
     project_dir.mkdir()
-    project = Project(project_dir)
+    project = InfraProject(project_dir)
     return project
 
 
 @pytest.fixture
-def new_project(new_project_no_git: Project) -> Project:
+def new_project(new_project_no_git: InfraProject) -> InfraProject:
     project = new_project_no_git
     project.git_project.init()
     return project
@@ -150,7 +150,7 @@ def clean_install(infra_template, new_project, cli):
 
 
 @pytest.fixture
-def merge_conflict(infra_template: InfraTemplate, new_project: Project, clean_install):
+def merge_conflict(infra_template: InfraTemplate, new_project: InfraProject, clean_install):
     ChangeSet(
         [
             FileChange("infra/{{app_name}}/main.tf", "", "template app\n"),
@@ -169,7 +169,7 @@ def merge_conflict(infra_template: InfraTemplate, new_project: Project, clean_in
 
 
 @pytest.fixture
-def infra_template_dirty(infra_template: InfraTemplate, new_project: Project) -> InfraTemplate:
+def infra_template_dirty(infra_template: InfraTemplate, new_project: InfraProject) -> InfraTemplate:
     dir_content = {
         ".gitignore": "ignored_file.txt",
         "ignored_file.txt": "foobar",

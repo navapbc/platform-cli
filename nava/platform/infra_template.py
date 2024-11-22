@@ -2,7 +2,7 @@ from pathlib import Path
 
 from nava.platform.cli.context import CliContext
 from nava.platform.copier_worker import render_template_file, run_copy, run_update
-from nava.platform.project import Project
+from nava.platform.infra_project import InfraProject
 from nava.platform.util import git, wrappers
 
 
@@ -35,7 +35,7 @@ class InfraTemplate:
 
     def install(
         self,
-        project: Project,
+        project: InfraProject,
         app_names: list[str],
         *,
         version: str | None = None,
@@ -58,7 +58,11 @@ class InfraTemplate:
             self.add_app(project, app_name, version=version, data=data)
 
     def update(
-        self, project: Project, *, version: str | None = None, data: dict[str, str] | None = None
+        self,
+        project: InfraProject,
+        *,
+        version: str | None = None,
+        data: dict[str, str] | None = None,
     ) -> None:
         self.ctx.console.rule("Infra base")
         self.update_base(project, version=version, data=data, commit=True)
@@ -69,7 +73,7 @@ class InfraTemplate:
 
     def update_base(
         self,
-        project: Project,
+        project: InfraProject,
         *,
         version: str | None = None,
         data: dict[str, str] | None = None,
@@ -106,7 +110,7 @@ class InfraTemplate:
 
     def update_app(
         self,
-        project: Project,
+        project: InfraProject,
         app_name: str,
         *,
         version: str | None = None,
@@ -135,7 +139,7 @@ class InfraTemplate:
                 f"Update infra-app `{app_name}` to version {project.app_template_version(app_name)}",
             )
 
-    def _commit_project(self, project: Project, msg: str) -> None:
+    def _commit_project(self, project: InfraProject, msg: str) -> None:
         if project.git_project.has_merge_conflicts():
             raise MergeConflictsDuringUpdateError()
 
@@ -146,7 +150,7 @@ class InfraTemplate:
 
     def add_app(
         self,
-        project: Project,
+        project: InfraProject,
         app_name: str,
         *,
         version: str | None = None,
@@ -177,7 +181,7 @@ class InfraTemplate:
         )
 
     def _update_network_config(
-        self, project: Project, app_names: list[str], *, version: str | None = None
+        self, project: InfraProject, app_names: list[str], *, version: str | None = None
     ) -> None:
         data = {"app_names": list(app_names)}
         path = "infra/networks/main.tf.jinja"

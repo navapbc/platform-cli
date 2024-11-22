@@ -3,8 +3,8 @@ from pathlib import Path
 import typer
 
 from nava.platform.cli.context import CliContext
+from nava.platform.infra_project import InfraProject
 from nava.platform.infra_template import InfraTemplate
-from nava.platform.project import Project
 
 
 def install(
@@ -15,7 +15,7 @@ def install(
     data: dict[str, str] | None = None,
 ) -> None:
     template = InfraTemplate(ctx, Path(template_dir))
-    project = Project(Path(project_dir))
+    project = InfraProject(Path(project_dir))
     app_names = project.app_names
 
     if len(app_names) == 0:

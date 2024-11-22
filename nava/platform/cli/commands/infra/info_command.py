@@ -8,12 +8,12 @@ from rich.panel import Panel
 from rich.table import Table
 
 from nava.platform.cli.context import CliContext
-from nava.platform.project import Project
+from nava.platform.infra_project import InfraProject
 from nava.platform.util.git import GitProject
 
 
 def info(ctx: CliContext, project_dir: Path, template_uri: str | None = None) -> None:
-    project = Project(project_dir)
+    project = InfraProject(project_dir)
     is_template = project.base_answers_file().exists()
 
     if not template_uri and is_template:
