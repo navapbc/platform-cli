@@ -35,6 +35,9 @@ class GitProject:
     def init(self) -> None:
         self._run_cmd(["git", "init", "--initial-branch=main"])
 
+    def checkout(self, *args: str) -> subprocess.CompletedProcess[str]:
+        return self._run_cmd(["git", "checkout"] + list(args))
+
     def add(self, *args: str) -> subprocess.CompletedProcess[str]:
         return self._run_cmd(["git", "add"] + list(args))
 
