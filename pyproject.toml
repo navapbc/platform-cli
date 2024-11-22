@@ -9,7 +9,6 @@ packages = [{ include = "nava" }]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-click = "^8.1.7"
 copier = "^9.4.1"
 pyyaml = "^6.0.2"
 rich = "^13.9.4"
@@ -17,6 +16,7 @@ structlog = "^24.4.0"
 platformdirs = "^4.3.6"
 questionary = {git = "https://github.com/tmbo/questionary.git"}
 packaging = "^24.1"
+typer = "^0.13.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.3"
