@@ -1,6 +1,6 @@
 import subprocess
 from pathlib import Path
-from typing import Self
+from typing import Any, Self
 
 
 class GitProject:
@@ -14,18 +14,18 @@ class GitProject:
 
         return cls(dir)
 
+    def _run_cmd(self, *args: Any, **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        return run_text(*args, **kwargs, cwd=self.dir)
+
     def has_merge_conflicts(self) -> bool:
-        result = subprocess.run(
+        result = self._run_cmd(
             [
                 "git",
                 "-c",
                 "core.whitespace=-trailing-space,-space-before-tab,-indent-with-non-tab,-tab-in-indent,-cr-at-eol",
                 "diff",
                 "--check",
-            ],
-            cwd=self.dir,
-            capture_output=True,
-            text=True,
+            ]
         )
         return result.returncode != 0
 
@@ -33,37 +33,38 @@ class GitProject:
         return is_a_git_worktree(self.dir)
 
     def init(self) -> None:
-        subprocess.run(["git", "init", "--initial-branch=main"], cwd=self.dir)
+        self._run_cmd(["git", "init", "--initial-branch=main"])
 
-    def add(self, *args: str) -> None:
-        subprocess.run(["git", "add"] + list(args), cwd=self.dir)
+    def add(self, *args: str) -> subprocess.CompletedProcess[str]:
+        return self._run_cmd(["git", "add"] + list(args))
 
-    def commit(self, msg: str) -> None:
-        subprocess.run(["git", "commit", "-m", msg], cwd=self.dir)
+    def commit(self, msg: str) -> subprocess.CompletedProcess[str]:
+        return self._run_cmd(["git", "commit", "-m", msg])
 
-    def commit_all(self, msg: str) -> None:
-        self.add(".")
-        self.commit(msg)
+    def commit_all(self, msg: str) -> subprocess.CompletedProcess[str]:
+        result = self.add(".")
+        if result.returncode != 0:
+            return result
+
+        return self.commit(msg)
 
     def stash(self) -> None:
-        subprocess.run(["git", "stash"], cwd=self.dir)
+        self._run_cmd(["git", "stash"])
 
     def pop(self) -> None:
-        subprocess.run(["git", "stash", "pop"], cwd=self.dir)
+        self._run_cmd(["git", "stash", "pop"])
 
     def tag(self, tag: str) -> None:
-        subprocess.run(["git", "tag", tag], cwd=self.dir)
+        self._run_cmd(["git", "tag", tag])
 
     def rename_branch(self, new_branch_name: str) -> None:
-        subprocess.run(["git", "branch", "-m", new_branch_name], cwd=self.dir)
+        self._run_cmd(["git", "branch", "-m", new_branch_name])
 
     def get_commit_hash_for_head(self) -> str:
-        return subprocess.run(
-            ["git", "rev-parse", "HEAD"], cwd=self.dir, capture_output=True, text=True
-        ).stdout.strip()
+        return self._run_cmd(["git", "rev-parse", "HEAD"]).stdout.strip()
 
     def is_path_ignored(self, path: str) -> bool:
-        result = subprocess.run(["git", "check-ignore", "-q", path], cwd=self.dir)
+        result = self._run_cmd(["git", "check-ignore", "-q", path])
         if result.returncode not in (0, 1):
             result.check_returncode()
 
@@ -71,40 +72,21 @@ class GitProject:
 
     def get_tracked_files(self) -> list[Path]:
         tracked_files = [
-            Path(file)
-            for file in subprocess.run(
-                ["git", "ls-files"],
-                cwd=self.dir,
-                capture_output=True,
-                text=True,
-            ).stdout.splitlines()
+            Path(file) for file in self._run_cmd(["git", "ls-files"]).stdout.splitlines()
         ]
         return tracked_files
 
     def get_untracked_files(self) -> list[str]:
-        result = subprocess.run(
-            ["git", "ls-files", "--exclude-standard", "--others"],
-            cwd=self.dir,
-            capture_output=True,
-            text=True,
-        )
+        result = self._run_cmd(["git", "ls-files", "--exclude-standard", "--others"])
         return result.stdout.splitlines()
 
     def get_tags(self, *args: str) -> list[str]:
-        result = subprocess.run(
-            ["git", "tag"] + list(args),
-            cwd=self.dir,
-            capture_output=True,
-            text=True,
-        )
+        result = self._run_cmd(["git", "tag"] + list(args))
         return result.stdout.splitlines()
 
     def get_closest_tag(self, commit_hash: str) -> str | None:
-        result = subprocess.run(
-            ["git", "describe", "--exclude", commit_hash, "--contains", commit_hash],
-            cwd=self.dir,
-            capture_output=True,
-            text=True,
+        result = self._run_cmd(
+            ["git", "describe", "--exclude", commit_hash, "--contains", commit_hash]
         )
 
         if result.returncode != 0:
@@ -115,11 +97,13 @@ class GitProject:
 
 
 def is_a_git_worktree(dir: Path) -> bool:
-    result = subprocess.run(
+    result = run_text(
         ["git", "rev-parse", "--is-inside-work-tree"],
         cwd=dir,
-        capture_output=True,
-        text=True,
     )
 
     return result.stdout.strip() == "true"
+
+
+def run_text(*args: Any, **kwargs: Any) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(*args, **kwargs, capture_output=True, text=True)
