@@ -42,6 +42,8 @@ class InfraTemplate:
         data: dict[str, str] | None = None,
     ) -> None:
         base_data = (data or {}) | {"template": "base"}
+
+        self.ctx.console.rule("Infra base")
         self._run_copy(
             str(self.template_dir),
             project.project_dir,
@@ -52,14 +54,17 @@ class InfraTemplate:
         )
 
         for app_name in app_names:
+            self.ctx.console.rule(f"Infra app: {app_name}")
             self.add_app(project, app_name, version=version, data=data)
 
     def update(
         self, project: Project, *, version: str | None = None, data: dict[str, str] | None = None
     ) -> None:
+        self.ctx.console.rule("Infra base")
         self.update_base(project, version=version, data=data, commit=True)
 
         for app_name in project.app_names:
+            self.ctx.console.rule(f"Infra app: {app_name}")
             self.update_app(project, app_name, version=version, data=data, commit=True)
 
     def update_base(
@@ -134,7 +139,10 @@ class InfraTemplate:
         if project.git_project.has_merge_conflicts():
             raise MergeConflictsDuringUpdateError()
 
-        project.git_project.commit_all(msg)
+        result = project.git_project.commit_all(msg)
+
+        if result.stdout:
+            self.ctx.console.print(result.stdout)
 
     def add_app(
         self,
