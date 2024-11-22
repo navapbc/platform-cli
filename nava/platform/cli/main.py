@@ -1,18 +1,25 @@
-import click
+from typing import Annotated
 
-import nava.platform.cli.commands.app as app
+import typer
+
+# import nava.platform.cli.commands.app as app_command
 import nava.platform.cli.commands.infra as infra
 import nava.platform.cli.console
 import nava.platform.cli.logging
 from nava.platform.cli.config import OutputLevel
 from nava.platform.cli.context import CliContext
 
+app = typer.Typer()
 
-@click.group()
-@click.option("-v", "--verbose", count=True, help="Increase verbosity")
-@click.option("-q", "--quiet", is_flag=True, help="Limit output")
-@click.pass_context
-def cli(ctx: click.Context, verbose: int, quiet: bool) -> None:
+
+@app.callback()
+def main(
+    ctx: typer.Context,
+    verbose: Annotated[
+        int, typer.Option("-v", "--verbose", count=True, help="Increase verbosity")
+    ] = 0,
+    quiet: Annotated[bool, typer.Option("-q", "--quiet")] = False,
+) -> None:
     output_level = resolve_verbosity(verbose, quiet)
     log = nava.platform.cli.logging.initialize(output_level)
     console = nava.platform.cli.console.initialize(output_level)
@@ -51,8 +58,8 @@ def resolve_verbosity(verbose: int, quiet: bool) -> OutputLevel:
     return OutputLevel.TRACE
 
 
-cli.add_command(infra.infra)
-cli.add_command(app.app)
+app.add_typer(infra.app, name="infra")
+# app.add_typer(app_command.app, name="app")
 
 if __name__ == "__main__":
-    cli()
+    app()

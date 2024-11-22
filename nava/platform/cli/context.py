@@ -1,13 +1,11 @@
 from dataclasses import dataclass
 from typing import Callable, NoReturn
 
-import click
-
 import nava.platform.cli.console
 import nava.platform.cli.logging
 from nava.platform.cli.config import AppDirs, OutputLevel, app_dirs
 
-__all__ = ["AppDirs", "CliContext", "OutputLevel", "pass_cli_ctx"]
+__all__ = ["AppDirs", "CliContext", "OutputLevel"]
 
 
 @dataclass
@@ -22,6 +20,3 @@ class CliContext:
     exit: Callable[[int], NoReturn]
     """Exits the application with a given exit code."""
     app_dirs: AppDirs = app_dirs
-
-
-pass_cli_ctx = click.make_pass_decorator(CliContext)

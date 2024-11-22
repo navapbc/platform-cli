@@ -6,8 +6,6 @@ import os
 import sys
 from typing import Any, cast
 
-import click
-import rich.traceback
 from rich.console import Console
 
 import nava.platform.cli.config as config
@@ -35,8 +33,6 @@ def initialize(level: config.OutputLevel) -> ConsoleWrapper:
         warning=Console(stderr=True, style="yellow"),
         error=Console(stderr=True, style="bold red"),
     )
-
-    rich.traceback.install(console=console.error, show_locals=True, suppress=[click])
 
     return console
 

@@ -1,8 +1,10 @@
 from pathlib import Path
+from typing import Annotated
 
-import click
+import typer
 
-from nava.platform.cli.context import CliContext, pass_cli_ctx
+import nava.platform.util.collections.dict as dict_util
+from nava.platform.cli.context import CliContext
 from nava.platform.infra_template import MergeConflictsDuringUpdateError
 
 from . import (
@@ -13,169 +15,164 @@ from . import (
     update_command,
 )
 
-
-@click.group()
-def infra() -> None:
-    pass
+app = typer.Typer()
 
 
-opt_template_uri = click.option(
-    "--template-uri",
-    default="https://github.com/navapbc/template-infra",
+DEFAULT_TEMPLATE_URI = "https://github.com/navapbc/template-infra"
+
+opt_template_uri = typer.Option(
     help="Path or URL to infra template. Can be a path to a local clone of template-infra. Defaults to the template-infra repository on GitHub.",
 )
 
-opt_version = click.option(
-    "--version",
-    # Temporarily default to using lorenyu/platform-cli as the version
-    # until the rollout plan for the Platform CLI is complete
-    # TODO: Set the default back to None once the rollout plan is complete
-    default="lorenyu/platform-cli",
+# Temporarily default to using lorenyu/platform-cli as the version
+# until the rollout plan for the Platform CLI is complete
+# TODO: Set the default back to None once the rollout plan is complete
+DEFAULT_VERSION = "lorenyu/platform-cli"
+
+opt_version = typer.Option(
     help="Template version to install. Can be a branch, tag, or commit hash. Defaults to the latest tag version.",
 )
 
 
-def _data_to_dict(
-    ctx: click.Context, param: click.Option, value: tuple[str, ...]
-) -> dict[str, str] | None:
-    result = {}
-    for val in value:
-        k, v = val.split("=")
-
-        if k in result:
-            raise click.BadParameter(f"Data {k} is specified twice")
-
-        result[k] = v
-
-    return result if result else None
-
-
-opt_data = click.option(
-    "--data",
+# Unfortunately typer doesn't handle args annotated as dictionaries[1], even
+# when the dictionary parsing is happening via a `callback`. So we annotate
+# `data` as a list of strings, and do the parsing we'd normally do in `callback`
+# in the body of the command.
+#
+# https://github.com/fastapi/typer/issues/130
+opt_data = typer.Option(
     help="Parameters in form VARIABLE=VALUE, will make VARIABLE available as VALUE when rendering the template.",
-    multiple=True,
-    callback=_data_to_dict,
 )
 
 
-@infra.command()
-@click.argument("project_dir")
-@opt_template_uri
-@opt_version
-@opt_data
-@pass_cli_ctx
+@app.command()
 def install(
-    ctx: CliContext, project_dir: str, template_uri: str, version: str, data: dict[str, str] | None
+    typer_context: typer.Context,
+    project_dir: str,
+    template_uri: Annotated[str, opt_template_uri] = DEFAULT_TEMPLATE_URI,
+    version: Annotated[str, opt_version] = DEFAULT_VERSION,
+    data: Annotated[list[str] | None, opt_data] = None,
 ) -> None:
-    install_command.install(ctx, template_uri, project_dir, version=version, data=data)
+    ctx = typer_context.ensure_object(CliContext)
+    install_command.install(
+        ctx, template_uri, project_dir, version=version, data=dict_util.from_str_values(data)
+    )
 
 
-@infra.command()
-@click.argument("project_dir")
-@click.argument("app_name")
-@opt_template_uri
-@opt_data
-@pass_cli_ctx
+@app.command()
 def add_app(
-    ctx: CliContext, project_dir: str, app_name: str, template_uri: str, data: dict[str, str] | None
+    typer_context: typer.Context,
+    project_dir: str,
+    app_name: str,
+    template_uri: Annotated[str, opt_template_uri] = DEFAULT_TEMPLATE_URI,
+    data: Annotated[list[str] | None, opt_data] = None,
 ) -> None:
-    add_app_command.add_app(ctx, template_uri, project_dir, app_name, data=data)
+    ctx = typer_context.ensure_object(CliContext)
+    add_app_command.add_app(
+        ctx, template_uri, project_dir, app_name, data=dict_util.from_str_values(data)
+    )
 
 
-@infra.command()
-@click.argument("project_dir")
-@opt_template_uri
-@opt_version
-@opt_data
-@pass_cli_ctx
+@app.command()
 def update(
-    ctx: CliContext, project_dir: str, template_uri: str, version: str, data: dict[str, str] | None
+    typer_context: typer.Context,
+    project_dir: str,
+    template_uri: Annotated[str, opt_template_uri] = DEFAULT_TEMPLATE_URI,
+    version: Annotated[str, opt_version] = DEFAULT_VERSION,
+    data: Annotated[list[str] | None, opt_data] = None,
 ) -> None:
+    ctx = typer_context.ensure_object(CliContext)
     try:
-        update_command.update(ctx, template_uri, project_dir, version=version, data=data)
-    except MergeConflictsDuringUpdateError as error:
-        click.echo()
+        update_command.update(
+            ctx, template_uri, project_dir, version=version, data=dict_util.from_str_values(data)
+        )
+    except MergeConflictsDuringUpdateError:
         message = (
             "Merge conflicts found occurred during the update\n"
             "Try running `infra update-base` and `infra update-app` commands separately and resolve conflicts as needed"
         )
-        raise click.ClickException(message) from error
+        ctx.fail(message)
 
 
-@infra.command()
-@click.argument("project_dir")
-@opt_template_uri
-@opt_version
-@opt_data
-@click.option(
-    "--commit/--no-commit", default=False, help="Commit changes with standard message if able."
-)
-@pass_cli_ctx
+@app.command()
 def update_base(
-    ctx: CliContext,
+    typer_context: typer.Context,
     project_dir: str,
-    template_uri: str,
-    version: str,
-    data: dict[str, str] | None,
-    commit: bool,
+    template_uri: Annotated[str, opt_template_uri] = DEFAULT_TEMPLATE_URI,
+    version: Annotated[str, opt_version] = DEFAULT_VERSION,
+    data: Annotated[list[str] | None, opt_data] = None,
+    commit: Annotated[
+        bool, typer.Option(help="Commit changes with standard message if able.")
+    ] = False,
 ) -> None:
+    ctx = typer_context.ensure_object(CliContext)
     update_command.update_base(
-        ctx, template_uri, project_dir, version=version, data=data, commit=commit
+        ctx,
+        template_uri,
+        project_dir,
+        version=version,
+        data=dict_util.from_str_values(data),
+        commit=commit,
     )
 
 
-@infra.command()
-@click.argument("project_dir")
-@click.argument("app_name", nargs=-1)
-@opt_template_uri
-@opt_version
-@opt_data
-@click.option(
-    "--commit/--no-commit", default=False, help="Commit changes with standard message if able."
-)
-@click.option("--all", is_flag=True, default=False, help="Attempt to update all known apps.")
-@pass_cli_ctx
+@app.command()
 def update_app(
-    ctx: CliContext,
+    typer_context: typer.Context,
     project_dir: str,
     app_name: list[str],
-    template_uri: str,
-    version: str,
-    data: dict[str, str] | None,
-    commit: bool,
-    all: bool,
+    template_uri: Annotated[str, opt_template_uri] = DEFAULT_TEMPLATE_URI,
+    version: Annotated[str, opt_version] = DEFAULT_VERSION,
+    data: Annotated[list[str] | None, opt_data] = None,
+    commit: Annotated[
+        bool, typer.Option(help="Commit changes with standard message if able.")
+    ] = False,
+    all: Annotated[bool, typer.Option("--all", help="Attempt to update all known apps")] = False,
 ) -> None:
+    ctx = typer_context.ensure_object(CliContext)
     update_command.update_app(
         ctx,
         template_uri,
         project_dir,
         app_names=app_name,
         version=version,
-        data=data,
+        data=dict_util.from_str_values(data),
         commit=commit,
         all=all,
     )
 
 
-@infra.command()
-@click.argument("project_dir")
-@click.option(
-    "--origin-template-uri",
-    default="https://github.com/navapbc/template-infra",
-    help="Path or URL to the legacy infra template that was used to set up the project. Can be a path to a local clone of template-infra. Defaults to the template-infra repository on GitHub.",
-    required=True,
-)
-@pass_cli_ctx
-def migrate_from_legacy(ctx: CliContext, project_dir: str, origin_template_uri: str) -> None:
+@app.command()
+def migrate_from_legacy(
+    typer_context: typer.Context,
+    project_dir: str,
+    origin_template_uri: Annotated[
+        str,
+        typer.Option(
+            help="Path or URL to the legacy infra template that was used to set up the project. Can be a path to a local clone of template-infra. Defaults to the template-infra repository on GitHub.",
+        ),
+    ] = "https://github.com/navapbc/template-infra",
+) -> None:
+    ctx = typer_context.ensure_object(CliContext)
     migrate_from_legacy_command.migrate_from_legacy(ctx, project_dir, origin_template_uri)
 
 
-@infra.command()
-@click.argument("project_dir", type=click.Path(exists=True, file_okay=False, path_type=Path))
-@click.option(
-    "--template-uri",
-    help="Path or URL to infra template. Can be a path to a local clone of template-infra. Defaults to the template-infra repository on GitHub.",
-)
-@pass_cli_ctx
-def info(ctx: CliContext, project_dir: Path, template_uri: str | None) -> None:
+@app.command()
+def info(
+    typer_context: typer.Context,
+    project_dir: Annotated[
+        Path,
+        typer.Argument(
+            exists=True,
+            file_okay=False,
+        ),
+    ],
+    template_uri: Annotated[
+        str | None,
+        typer.Option(
+            help="Path or URL to infra template. Can be a path to a local clone of template-infra. Defaults to the template-infra repository on GitHub."
+        ),
+    ] = None,
+) -> None:
+    ctx = typer_context.ensure_object(CliContext)
     info_command.info(ctx, project_dir, template_uri)

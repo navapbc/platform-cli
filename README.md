@@ -141,6 +141,21 @@ This basically ensures that a consistent set of source paths get saved, with
 none of them being system-specific, so that things work consistently between CI
 and local systems.
 
+### Shell Completion
+
+You can install completion support for the CLI by running:
+
+```sh
+nava-platform --install-completion
+```
+
+Or if you want to put the config in a particular location for your shell
+manually, you need the output from:
+
+```sh
+nava-platform --show-completion
+```
+
 ## Development
 
 ### Setup

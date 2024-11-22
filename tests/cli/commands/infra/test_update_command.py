@@ -1,7 +1,7 @@
 import pytest
 from click.testing import CliRunner
 
-from nava.platform.cli.main import cli as nava_cli
+from nava.platform.cli.main import app as nava_cli
 from nava.platform.infra_template import InfraTemplate
 from nava.platform.project import Project
 from tests.lib import DirectoryContent, FileChange

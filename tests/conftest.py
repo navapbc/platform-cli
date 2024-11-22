@@ -5,10 +5,10 @@ from typing import ParamSpec, TypeVar
 from unittest.mock import create_autospec
 
 import pytest
-from click.testing import CliRunner
+from typer.testing import CliRunner
 
 from nava.platform.cli.context import CliContext
-from nava.platform.cli.main import cli as nava_cli
+from nava.platform.cli.main import app as nava_cli
 from nava.platform.infra_template import InfraTemplate
 from nava.platform.project import Project
 from nava.platform.util.git import GitProject

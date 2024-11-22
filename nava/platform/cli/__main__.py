@@ -1,3 +1,3 @@
 import nava.platform.cli.main
 
-nava.platform.cli.main.cli()
+nava.platform.cli.main.app()
