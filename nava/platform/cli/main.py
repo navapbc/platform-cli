@@ -28,7 +28,7 @@ def main(
         output_level=output_level,
         log=log.bind(),
         console=console,
-        fail=ctx.fail,
+        fail_with_usage=ctx.fail,
         exit=ctx.exit,
     )
 

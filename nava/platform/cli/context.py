@@ -15,8 +15,13 @@ class CliContext:
     output_level: OutputLevel
     log: nava.platform.cli.logging.Logger
     console: nava.platform.cli.console.ConsoleWrapper
-    fail: Callable[[str], NoReturn]
-    """Aborts the execution of the program with a specific error message."""
+    fail_with_usage: Callable[[str], NoReturn]
+    """Aborts the execution of the program with a specific error message and CLI help message."""
     exit: Callable[[int], NoReturn]
     """Exits the application with a given exit code."""
     app_dirs: AppDirs = app_dirs
+
+    def fail(self, message: str) -> NoReturn:
+        """Aborts the execution of the program with a specific error message."""
+        self.console.error.print(message)
+        self.exit(1)
