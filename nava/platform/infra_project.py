@@ -2,7 +2,6 @@ from pathlib import Path
 
 import yaml
 
-from nava.platform.cli.context import CliContext
 from nava.platform.get_app_names_from_infra_dir import get_app_names_from_infra_dir
 from nava.platform.util import git
 
@@ -70,98 +69,3 @@ class InfraProject:
 
     def legacy_version_file_path(self) -> Path:
         return self.project_dir / ".template-version"
-
-    def migrate_from_legacy(self, ctx: CliContext, origin_template_uri: str) -> None:
-        """
-        Create copier answers files in .template-infra
-        from the legacy .template-version file
-        """
-        assert self.has_legacy_version_file
-        if not (self.project_dir / ".template-infra").exists():
-            (self.project_dir / ".template-infra").mkdir()
-
-        template_version = self.legacy_version_file_path().read_text()
-        short_version = template_version[:7]
-        common_answers = {
-            "_commit": short_version,
-            # Copier requires this to be set to a valid template path, and that template git project
-            # needs to have _commit as a valid commit hash
-            # If _src_path is not set, run_update will raise
-            #   UserMessageError("Cannot update because cannot obtain old template references from <answers_file>")
-            # If _src_path is set to a folder that does not have _commit as a valid commit hash, then run_update
-            # will trigger an error as part of an intenral _check_unsafe method call which will try to
-            # check out _commit from _src_path, resulting in the error
-            #   error: pathspec '<_commit>' did not match any file(s) known to git
-            "_src_path": origin_template_uri,
-        }
-
-        base_project_config_answers = self._answers_from_project_config(ctx)
-
-        base_answers = common_answers | base_project_config_answers | {"template": "base"}
-        self.base_answers_file().write_text(yaml.dump(base_answers, default_flow_style=False))
-        for app_name in self.app_names_possible:
-            app_answers = common_answers | {"app_name": app_name, "template": "app"}
-            self.app_answers_file(app_name).write_text(
-                yaml.dump(app_answers, default_flow_style=False)
-            )
-
-    def _answers_from_project_config(self, ctx: CliContext) -> dict[str, str]:
-        import json
-        import shutil
-        import subprocess
-
-        is_terraform_available = shutil.which("terraform") is not None
-        project_config_dir = self.project_dir / "infra/project-config"
-        project_config_file = project_config_dir / "main.tf"
-
-        if not (project_config_file.exists() and is_terraform_available):
-            return {}
-
-        # be sure the local project has the lastest data
-        subprocess.run(["terraform", "refresh"], cwd=project_config_dir, stdout=subprocess.DEVNULL)
-
-        # attempt to read the project-config
-        result = subprocess.run(
-            ["terraform", "output", "-json"],
-            cwd=project_config_dir,
-            capture_output=True,
-            text=True,
-        )
-        if result.returncode != 0:
-            ctx.console.warning.print(
-                "Error from terraform getting project config. Skipping migrating project config automatically."
-            )
-            return {}
-
-        try:
-            project_config = json.loads(result.stdout)
-        except json.JSONDecodeError:
-            ctx.console.warning.print(
-                "Error parsing JSON response from terraform. Skipping migrating project config automatically."
-            )
-            return {}
-
-        if not isinstance(project_config, dict):
-            ctx.console.warning.print(
-                "Project config is not in the expected format. Skipping migrating project config automatically."
-            )
-            return {}
-
-        mapping = {
-            "base_project_name": "project_name",
-            "base_owner": "owner",
-            "base_code_repository_url": "code_repository_url",
-            "base_default_region": "default_region",
-        }
-
-        answers = {}
-        for answer_key, project_config_key in mapping.items():
-            project_config_output = project_config.get(project_config_key, None)
-            if not project_config_output:
-                continue
-
-            project_config_value = project_config_output.get("value", None)
-            if clean_answer := str(project_config_value).strip():
-                answers[answer_key] = clean_answer
-
-        return answers
