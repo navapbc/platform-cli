@@ -15,7 +15,14 @@ from . import (
     update_command,
 )
 
-app = typer.Typer()
+app = typer.Typer(
+    help="""Manage template-infra usage
+
+    `template-infra` provides basically two parts, a 'base' that is shared
+    account infra, and a re-usable 'app' part that provides a generic infra
+    shell for running applications.
+    """
+)
 
 
 DEFAULT_TEMPLATE_URI = "https://github.com/navapbc/template-infra"
@@ -53,6 +60,8 @@ def install(
     version: Annotated[str, opt_version] = DEFAULT_VERSION,
     data: Annotated[list[str] | None, opt_data] = None,
 ) -> None:
+    """Install template-infra in project"""
+
     ctx = typer_context.ensure_object(CliContext)
     install_command.install(
         ctx, template_uri, project_dir, version=version, data=dict_util.from_str_values(data)
@@ -67,6 +76,8 @@ def add_app(
     template_uri: Annotated[str, opt_template_uri] = DEFAULT_TEMPLATE_URI,
     data: Annotated[list[str] | None, opt_data] = None,
 ) -> None:
+    """Add infra for APP_NAME"""
+
     ctx = typer_context.ensure_object(CliContext)
     add_app_command.add_app(
         ctx, template_uri, project_dir, app_name, data=dict_util.from_str_values(data)
@@ -81,6 +92,8 @@ def update(
     version: Annotated[str, opt_version] = DEFAULT_VERSION,
     data: Annotated[list[str] | None, opt_data] = None,
 ) -> None:
+    """Update base and application infrastructure"""
+
     ctx = typer_context.ensure_object(CliContext)
     try:
         update_command.update(
@@ -105,6 +118,8 @@ def update_base(
         bool, typer.Option(help="Commit changes with standard message if able.")
     ] = False,
 ) -> None:
+    """Update base infrastructure"""
+
     ctx = typer_context.ensure_object(CliContext)
     update_command.update_base(
         ctx,
@@ -129,6 +144,8 @@ def update_app(
     ] = False,
     all: Annotated[bool, typer.Option("--all", help="Attempt to update all known apps")] = False,
 ) -> None:
+    """Update application(s) infrastructure"""
+
     ctx = typer_context.ensure_object(CliContext)
     update_command.update_app(
         ctx,
@@ -153,6 +170,8 @@ def migrate_from_legacy(
         ),
     ] = "https://github.com/navapbc/template-infra",
 ) -> None:
+    """Migrate an older version of the template to platform-cli setup"""
+
     ctx = typer_context.ensure_object(CliContext)
     migrate_from_legacy_command.migrate_from_legacy(ctx, project_dir, origin_template_uri)
 
@@ -174,5 +193,7 @@ def info(
         ),
     ] = None,
 ) -> None:
+    """Display some information about the state of template-infra in the project"""
+
     ctx = typer_context.ensure_object(CliContext)
     info_command.info(ctx, project_dir, template_uri)

@@ -10,7 +10,7 @@ from nava.platform.migrate_from_legacy_template import MigrateFromLegacyTemplate
 from nava.platform.project import Project
 from nava.platform.template import Template
 
-app = typer.Typer()
+app = typer.Typer(help="Manage application templates")
 
 
 @app.command()
@@ -78,7 +78,7 @@ def migrate_from_legacy(
         str, typer.Argument(help="Name of the application based on given template to migrate")
     ],
 ) -> None:
-    """Migrate an older version of the template to platform-cli setup"""
+    """Migrate an older version of a template to platform-cli setup"""
     ctx = typer_context.ensure_object(CliContext)
     project = Project(Path(project_dir))
     MigrateFromLegacyTemplate(

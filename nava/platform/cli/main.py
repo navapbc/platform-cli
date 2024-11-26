@@ -16,10 +16,19 @@ app = typer.Typer()
 def main(
     ctx: typer.Context,
     verbose: Annotated[
-        int, typer.Option("-v", "--verbose", count=True, help="Increase verbosity")
+        int,
+        typer.Option(
+            "-v",
+            "--verbose",
+            count=True,
+            help="Increase verbosity. Add enough -v's and you'll get the logs printed to your screen. Enjoy.",
+        ),
     ] = 0,
-    quiet: Annotated[bool, typer.Option("-q", "--quiet")] = False,
+    quiet: Annotated[
+        bool, typer.Option("-q", "--quiet", help="Disable all console output")
+    ] = False,
 ) -> None:
+    """Tool to help manage using Nava PBC's platform work"""
     output_level = resolve_verbosity(verbose, quiet)
     log = nava.platform.cli.logging.initialize(output_level)
     console = nava.platform.cli.console.initialize(output_level)
