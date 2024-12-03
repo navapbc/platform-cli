@@ -1,9 +1,11 @@
 from pathlib import Path
 
+from packaging.version import Version
+
 from nava.platform.cli.context import CliContext
-from nava.platform.copier_worker import render_template_file, run_copy, run_update
+from nava.platform.copier_worker import render_template_file
 from nava.platform.infra_project import InfraProject
-from nava.platform.util import git, wrappers
+from nava.platform.template import Template
 
 
 class MergeConflictsDuringUpdateError(Exception):
@@ -12,26 +14,31 @@ class MergeConflictsDuringUpdateError(Exception):
 
 class InfraTemplate:
     ctx: CliContext
-    template_dir: Path
-    git_project: git.GitProject
+    template_uri: Path | str
 
-    _base_src_excludes: list[str]
-    _app_src_excludes: list[str]
-
-    def __init__(self, ctx: CliContext, template_dir: Path):
+    def __init__(self, ctx: CliContext, template_uri: Path | str, *, ref: str | None = None):
         self.ctx = ctx
+        self.template_uri = template_uri
 
-        git_project = git.GitProject.from_existing(template_dir)
+        self.template_base = Template(
+            ctx,
+            template_uri=template_uri,
+            src_excludes=["*{{app_name}}*"],
+            template_name="template-infra:base",
+            ref=ref,
+        )
 
-        if git_project is None:
-            raise ValueError("Infra template must be a git working directory")
-
-        self.template_dir = template_dir
-        self.git_project = git_project
-
-        self._compute_excludes()
-        self._run_copy = wrappers.log_call(run_copy, logger=ctx.log.info)
-        self._run_update = wrappers.log_call(run_update, logger=ctx.log.info)
+        self.template_app = Template(
+            ctx,
+            template_uri=template_uri,
+            src_excludes=[
+                "*",
+                "!*{{app_name}}*",
+                "!/.template-infra/",
+            ],
+            template_name="template-infra:app",
+            ref=ref,
+        )
 
     def install(
         self,
@@ -41,17 +48,10 @@ class InfraTemplate:
         version: str | None = None,
         data: dict[str, str] | None = None,
     ) -> None:
-        base_data = (data or {}) | {"template": "base"}
-
         self.ctx.console.rule("Infra base")
-        self._run_copy(
-            str(self.template_dir),
-            project.project_dir,
-            answers_file=project.base_answers_file_rel(),
-            data=base_data,
-            src_exclude=self._base_src_excludes,
-            vcs_ref=version,
-        )
+        # TODO: the data in template_base will include `app_name` now, check it
+        # doesn't get saved to answers file
+        self.template_base.install(project, app_name="base", version=version, data=data)
 
         for app_name in app_names:
             self.ctx.console.rule(f"Infra app: {app_name}")
@@ -79,20 +79,8 @@ class InfraTemplate:
         data: dict[str, str] | None = None,
         commit: bool = False,
     ) -> None:
-        data = (data or {}) | {"template": "base"}
-        self._run_update(
-            project.project_dir,
-            # note `src_path` currently has no effect on updates, the path from
-            # answers file is used
-            #
-            # https://github.com/navapbc/platform-cli/issues/5
-            src_path=str(self.template_dir),
-            data=data,
-            answers_file=project.base_answers_file_rel(),
-            src_exclude=self._base_src_excludes,
-            overwrite=True,
-            skip_answered=True,
-            vcs_ref=version,
+        self.template_base.update(
+            project, app_name="base", version=version, data=data, commit=False
         )
 
         # the network file needs re-rendered with the app_names
@@ -105,7 +93,7 @@ class InfraTemplate:
         if commit:
             self._commit_project(
                 project,
-                f"Update infra-base to version {project.base_template_version()}",
+                f"Update infra-base to version {self.template_base.version}",
             )
 
     def update_app(
@@ -117,33 +105,21 @@ class InfraTemplate:
         data: dict[str, str] | None = None,
         commit: bool = False,
     ) -> None:
-        data = (data or {}) | {"app_name": app_name, "template": "app"}
-        self._run_update(
-            project.project_dir,
-            # note `src_path` currently has no effect on updates, the path from
-            # answers file is used
-            #
-            # https://github.com/navapbc/platform-cli/issues/5
-            src_path=str(self.template_dir),
-            data=data,
-            answers_file=project.app_answers_file_rel(app_name),
-            src_exclude=self._app_src_excludes,
-            overwrite=True,
-            skip_answered=True,
-            vcs_ref=version,
+        self.template_app.update(
+            project, app_name=app_name, version=version, data=data, commit=False
         )
 
         if commit:
             self._commit_project(
                 project,
-                f"Update infra-app `{app_name}` to version {project.app_template_version(app_name)}",
+                f"Update infra-app `{app_name}` to version {self.template_app.version}",
             )
 
     def _commit_project(self, project: InfraProject, msg: str) -> None:
-        if project.git_project.has_merge_conflicts():
+        if project.git.has_merge_conflicts():
             raise MergeConflictsDuringUpdateError()
 
-        result = project.git_project.commit_all(msg)
+        result = project.git.commit_all(msg)
 
         if result.stdout:
             self.ctx.console.print(result.stdout)
@@ -157,17 +133,11 @@ class InfraTemplate:
         data: dict[str, str] | None = None,
         existing_apps: list[str] | None = None,
     ) -> None:
-        data = (data or {}) | {"app_name": app_name, "template": "app"}
-        self._run_copy(
-            str(self.template_dir),
-            project.project_dir,
-            answers_file=project.app_answers_file_rel(app_name),
-            data=data,
-            src_exclude=self._app_src_excludes,
-            # Use the template version that the project is currently on, unless
-            # an override is provided (mainly during initial install)
-            vcs_ref=version if version is not None else project.template_version,
-        )
+        # Use the template version that the project is currently on, unless
+        # an override is provided (mainly during initial install)
+        vcs_ref = version if version is not None else project.template_version
+
+        self.template_app.install(project, app_name=app_name, version=vcs_ref, data=data)
 
         # the network config is added/maintained in the base template, but it is
         # supposed to import every app config module, so update it for the added app
@@ -186,7 +156,7 @@ class InfraTemplate:
         data = {"app_names": list(app_names)}
         path = "infra/networks/main.tf.jinja"
 
-        if not (self.template_dir / path).exists():
+        if not (self.template_base.copier_template.local_abspath / path).exists():
             return
 
         self.ctx.console.print(f"Regenerating {path.removesuffix('.jinja')}")
@@ -194,9 +164,9 @@ class InfraTemplate:
         # TODO: this might conceivably need to include the base template
         # data/answers at some point
         render_template_file(
-            src_path=str(self.template_dir),
+            src_path=str(self.template_uri),
             src_file_path=path,
-            dst_path=project.project_dir,
+            dst_path=project.dir,
             data=data,
             # Use the template version that the project is currently on, unless
             # an override is provided (mainly during initial install)
@@ -211,22 +181,17 @@ class InfraTemplate:
         # manually.
 
     @property
-    def version(self) -> str:
-        return self.git_project.get_commit_hash_for_head()
-
-    @version.setter
-    def version(self, version: str) -> None:
-        self.git_project.tag(version)
+    def version(self) -> Version | None:
+        return self.template_base.version
 
     @property
-    def short_version(self) -> str:
-        return self.version[:7]
+    def commit(self) -> str | None:
+        return self.template_base.commit
 
-    def _compute_excludes(self) -> None:
-        global_src_excludes = ["*template-only*"]
-        self._base_src_excludes = global_src_excludes + ["*{{app_name}}*"]
-        self._app_src_excludes = global_src_excludes + [
-            "*",
-            "!*{{app_name}}*",
-            "!/.template-infra/",
-        ]
+    @property
+    def commit_hash(self) -> str | None:
+        return self.template_base.commit_hash
+
+    @property
+    def short_commit_hash(self) -> str | None:
+        return self.commit_hash[:7] if self.commit_hash else None

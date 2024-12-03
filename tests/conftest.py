@@ -10,10 +10,10 @@ from typer.testing import CliRunner
 from nava.platform.cli.context import CliContext
 from nava.platform.cli.main import app as nava_cli
 from nava.platform.infra_project import InfraProject
-from nava.platform.infra_template import InfraTemplate
 from nava.platform.util.git import GitProject
 from tests.lib import DirectoryContent
 from tests.lib.changeset import ChangeSet, FileChange
+from tests.lib.infra_template_writable import InfraTemplateWritable
 
 pytest.register_assert_rewrite("tests.lib.asserts")
 
@@ -88,7 +88,7 @@ def template_directory_content() -> DirectoryContent:
 @pytest.fixture
 def infra_template(
     tmp_path: Path, template_directory_content: DirectoryContent, cli_context: CliContext
-) -> InfraTemplate:
+) -> InfraTemplateWritable:
     template_dir = tmp_path / "template"
     template_dir.mkdir()
     template_directory_content.to_fs(str(template_dir))
@@ -97,7 +97,7 @@ def infra_template(
     git_project.init()
     git_project.commit_all("Initial commit")
 
-    template = InfraTemplate(cli_context, template_dir)
+    template = InfraTemplateWritable(cli_context, template_dir)
 
     # Temporarily rename main to lorenyu/platform-cli since the rollout plan
     # for the Platform CLI will temporarily default the --version option
@@ -118,7 +118,7 @@ def new_project_no_git(tmp_path: Path) -> InfraProject:
 @pytest.fixture
 def new_project(new_project_no_git: InfraProject) -> InfraProject:
     project = new_project_no_git
-    project.git_project.init()
+    project.git.init()
     return project
 
 
@@ -140,17 +140,17 @@ def clean_install(infra_template, new_project, cli):
         [
             "infra",
             "install",
-            str(new_project.project_dir),
+            str(new_project.dir),
             "--template-uri",
             str(infra_template.template_dir),
         ],
         input="foo\n",
     )
-    new_project.git_project.commit_all("Install template")
+    new_project.git.commit_all("Install template")
 
 
 @pytest.fixture
-def merge_conflict(infra_template: InfraTemplate, new_project: InfraProject, clean_install):
+def merge_conflict(infra_template: InfraTemplateWritable, new_project: InfraProject, clean_install):
     ChangeSet(
         [
             FileChange("infra/{{app_name}}/main.tf", "", "template app\n"),
@@ -164,12 +164,14 @@ def merge_conflict(infra_template: InfraTemplate, new_project: InfraProject, cle
             FileChange("infra/foo/main.tf", "", "project app\n"),
             FileChange("infra/project-config/main.tf", "", "project config\n"),
         ]
-    ).apply(new_project.project_dir)
-    new_project.git_project.commit_all("Change project")
+    ).apply(new_project.dir)
+    new_project.git.commit_all("Change project")
 
 
 @pytest.fixture
-def infra_template_dirty(infra_template: InfraTemplate, new_project: InfraProject) -> InfraTemplate:
+def infra_template_dirty(
+    infra_template: InfraTemplateWritable, new_project: InfraProject
+) -> InfraTemplateWritable:
     dir_content = {
         ".gitignore": "ignored_file.txt",
         "ignored_file.txt": "foobar",

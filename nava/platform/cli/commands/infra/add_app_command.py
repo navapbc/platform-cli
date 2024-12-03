@@ -7,11 +7,11 @@ from nava.platform.infra_template import InfraTemplate
 
 def add_app(
     ctx: CliContext,
-    template_dir: str | Path,
+    template_uri: str | Path,
     project_dir: str,
     app_name: str,
     data: dict[str, str] | None = None,
 ) -> None:
-    template = InfraTemplate(ctx, Path(template_dir))
+    template = InfraTemplate(ctx, template_uri)
     project = InfraProject(Path(project_dir))
     template.add_app(project, app_name, data=data)

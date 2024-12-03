@@ -3,7 +3,7 @@ def test_info_empty_project_no_git(cli, new_project_no_git):
         [
             "infra",
             "info",
-            str(new_project_no_git.project_dir),
+            str(new_project_no_git.dir),
         ],
     )
 
@@ -13,7 +13,7 @@ def test_info_empty_project(cli, new_project):
         [
             "infra",
             "info",
-            str(new_project.project_dir),
+            str(new_project.dir),
         ],
     )
 
@@ -23,6 +23,6 @@ def test_info_clean_install(cli, new_project, clean_install):
         [
             "infra",
             "info",
-            str(new_project.project_dir),
+            str(new_project.dir),
         ],
     )

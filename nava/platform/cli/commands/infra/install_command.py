@@ -9,12 +9,12 @@ from nava.platform.infra_template import InfraTemplate
 
 def install(
     ctx: CliContext,
-    template_dir: str,
+    template_uri: str,
     project_dir: str,
     version: str | None = None,
     data: dict[str, str] | None = None,
 ) -> None:
-    template = InfraTemplate(ctx, Path(template_dir))
+    template = InfraTemplate(ctx, template_uri)
     project = InfraProject(Path(project_dir))
     app_names = project.app_names_possible
 
