@@ -1,5 +1,7 @@
 import re
+from contextlib import nullcontext
 from pathlib import Path
+from typing import ContextManager
 
 import yaml
 from packaging.version import Version
@@ -20,68 +22,72 @@ def info(ctx: CliContext, project_dir: Path, template_uri: str | None = None) ->
         base_answers = yaml.safe_load(project.base_answers_file().read_text())
         template_uri = base_answers.get("_src_path", None)
 
-    # TODO: clone template_uri if appropriate, in context manager to ensure cleanup?
-    template_git = None
     if template_uri:
-        template_git = GitProject.from_existing(Path(template_uri))
+        template_git_ctx: ContextManager[GitProject | None] = GitProject.clone_if_necessary(
+            template_uri
+        )
+    else:
+        template_git_ctx = nullcontext(None)
 
-    newer_versions = None
-    if is_template:
-        newer_versions = get_newer_versions(project.base_template_version(), template_git)
+    with template_git_ctx as template_git:
+        newer_versions = None
+        if is_template:
+            newer_versions = get_newer_versions(project.base_template_version(), template_git)
 
-    project_info = Group(
-        f"Base version: {project.base_template_version() if is_template else None}",
-        f"Newer versions?: {list(map(str, newer_versions)) if newer_versions is not None else 'Unknown. Specify --template-uri to check.'}",
-    )
-
-    ctx.console.print(Panel.fit(project_info, title="Project Info"))
-
-    if project.has_legacy_version_file:
-        legacy_template_version = (
-            project.legacy_version_file_path().read_text().strip()
-            if project.has_legacy_version_file
-            else None
+        project_info = Group(
+            f"Base version: {project.base_template_version() if is_template else None}",
+            f"Newer versions?: {list(map(str, newer_versions)) if newer_versions is not None else 'Unknown. Specify --template-uri to check.'}",
         )
 
-        closest_template_version_to_legacy = None
-        if legacy_template_version and template_git:
-            closest_template_version_to_legacy = template_git.get_closest_tag(
-                legacy_template_version
+        ctx.console.print(Panel.fit(project_info, title="Project Info"))
+
+        if project.has_legacy_version_file:
+            legacy_template_version = (
+                project.legacy_version_file_path().read_text().strip()
+                if project.has_legacy_version_file
+                else None
             )
 
-        legacy_project_info = Group(
-            f"Has legacy version?: {project.has_legacy_version_file} {'(' + legacy_template_version + ')' if legacy_template_version else ''}",
-            f"Closest upstream version: {closest_template_version_to_legacy if closest_template_version_to_legacy is not None else "Unknown"}",
-        )
+            closest_template_version_to_legacy = None
+            if legacy_template_version and template_git:
+                closest_template_version_to_legacy = template_git.get_closest_tag(
+                    legacy_template_version
+                )
 
-        ctx.console.print(Panel.fit(legacy_project_info, title="Legacy Project Info"))
+            legacy_project_info = Group(
+                f"Has legacy version?: {project.has_legacy_version_file} {'(' + legacy_template_version + ')' if legacy_template_version else ''}",
+                f"Closest upstream version: {closest_template_version_to_legacy if closest_template_version_to_legacy is not None else "Unknown"}",
+            )
 
-    if is_template:
-        app_table = Table(title="Apps")
-        app_table.add_column("Name")
-        app_table.add_column("Template Version")
+            ctx.console.print(Panel.fit(legacy_project_info, title="Legacy Project Info"))
 
-        for app_name in project.app_names:
-            app_table.add_row(app_name, project.app_template_version(app_name))
+        if is_template:
+            app_table = Table(title="Apps")
+            app_table.add_column("Name")
+            app_table.add_column("Template Version")
 
-        ctx.console.print(app_table)
+            for app_name in project.app_names:
+                app_table.add_row(app_name, project.app_template_version(app_name))
 
-        non_template_app_table = Table(title="Possible Apps (not currently using template)")
-        non_template_app_table.add_column("Name")
-        for non_template_app_name in sorted(
-            set(project.app_names_possible) - set(project.app_names)
-        ):
-            non_template_app_table.add_row(non_template_app_name)
+            ctx.console.print(app_table)
 
-        ctx.console.print(non_template_app_table)
-    elif project.has_legacy_version_file:
-        app_table = Table(title="Detected Apps")
-        app_table.add_column("Name")
+            non_template_app_names = set(project.app_names_possible) - set(project.app_names)
 
-        for app_name in project.app_names_possible:
-            app_table.add_row(app_name)
+            if non_template_app_names:
+                non_template_app_table = Table(title="Possible Apps (not currently using template)")
+                non_template_app_table.add_column("Name")
+                for non_template_app_name in sorted(non_template_app_names):
+                    non_template_app_table.add_row(non_template_app_name)
 
-        ctx.console.print(app_table)
+                ctx.console.print(non_template_app_table)
+        elif project.has_legacy_version_file:
+            app_table = Table(title="Detected Apps")
+            app_table.add_column("Name")
+
+            for app_name in project.app_names_possible:
+                app_table.add_row(app_name)
+
+            ctx.console.print(app_table)
 
 
 def get_newer_versions(

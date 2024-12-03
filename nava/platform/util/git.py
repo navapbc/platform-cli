@@ -1,6 +1,8 @@
 import subprocess
+from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Self
+from tempfile import TemporaryDirectory
+from typing import Any, Generator, Self
 
 
 class GitProject:
@@ -13,6 +15,26 @@ class GitProject:
             return None
 
         return cls(dir)
+
+    @classmethod
+    @contextmanager
+    def clone_if_necessary(cls, repo_uri: str) -> Generator[Self, None, None]:
+        """Construct an instance, cloning given repo first if necessary.
+
+        If ``repo_uri`` is remote, it will be cloned to a temporary directory
+        that this removed on exit of the context.
+
+        If ``repo_uri`` is a local path, it is not deleted on exit.
+        """
+        if Path(repo_uri).exists():
+            yield cls(Path(repo_uri))
+        else:
+            with TemporaryDirectory() as dir:
+                dir_path = Path(dir)
+                clone_result = clone_to(repo_uri, dir_path)
+                clone_result.check_returncode()
+
+                yield cls(dir_path)
 
     def _run_cmd(self, *args: Any, **kwargs: Any) -> subprocess.CompletedProcess[str]:
         return run_text(*args, **kwargs, cwd=self.dir)
@@ -106,6 +128,17 @@ def is_a_git_worktree(dir: Path) -> bool:
     )
 
     return result.stdout.strip() == "true"
+
+
+# TODO: could use copier.vcs.clone?
+def clone_to(url: str, dest: Path, ref: str | None = None) -> subprocess.CompletedProcess[str]:
+    clone_result = run_text(["git", "clone", "--filter=blob:none", url, dest])
+
+    if clone_result.returncode == 0:
+        checkout_result = run_text(["git", "checkout", ref or "HEAD"], cwd=dest)
+        return checkout_result
+
+    return clone_result
 
 
 def run_text(*args: Any, **kwargs: Any) -> subprocess.CompletedProcess[str]:

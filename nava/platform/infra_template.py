@@ -49,8 +49,6 @@ class InfraTemplate:
         data: dict[str, str] | None = None,
     ) -> None:
         self.ctx.console.rule("Infra base")
-        # TODO: the data in template_base will include `app_name` now, check it
-        # doesn't get saved to answers file
         self.template_base.install(project, app_name="base", version=version, data=data)
 
         for app_name in app_names:
