@@ -3,7 +3,6 @@ from pathlib import Path
 from nava.platform.cli.context import CliContext
 from nava.platform.infra_project import InfraProject
 from nava.platform.migrate_from_legacy_template import MigrateFromLegacyTemplate
-from nava.platform.project import Project
 
 
 def migrate_from_legacy(ctx: CliContext, project_dir: str, origin_template_uri: str) -> None:
@@ -21,9 +20,9 @@ def migrate_from_legacy(ctx: CliContext, project_dir: str, origin_template_uri: 
 def _migrate_from_legacy(
     ctx: CliContext, infra_project: InfraProject, origin_template_uri: str
 ) -> None:
-    base_project_config_answers = _answers_from_project_config(ctx, infra_project.project_dir)
+    base_project_config_answers = _answers_from_project_config(ctx, infra_project.dir)
 
-    project = Project(dir=infra_project.project_dir)
+    project = infra_project
 
     base_migrate = MigrateFromLegacyTemplate(
         ctx=ctx,

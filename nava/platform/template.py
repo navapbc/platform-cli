@@ -105,7 +105,7 @@ class Template:
         if commit:
             self._commit_project(
                 project,
-                f"Update app `{app_name}` to version {self.copier_template.version}",
+                f"Update `{self.template_name}` `{app_name}` to version {self.copier_template.version}",
             )
 
     def project_state_dir_rel(self) -> RelativePath:

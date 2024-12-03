@@ -20,6 +20,7 @@ def info(ctx: CliContext, project_dir: Path, template_uri: str | None = None) ->
         base_answers = yaml.safe_load(project.base_answers_file().read_text())
         template_uri = base_answers.get("_src_path", None)
 
+    # TODO: clone template_uri if appropriate, in context manager to ensure cleanup?
     template_git = None
     if template_uri:
         template_git = GitProject.from_existing(Path(template_uri))
