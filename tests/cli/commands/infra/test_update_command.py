@@ -9,19 +9,19 @@ from tests.lib.changeset import ChangeSet
 
 
 def test_update_no_change(cli, infra_template, new_project, clean_install):
-    content_before_update = DirectoryContent.from_fs(new_project.project_dir, ignore=[".git"])
+    content_before_update = DirectoryContent.from_fs(new_project.dir, ignore=[".git"])
 
     cli(
         [
             "infra",
             "update",
-            str(new_project.project_dir),
+            str(new_project.dir),
             "--template-uri",
             str(infra_template.template_dir),
         ]
     )
 
-    content_after_update = DirectoryContent.from_fs(new_project.project_dir, ignore=[".git"])
+    content_after_update = DirectoryContent.from_fs(new_project.dir, ignore=[".git"])
     assert content_before_update == content_after_update
 
 
@@ -38,15 +38,15 @@ def test_update_with_template_change(cli, infra_template, new_project, clean_ins
         [
             "infra",
             "update",
-            str(new_project.project_dir),
+            str(new_project.dir),
             "--template-uri",
             str(infra_template.template_dir),
         ]
     )
 
     assert new_project.template_version == infra_template.short_version
-    assert (new_project.project_dir / "infra/modules/service/main.tf").read_text() == "changed\n"
-    assert (new_project.project_dir / "infra/foo/main.tf").read_text() == "changed\n"
+    assert (new_project.dir / "infra/modules/service/main.tf").read_text() == "changed\n"
+    assert (new_project.dir / "infra/foo/main.tf").read_text() == "changed\n"
 
 
 @pytest.mark.skip(reason="is flaky")
@@ -55,14 +55,14 @@ def test_update_with_dirty_template(cli, clean_install, infra_template_dirty, ne
         [
             "infra",
             "update",
-            str(new_project.project_dir),
+            str(new_project.dir),
             "--template-uri",
             str(infra_template_dirty.template_dir),
         ],
         input="foo\n",
     )
 
-    dir_content = DirectoryContent.from_fs(new_project.project_dir, ignore=[".git"])
+    dir_content = DirectoryContent.from_fs(new_project.dir, ignore=[".git"])
 
     assert "ignored_file.txt" not in dir_content
     # if repo doesn't have a tag/no version is specified, copier defaults to
@@ -85,7 +85,7 @@ def test_update_with_dirty_template_with_version(
         [
             "infra",
             "update",
-            str(new_project.project_dir),
+            str(new_project.dir),
             "--template-uri",
             str(infra_template_dirty.template_dir),
             "--version",
@@ -94,7 +94,7 @@ def test_update_with_dirty_template_with_version(
         input="foo\n",
     )
 
-    dir_content = DirectoryContent.from_fs(new_project.project_dir, ignore=[".git"])
+    dir_content = DirectoryContent.from_fs(new_project.dir, ignore=[".git"])
 
     assert "ignored_file.txt" not in dir_content
     # when specifying a version, copier does not include untracked changes
@@ -106,9 +106,7 @@ def test_update_with_dirty_template_with_version(
 def test_update_with_project_change(
     cli, infra_template: InfraTemplate, new_project: InfraProject, clean_install
 ):
-    ChangeSet([FileChange("infra/foo/main.tf", "", "project change\n")]).apply(
-        new_project.project_dir
-    )
+    ChangeSet([FileChange("infra/foo/main.tf", "", "project change\n")]).apply(new_project.dir)
     new_project.git_project.commit_all("Change project")
 
     ChangeSet([FileChange("infra/modules/service/main.tf", "", "template change\n")]).apply(
@@ -120,17 +118,15 @@ def test_update_with_project_change(
         [
             "infra",
             "update",
-            str(new_project.project_dir),
+            str(new_project.dir),
             "--template-uri",
             str(infra_template.template_dir),
         ]
     )
 
     assert new_project.template_version == infra_template.short_version
-    assert (new_project.project_dir / "infra/foo/main.tf").read_text() == "project change\n"
-    assert (
-        new_project.project_dir / "infra/modules/service/main.tf"
-    ).read_text() == "template change\n"
+    assert (new_project.dir / "infra/foo/main.tf").read_text() == "project change\n"
+    assert (new_project.dir / "infra/modules/service/main.tf").read_text() == "template change\n"
 
 
 def test_update_with_merge_conflict(
@@ -142,7 +138,7 @@ def test_update_with_merge_conflict(
         [
             "infra",
             "update",
-            str(new_project.project_dir),
+            str(new_project.dir),
             "--template-uri",
             str(infra_template.template_dir),
         ],
@@ -161,7 +157,7 @@ def test_update_with_data(
         [
             "infra",
             "update",
-            str(new_project.project_dir),
+            str(new_project.dir),
             "--template-uri",
             str(infra_template.template_dir),
             "--data",
@@ -169,4 +165,4 @@ def test_update_with_data(
         ]
     )
 
-    assert (new_project.project_dir / "bar.txt").read_text() == "new file\n"
+    assert (new_project.dir / "bar.txt").read_text() == "new file\n"

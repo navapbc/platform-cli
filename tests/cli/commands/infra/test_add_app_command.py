@@ -7,7 +7,7 @@ def test_add_app(cli, infra_template, new_project, clean_install):
         [
             "infra",
             "add-app",
-            str(new_project.project_dir),
+            str(new_project.dir),
             "bar",
             "--template-uri",
             str(infra_template.template_dir),
@@ -15,7 +15,7 @@ def test_add_app(cli, infra_template, new_project, clean_install):
     )
     new_project.git_project.commit_all("Add app bar")
 
-    dir_content = DirectoryContent.from_fs(new_project.project_dir, ignore=[".git"])
+    dir_content = DirectoryContent.from_fs(new_project.dir, ignore=[".git"])
 
     assert dir_content.without(".template-infra") == DirectoryContent(
         {
@@ -58,15 +58,15 @@ def test_add_app(cli, infra_template, new_project, clean_install):
         [
             "infra",
             "update",
-            str(new_project.project_dir),
+            str(new_project.dir),
             "--template-uri",
             str(infra_template.template_dir),
         ]
     )
 
     assert new_project.template_version == infra_template.short_version
-    assert (new_project.project_dir / "infra/foo/main.tf").read_text() == "changed\n"
-    assert (new_project.project_dir / "infra/bar/main.tf").read_text() == "changed\n"
+    assert (new_project.dir / "infra/foo/main.tf").read_text() == "changed\n"
+    assert (new_project.dir / "infra/bar/main.tf").read_text() == "changed\n"
 
 
 def test_add_app_uses_existing_template_version(cli, infra_template, new_project, clean_install):
@@ -84,7 +84,7 @@ def test_add_app_uses_existing_template_version(cli, infra_template, new_project
         [
             "infra",
             "add-app",
-            str(new_project.project_dir),
+            str(new_project.dir),
             "bar",
             "--template-uri",
             str(infra_template.template_dir),
@@ -93,5 +93,5 @@ def test_add_app_uses_existing_template_version(cli, infra_template, new_project
     new_project.git_project.commit_all("Add app bar")
 
     assert new_project.template_version == existing_template_version
-    assert (new_project.project_dir / "infra/modules/service/main.tf").read_text() == ""
-    assert (new_project.project_dir / "infra/foo/main.tf").read_text() == ""
+    assert (new_project.dir / "infra/modules/service/main.tf").read_text() == ""
+    assert (new_project.dir / "infra/foo/main.tf").read_text() == ""

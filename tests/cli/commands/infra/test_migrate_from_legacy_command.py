@@ -40,7 +40,7 @@ def test_migrate_from_legacy(
 ):
     project = legacy_project
     migrate_from_legacy_command.migrate_from_legacy(
-        cli_context, str(project.project_dir), str(infra_template.template_dir)
+        cli_context, str(project.dir), str(infra_template.template_dir)
     )
     project.git_project.commit_all("Migrate from legacy")
 
@@ -52,11 +52,11 @@ def test_migrate_from_legacy(
     ).apply(infra_template.template_dir)
     infra_template.git_project.commit_all("Change template")
 
-    update_command.update(cli_context, str(infra_template.template_dir), str(project.project_dir))
+    update_command.update(cli_context, str(infra_template.template_dir), str(project.dir))
 
     assert project.template_version == infra_template.short_version
-    assert (project.project_dir / "infra/modules/service/main.tf").read_text() == "changed\n"
-    assert (project.project_dir / "infra/foo/main.tf").read_text() == "changed\n"
+    assert (project.dir / "infra/modules/service/main.tf").read_text() == "changed\n"
+    assert (project.dir / "infra/foo/main.tf").read_text() == "changed\n"
 
 
 def test_migrate_from_legacy_with_multi_app_project(
@@ -64,7 +64,7 @@ def test_migrate_from_legacy_with_multi_app_project(
 ):
     project = legacy_multi_app_project
     migrate_from_legacy_command.migrate_from_legacy(
-        cli_context, str(project.project_dir), str(infra_template.template_dir)
+        cli_context, str(project.dir), str(infra_template.template_dir)
     )
     project.git_project.commit_all("Migrate from legacy")
 
@@ -76,19 +76,19 @@ def test_migrate_from_legacy_with_multi_app_project(
     ).apply(infra_template.template_dir)
     infra_template.git_project.commit_all("Change template")
 
-    update_command.update(cli_context, str(infra_template.template_dir), str(project.project_dir))
+    update_command.update(cli_context, str(infra_template.template_dir), str(project.dir))
 
     assert project.template_version == infra_template.short_version
-    assert (project.project_dir / "infra/modules/service/main.tf").read_text() == "changed\n"
-    assert (project.project_dir / "infra/foo/main.tf").read_text() == "changed\n"
-    assert (project.project_dir / "infra/bar/main.tf").read_text() == "changed\n"
+    assert (project.dir / "infra/modules/service/main.tf").read_text() == "changed\n"
+    assert (project.dir / "infra/foo/main.tf").read_text() == "changed\n"
+    assert (project.dir / "infra/bar/main.tf").read_text() == "changed\n"
 
 
 def convert_project_to_legacy(project: InfraProject, template_version: str) -> None:
     # Delete .infra-template folder
-    for path in (project.project_dir / ".template-infra").iterdir():
+    for path in (project.dir / ".template-infra").iterdir():
         path.unlink()
-    (project.project_dir / ".template-infra").rmdir()
+    (project.dir / ".template-infra").rmdir()
 
     # Write legacy .template-version file
-    (project.project_dir / ".template-version").write_text(template_version)
+    (project.dir / ".template-version").write_text(template_version)

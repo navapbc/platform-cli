@@ -32,14 +32,14 @@ def test_install_with_app_name_as_arg(cli, infra_template, new_project):
         [
             "infra",
             "install",
-            str(new_project.project_dir),
+            str(new_project.dir),
             "--template-uri",
             str(infra_template.template_dir),
         ],
         input="foo\n",
     )
 
-    dir_content = DirectoryContent.from_fs(new_project.project_dir, ignore=[".git"])
+    dir_content = DirectoryContent.from_fs(new_project.dir, ignore=[".git"])
 
     assert dir_content.without(".template-infra") == INFRA_TEMPLATE_EXPECTED_CONTENT_FOR_APP_FOO
     assert new_project.template_version == infra_template.short_version
@@ -50,7 +50,7 @@ def test_install_with_data_app_name(cli, infra_template, new_project):
         [
             "infra",
             "install",
-            str(new_project.project_dir),
+            str(new_project.dir),
             "--template-uri",
             str(infra_template.template_dir),
             "--data",
@@ -58,7 +58,7 @@ def test_install_with_data_app_name(cli, infra_template, new_project):
         ],
     )
 
-    dir_content = DirectoryContent.from_fs(new_project.project_dir, ignore=[".git"])
+    dir_content = DirectoryContent.from_fs(new_project.dir, ignore=[".git"])
 
     assert dir_content.without(".template-infra") == INFRA_TEMPLATE_EXPECTED_CONTENT_FOR_APP_FOO
     assert new_project.template_version == infra_template.short_version
@@ -69,7 +69,7 @@ def test_install_with_data_app_name_non_git_project(cli, infra_template, new_pro
         [
             "infra",
             "install",
-            str(new_project_no_git.project_dir),
+            str(new_project_no_git.dir),
             "--template-uri",
             str(infra_template.template_dir),
             "--data",
@@ -77,7 +77,7 @@ def test_install_with_data_app_name_non_git_project(cli, infra_template, new_pro
         ],
     )
 
-    dir_content = DirectoryContent.from_fs(new_project_no_git.project_dir, ignore=[".git"])
+    dir_content = DirectoryContent.from_fs(new_project_no_git.dir, ignore=[".git"])
 
     assert dir_content.without(".template-infra") == INFRA_TEMPLATE_EXPECTED_CONTENT_FOR_APP_FOO
     assert new_project_no_git.template_version == infra_template.short_version
@@ -90,7 +90,7 @@ def test_install_with_data_app_name_same_as_existing_dir_non_git_project(
         [
             "infra",
             "install",
-            str(new_project_no_git.project_dir),
+            str(new_project_no_git.dir),
             "--template-uri",
             str(infra_template.template_dir),
             "--data",
@@ -98,7 +98,7 @@ def test_install_with_data_app_name_same_as_existing_dir_non_git_project(
         ],
     )
 
-    dir_content = DirectoryContent.from_fs(new_project_no_git.project_dir)
+    dir_content = DirectoryContent.from_fs(new_project_no_git.dir)
 
     assert dir_content.without(".template-infra") == DirectoryContent(
         {
@@ -133,14 +133,14 @@ def test_install_infra_template_dirty(cli, infra_template_dirty, new_project):
         [
             "infra",
             "install",
-            str(new_project.project_dir),
+            str(new_project.dir),
             "--template-uri",
             str(infra_template_dirty.template_dir),
         ],
         input="foo\n",
     )
 
-    dir_content = DirectoryContent.from_fs(new_project.project_dir, ignore=[".git"])
+    dir_content = DirectoryContent.from_fs(new_project.dir, ignore=[".git"])
 
     assert "ignored_file.txt" not in dir_content
     assert "untracked_file.txt" not in dir_content
@@ -165,7 +165,7 @@ def test_install_version(cli, infra_template, new_project):
         [
             "infra",
             "install",
-            str(new_project.project_dir),
+            str(new_project.dir),
             "--template-uri",
             str(infra_template.template_dir),
             "--version",
@@ -175,8 +175,8 @@ def test_install_version(cli, infra_template, new_project):
     )
 
     assert new_project.template_version == "v0.1.0"
-    assert (new_project.project_dir / "infra/modules/service/main.tf").read_text() == ""
-    assert (new_project.project_dir / "infra/foo/main.tf").read_text() == ""
+    assert (new_project.dir / "infra/modules/service/main.tf").read_text() == ""
+    assert (new_project.dir / "infra/foo/main.tf").read_text() == ""
 
 
 def test_install_with_other_data(cli, infra_template, new_project):
@@ -191,7 +191,7 @@ def test_install_with_other_data(cli, infra_template, new_project):
         [
             "infra",
             "install",
-            str(new_project.project_dir),
+            str(new_project.dir),
             "--template-uri",
             str(infra_template.template_dir),
             "--data",
@@ -200,4 +200,4 @@ def test_install_with_other_data(cli, infra_template, new_project):
         input="foo\n",
     )
 
-    assert (new_project.project_dir / "bar.txt").read_text() == "new file\n"
+    assert (new_project.dir / "bar.txt").read_text() == "new file\n"

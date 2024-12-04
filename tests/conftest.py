@@ -140,7 +140,7 @@ def clean_install(infra_template, new_project, cli):
         [
             "infra",
             "install",
-            str(new_project.project_dir),
+            str(new_project.dir),
             "--template-uri",
             str(infra_template.template_dir),
         ],
@@ -164,7 +164,7 @@ def merge_conflict(infra_template: InfraTemplate, new_project: InfraProject, cle
             FileChange("infra/foo/main.tf", "", "project app\n"),
             FileChange("infra/project-config/main.tf", "", "project config\n"),
         ]
-    ).apply(new_project.project_dir)
+    ).apply(new_project.dir)
     new_project.git_project.commit_all("Change project")
 
 
