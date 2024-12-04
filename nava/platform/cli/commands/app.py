@@ -1,6 +1,7 @@
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, cast
 
+import questionary
 import typer
 
 import nava.platform.util.collections.dict as dict_util
@@ -49,16 +50,54 @@ def update(
     app_name: Annotated[
         str, typer.Argument(help="Name of the application based on given template to update")
     ],
-    template_uri: Annotated[str, typer.Option()],
+    template_uri: Annotated[str | None, typer.Option()] = None,
     version: Annotated[str | None, typer.Option()] = None,
     data: Annotated[list[str] | None, opt_data] = None,
+    commit: Annotated[
+        bool, typer.Option(help="Commit changes with standard message if able")
+    ] = False,
 ) -> None:
     """Update application based on template in project."""
     ctx = typer_context.ensure_object(CliContext)
-    template = Template(ctx, template_uri=template_uri)
     project = Project(project_dir)
+
+    if template_uri:
+        template = Template(ctx, template_uri=template_uri)
+    else:
+        installed_templates_for_app = list(
+            filter(
+                lambda t_name: t_name != "template-infra",
+                project.installed_template_names_for_app(app_name),
+            )
+        )
+
+        if len(installed_templates_for_app) == 1:
+            template_name = installed_templates_for_app[0]
+        else:
+            template_name = cast(
+                str,
+                questionary.select(
+                    f"Which template for {app_name}?",
+                    choices=installed_templates_for_app,
+                    use_search_filter=True,
+                    use_jk_keys=False,
+                    validate=lambda choices: "You must choose a template to update"
+                    if not choices
+                    else True,
+                ).unsafe_ask(),
+            )
+
+        template = Template.from_existing(
+            ctx, project, app_name=app_name, template_name=template_name
+        )
+
+    ctx.console.rule(f"{app_name} ({template.template_name})")
     template.update(
-        project=project, app_name=app_name, version=version, data=dict_util.from_str_values(data)
+        project=project,
+        app_name=app_name,
+        version=version,
+        data=dict_util.from_str_values(data),
+        commit=commit,
     )
 
 
