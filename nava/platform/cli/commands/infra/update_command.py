@@ -80,4 +80,5 @@ def update_app(
             ctx.exit(1)
 
         for app_name in app_names:
+            ctx.console.rule(f"Infra app: {app_name}")
             template.update_app(project, app_name, version=version, data=data, commit=commit)
