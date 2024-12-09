@@ -33,8 +33,16 @@ fmt: ## Run formatter
 	$(PY_RUN) ruff format $(PY_SRCS)
 
 lint: ## Run linting
-	$(PY_RUN) mypy $(PY_SRCS)
-	$(PY_RUN) ruff check --fix $(PY_SRCS)
+lint: lint-mypy lint-ruff lint-poetry
+
+lint-mypy: ## Run mypy
+	$(PY_RUN) mypy $(args) $(PY_SRCS)
+
+lint-ruff: ## Run ruff linting with auto-fixes
+	$(PY_RUN) ruff check --fix $(args) $(PY_SRCS)
+
+lint-poetry: ## Run poetry checks
+	poetry check --lock
 
 test: ## Run tests
 	$(PY_RUN) pytest $(args)
