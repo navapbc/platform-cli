@@ -39,7 +39,9 @@ class InfraProject:
     def app_names(self) -> list[str]:
         app_answer_files = self.project_dir.glob(".template-infra/app-*.yml")
         return list(
-            map(lambda f: f.name.removeprefix("app-").removesuffix(".yml"), app_answer_files)
+            sorted(
+                map(lambda f: f.name.removeprefix("app-").removesuffix(".yml"), app_answer_files)
+            )
         )
 
     def base_answers_file_rel(self) -> RelativePath:
