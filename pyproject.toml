@@ -9,7 +9,7 @@ packages = [{ include = "nava" }]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-copier = "^9.4.1"
+copier = {git = "https://github.com/copier-org/copier.git"}
 pyyaml = "^6.0.2"
 rich = "^13.9.4"
 structlog = "^24.4.0"

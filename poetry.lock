@@ -38,14 +38,12 @@ files = [
 
 [[package]]
 name = "copier"
-version = "9.4.1"
+version = "0.0.0"
 description = "A library for rendering project templates."
 optional = false
 python-versions = ">=3.9"
-files = [
-    {file = "copier-9.4.1-py3-none-any.whl", hash = "sha256:863385b7ba8a9090c832cd12ca072dba9153397dbe7c5f337bf8c3d8859efa32"},
-    {file = "copier-9.4.1.tar.gz", hash = "sha256:cc81d8204cb17fbc8c4a14996a8ce764166c34c77236de38cfbeb960c887b68f"},
-]
+files = []
+develop = false
 
 [package.dependencies]
 colorama = ">=0.4.6"
@@ -60,6 +58,12 @@ pydantic = ">=2.4.2"
 pygments = ">=2.7.1"
 pyyaml = ">=5.3.1"
 questionary = ">=1.8.1"
+
+[package.source]
+type = "git"
+url = "https://github.com/copier-org/copier.git"
+reference = "HEAD"
+resolved_reference = "2dc1687af389505a708f25b0bc4e37af56179e99"
 
 [[package]]
 name = "docopt"
@@ -851,4 +855,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "81248695194ce77fd224f43a8ba6aa72fee5f9b96cd0a07a583ea84b033baa0b"
+content-hash = "b4532ba0f109b0f4bc8d83af149e18a2459c35d83574359900965dab10af6f72"
