@@ -10,10 +10,7 @@ from tests.lib.changeset import ChangeSet
 
 @pytest.fixture
 def legacy_project(infra_template: InfraTemplate, new_project: InfraProject) -> InfraProject:
-    """
-    Return a project with a clean install of the infra template
-    but with the legacy .template-version file
-    """
+    """Return a project with a clean install of the infra template but with the legacy .template-version file."""
     infra_template.install(new_project, ["foo"])
     convert_project_to_legacy(new_project, infra_template.version)
     new_project.git_project.commit_all("Legacy install")
@@ -24,10 +21,7 @@ def legacy_project(infra_template: InfraTemplate, new_project: InfraProject) -> 
 def legacy_multi_app_project(
     infra_template: InfraTemplate, new_project: InfraProject
 ) -> InfraProject:
-    """
-    Return a project with multiple apps
-    that has a legacy .template-version file
-    """
+    """Return a project with multiple apps that has a legacy .template-version file."""
     infra_template.install(new_project, ["foo"])
     infra_template.add_app(new_project, "bar")
     convert_project_to_legacy(new_project, infra_template.version)

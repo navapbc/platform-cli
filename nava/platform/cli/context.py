@@ -10,7 +10,7 @@ __all__ = ["AppDirs", "CliContext", "OutputLevel"]
 
 @dataclass
 class CliContext:
-    """Holds various state and I/O for commands"""
+    """Holds various state and I/O for commands."""
 
     output_level: OutputLevel
     log: nava.platform.cli.logging.Logger

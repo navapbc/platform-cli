@@ -27,8 +27,7 @@ def install(
     version: Annotated[str | None, typer.Option()] = None,
     data: Annotated[list[str] | None, opt_data] = None,
 ) -> None:
-    """Install application template in project"""
-
+    """Install application template in project."""
     ctx = typer_context.ensure_object(CliContext)
     template = Template(ctx, template_uri=template_uri)
     project = Project(project_dir)
@@ -54,8 +53,7 @@ def update(
     version: Annotated[str | None, typer.Option()] = None,
     data: Annotated[list[str] | None, opt_data] = None,
 ) -> None:
-    """Update application based on template in project"""
-
+    """Update application based on template in project."""
     ctx = typer_context.ensure_object(CliContext)
     template = Template(ctx, template_uri=template_uri)
     project = Project(project_dir)
@@ -78,7 +76,7 @@ def migrate_from_legacy(
         str, typer.Argument(help="Name of the application based on given template to migrate")
     ],
 ) -> None:
-    """Migrate an older version of a template to platform-cli setup"""
+    """Migrate an older version of a template to platform-cli setup."""
     ctx = typer_context.ensure_object(CliContext)
     project = Project(Path(project_dir))
     MigrateFromLegacyTemplate(

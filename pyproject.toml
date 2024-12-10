@@ -45,6 +45,8 @@ disallow_incomplete_defs = false
 [tool.ruff]
 line-length = 100
 lint.select = [
+    # pydocstyle
+    "D", "D404",
     # pycodestyle, ones that don't deal with formatting
     "E4", "E7", "E9",
     # Pyflakes
@@ -62,6 +64,14 @@ lint.select = [
     # isort
     "I",
 ]
+lint.ignore = [
+    # don't require *every* public thing to have a docstring, at least for now
+    "D1",
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
 
 [build-system]
 requires = ["poetry-core"]

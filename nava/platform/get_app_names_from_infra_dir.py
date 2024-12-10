@@ -2,7 +2,7 @@ from pathlib import Path
 
 
 def get_app_names_from_infra_dir(dir: Path) -> list[str]:
-    """Get apps based on names in infra/
+    """Get apps based on names in infra/.
 
     Args:
         dir: Should be a location of `template-infra` or an instance of it

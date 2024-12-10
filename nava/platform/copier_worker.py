@@ -1,4 +1,4 @@
-"""Tweaked version of the upstream copier functionality
+"""Tweaked version of the upstream copier functionality.
 
 See the upstream:
 https://github.com/copier-org/copier/blob/259f351fc3c017c82b235888c119b9010d80494a/copier/main.py
@@ -19,7 +19,7 @@ from copier.user_data import AnswersMap
 
 @dataclass
 class NavaWorker(Worker):
-    """Some (hopefully) small tweaks of upstream functionality
+    """Some (hopefully) small tweaks of upstream functionality.
 
     Copier's upstream exclusion logic only runs against paths after they have
     been rendered. This class supports exclusions based on the paths in the
@@ -57,7 +57,7 @@ class NavaWorker(Worker):
     # not a part of the upstream class, but put here for convenience until we
     # find a better approach
     def render_template_file(self, src_file_path: Path, data: AnyByStrDict | None = None) -> None:
-        """Render an individual file with the template settings"""
+        """Render an individual file with the template settings."""
         src_relpath = src_file_path
         dst_relpath = self._render_path(src_relpath)
 
@@ -104,7 +104,7 @@ def render_template_file(
     data: AnyByStrDict | None = None,
     **kwargs: Any,
 ) -> Worker:
-    """Hackily render an individual file with the template settings"""
+    """Hackily render an individual file with the template settings."""
     if data is not None:
         kwargs["data"] = data
     with NavaWorker(src_path=src_path, dst_path=Path(dst_path), **kwargs) as worker:

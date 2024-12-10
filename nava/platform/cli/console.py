@@ -1,4 +1,4 @@
-"""Handling the CLIs output to users"""
+"""Handling the CLIs output to users."""
 
 from __future__ import annotations
 
@@ -38,7 +38,7 @@ def initialize(level: config.OutputLevel) -> ConsoleWrapper:
 
 
 class ConsoleWrapper(Console):
-    """A high level console interface
+    """A high level console interface.
 
     This is not a true sub-class of `rich.Console`, it merely proxies most calls
     to an underlying `rich.Console` instance, but that's hard to correctly type

@@ -21,17 +21,19 @@ class DirectoryContent(
     UserDict[str, Any], MutableMapping[str, Union[FileContent, "DirectoryContent"]]
 ):
     def __init__(self, *args, **kwargs) -> None:
-        """
-        Given a configuration like the following, initialize the directory state.
-        {
-            "dir1": {
-                "dir2": {
-                    "file2": "file2 contents"
+        """Initialize the directory state with given config.
+
+        Config of the format::
+
+            {
+                "dir1": {
+                    "dir2": {
+                        "file2": "file2 contents"
+                    },
+                    "file3": "file3 contents"
                 },
-                "file3": "file3 contents"
-            },
-            "file1": "file1 contents"
-        }
+                "file1": "file1 contents"
+            }
         """
         super().__init__(*args, **kwargs)
         for key, value in self.data.items():
@@ -41,16 +43,14 @@ class DirectoryContent(
                 self.data[key] = DirectoryContent(value)
 
     def without(self, item: str) -> "DirectoryContent":
-        """
-        Return a new Directory object with the given item removed.
-        """
+        """Return a new Directory object with the given item removed."""
         return DirectoryContent(
             {path: content for path, content in self.data.items() if path != item}
         )
 
     def to_fs(self, root_dir: str) -> None:
-        """
-        Save the directory state to the filesystem within the given root directory.
+        """Save the directory state to the filesystem within the given root directory.
+
         For each key in the configuration, if it's a directory, create the directory
         and recursively create its contents. If it's a file, create the file with the
         given contents.
@@ -66,9 +66,7 @@ class DirectoryContent(
 
     @staticmethod
     def from_fs(path: str, ignore: list[str] | None = None) -> "DirectoryContent":
-        """
-        Given a directory, return a DirectoryState object that represents its contents
-        """
+        """Given a directory, return a DirectoryState object that represents its contents."""
         config = DirectoryContent({})
         for name in os.listdir(path):
             subpath = os.path.join(path, name)

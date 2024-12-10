@@ -25,8 +25,7 @@ class DirNode(Inode):
         return False
 
     def add_file(self, path: Path) -> None:
-        """Add a file to the inode tree at the given path"""
-
+        """Add a file to the inode tree at the given path."""
         if len(path.parts) < 1:
             return
 

@@ -3,7 +3,7 @@ from typing import Any, Hashable, Iterable
 
 
 def from_str_values(value: Iterable[str] | None) -> dict[str, str] | None:
-    """Convert a sequence of 'key=value' strings into a dictionary"""
+    """Convert a sequence of 'key=value' strings into a dictionary."""
     result = {}
 
     if value is None:
