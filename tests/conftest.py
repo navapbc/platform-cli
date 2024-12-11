@@ -86,8 +86,10 @@ def template_directory_content() -> DirectoryContent:
 
 
 @pytest.fixture
-def infra_template(
-    tmp_path: Path, template_directory_content: DirectoryContent, cli_context: CliContext
+def infra_template_no_tags(
+    tmp_path: Path,
+    template_directory_content: DirectoryContent,
+    cli_context: CliContext,
 ) -> InfraTemplateWritable:
     template_dir = tmp_path / "template"
     template_dir.mkdir()
@@ -97,13 +99,21 @@ def infra_template(
     git_project.init()
     git_project.commit_all("Initial commit")
 
-    template = InfraTemplateWritable(cli_context, template_dir)
+    # TODO: Remove fixed ref once the rollout plan is complete
+    template = InfraTemplateWritable(cli_context, template_dir, ref="lorenyu/platform-cli")
 
     # Temporarily rename main to lorenyu/platform-cli since the rollout plan
     # for the Platform CLI will temporarily default the --version option
     # to lorenyu/platform-cli, so we want our tests to reflect that.
     # TODO: Remove this once the rollout plan is complete
     template.git_project.rename_branch("lorenyu/platform-cli")
+    return template
+
+
+@pytest.fixture
+def infra_template(infra_template_no_tags: InfraTemplateWritable) -> InfraTemplateWritable:
+    template = infra_template_no_tags
+    template.git_project.tag("v0.0.0")
     return template
 
 

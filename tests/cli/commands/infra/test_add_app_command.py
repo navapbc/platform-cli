@@ -53,6 +53,7 @@ def test_add_app(cli, infra_template, new_project, clean_install):
         ]
     ).apply(infra_template.template_dir)
     infra_template.git_project.commit_all("Change template")
+    infra_template.git_project.tag("0.1.0")
 
     cli(
         [

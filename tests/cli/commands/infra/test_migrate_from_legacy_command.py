@@ -47,6 +47,7 @@ def test_migrate_from_legacy(
         ]
     ).apply(infra_template.template_dir)
     infra_template.git_project.commit_all("Change template")
+    infra_template.git_project.tag("v0.1.0")
 
     update_command.update(cli_context, str(infra_template.template_dir), str(project.dir))
 
@@ -73,6 +74,7 @@ def test_migrate_from_legacy_with_multi_app_project(
         ]
     ).apply(infra_template.template_dir)
     infra_template.git_project.commit_all("Change template")
+    infra_template.git_project.tag("v0.1.0")
 
     update_command.update(cli_context, str(infra_template.template_dir), str(project.dir))
 
