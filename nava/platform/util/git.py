@@ -73,6 +73,12 @@ class GitProject:
 
         return self.commit(msg)
 
+    def log(self, *args: str) -> subprocess.CompletedProcess[str]:
+        return self._run_cmd(["git", "log"] + list(args))
+
+    def reset(self, *args: str) -> subprocess.CompletedProcess[str]:
+        return self._run_cmd(["git", "reset"] + list(args))
+
     def stash(self) -> None:
         self._run_cmd(["git", "stash"])
 
@@ -119,6 +125,14 @@ class GitProject:
 
         first_tag = result.stdout.partition("~")[0]
         return first_tag
+
+    def get_commit_description(self, commit_ish: str = "HEAD") -> str | None:
+        result = self._run_cmd(["git", "describe", "--tags", "--always", commit_ish])
+
+        if result.returncode != 0:
+            return None
+
+        return result.stdout.strip()
 
 
 def is_a_git_worktree(dir: Path) -> bool:

@@ -12,7 +12,7 @@ from nava.platform.cli.context import CliContext
 from nava.platform.copier_worker import run_copy, run_update
 from nava.platform.get_template_name_from_uri import get_template_name_from_uri
 from nava.platform.project import Project
-from nava.platform.util import wrappers
+from nava.platform.util import git, wrappers
 
 RelativePath = Path
 
@@ -255,8 +255,50 @@ class Template:
         if self.copier_template.ref == ref:
             return None
 
+        if self.copier_template.vcs != "git":
+            return None
+
+        prev_template = self.copier_template
+
+        # CopierTemplate caches a lot of info on first access, most of which is
+        # dependant on what version is requested, so create a new copy that will
+        # pickup any changes
         self.copier_template = dataclasses.replace(self.copier_template, ref=ref)
 
+        # but if there was an existing checkout, point the updated copy at the
+        # existing temp checkout so it doesn't have to re-fetch remote repos
+        if prev_template._temp_clone is not None:
+            self.copier_template.__dict__["local_abspath"] = prev_template.local_abspath
+
+            copier_git = git.GitProject(self.copier_template.local_abspath)
+            # might want to more closely mirror upstream behavior and support submodules:
+            # https://github.com/copier-org/copier/blob/2dc1687af389505a708f25b0bc4e37af56179e99/copier/vcs.py#L216
+            copier_git.checkout(ref or "HEAD")
+            # remove any dirty changes copier might have previously committed as
+            # draft if not using HEAD
+            if ref not in (None, "HEAD"):
+                # we could just
+                #
+                #   copier_git.reset("--hard", f"origin/{ref}")
+                #
+                # but that's only if `ref` is a tag/branch name and not
+                # something else and maybe safer to be a bit more targeted, so
+                # we'll look for if the latest commit is the expected "dirty
+                # commit" and remove it
+                import copier.vcs
+
+                # x09 is the hex code for tab
+                last_commit_parts = copier_git.log("-1", "--pretty=%an%x09%ae%x09%s").stdout
+                [author_name, author_email, commit_subject] = map(
+                    lambda s: s.strip(), last_commit_parts.split("\t")
+                )
+
+                if (
+                    author_name == copier.vcs.GIT_USER_NAME
+                    and author_email == copier.vcs.GIT_USER_EMAIL
+                    and commit_subject == "Copier automated commit for draft changes"
+                ):
+                    copier_git.reset("--hard", "HEAD~1")
         return None
 
     @property
