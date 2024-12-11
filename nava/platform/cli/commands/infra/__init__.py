@@ -5,7 +5,7 @@ import typer
 
 import nava.platform.util.collections.dict as dict_util
 from nava.platform.cli.context import CliContext
-from nava.platform.infra_template import MergeConflictsDuringUpdateError
+from nava.platform.template import MergeConflictsDuringUpdateError
 
 from . import (
     add_app_command,
@@ -59,11 +59,19 @@ def install(
     template_uri: Annotated[str, opt_template_uri] = DEFAULT_TEMPLATE_URI,
     version: Annotated[str, opt_version] = DEFAULT_VERSION,
     data: Annotated[list[str] | None, opt_data] = None,
+    commit: Annotated[
+        bool, typer.Option(help="Commit changes with standard message if able.")
+    ] = False,
 ) -> None:
     """Install template-infra in project."""
     ctx = typer_context.ensure_object(CliContext)
     install_command.install(
-        ctx, template_uri, project_dir, version=version, data=dict_util.from_str_values(data)
+        ctx,
+        template_uri,
+        project_dir,
+        version=version,
+        data=dict_util.from_str_values(data),
+        commit=commit,
     )
 
 
@@ -74,11 +82,19 @@ def add_app(
     app_name: str,
     template_uri: Annotated[str, opt_template_uri] = DEFAULT_TEMPLATE_URI,
     data: Annotated[list[str] | None, opt_data] = None,
+    commit: Annotated[
+        bool, typer.Option(help="Commit changes with standard message if able.")
+    ] = False,
 ) -> None:
     """Add infra for APP_NAME."""
     ctx = typer_context.ensure_object(CliContext)
     add_app_command.add_app(
-        ctx, template_uri, project_dir, app_name, data=dict_util.from_str_values(data)
+        ctx,
+        template_uri,
+        project_dir,
+        app_name,
+        data=dict_util.from_str_values(data),
+        commit=commit,
     )
 
 

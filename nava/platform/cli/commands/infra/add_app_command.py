@@ -11,7 +11,8 @@ def add_app(
     project_dir: str,
     app_name: str,
     data: dict[str, str] | None = None,
+    commit: bool = False,
 ) -> None:
     template = InfraTemplate(ctx, template_uri)
     project = InfraProject(Path(project_dir))
-    template.add_app(project, app_name, data=data)
+    template.add_app(project, app_name, data=data, commit=commit)

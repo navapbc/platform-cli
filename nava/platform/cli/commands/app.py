@@ -27,13 +27,20 @@ def install(
     template_uri: Annotated[str, typer.Option()],
     version: Annotated[str | None, typer.Option()] = None,
     data: Annotated[list[str] | None, opt_data] = None,
+    commit: Annotated[
+        bool, typer.Option(help="Commit changes with standard message if able")
+    ] = False,
 ) -> None:
     """Install application template in project."""
     ctx = typer_context.ensure_object(CliContext)
     template = Template(ctx, template_uri=template_uri)
     project = Project(project_dir)
     template.install(
-        project=project, app_name=app_name, version=version, data=dict_util.from_str_values(data)
+        project=project,
+        app_name=app_name,
+        version=version,
+        data=dict_util.from_str_values(data),
+        commit=commit,
     )
 
 

@@ -1,4 +1,5 @@
 import pytest
+from copier.errors import DirtyLocalWarning
 from typer.testing import CliRunner
 
 from nava.platform.cli.main import app as nava_cli
@@ -81,18 +82,19 @@ def test_update_with_dirty_template_with_version(
     tag_name = "dirty-version"
     infra_template_dirty.git_project.tag(tag_name)
 
-    cli(
-        [
-            "infra",
-            "update",
-            str(new_project.dir),
-            "--template-uri",
-            str(infra_template_dirty.template_dir),
-            "--version",
-            tag_name,
-        ],
-        input="foo\n",
-    )
+    with pytest.warns(DirtyLocalWarning):
+        cli(
+            [
+                "infra",
+                "update",
+                str(new_project.dir),
+                "--template-uri",
+                str(infra_template_dirty.template_dir),
+                "--version",
+                tag_name,
+            ],
+            input="foo\n",
+        )
 
     dir_content = DirectoryContent.from_fs(new_project.dir, ignore=[".git"])
 

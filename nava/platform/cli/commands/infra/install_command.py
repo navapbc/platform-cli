@@ -13,6 +13,7 @@ def install(
     project_dir: str,
     version: str | None = None,
     data: dict[str, str] | None = None,
+    commit: bool = False,
 ) -> None:
     template = InfraTemplate(ctx, template_uri)
     project = InfraProject(Path(project_dir))
@@ -25,4 +26,4 @@ def install(
             app_name = typer.prompt("What is the name of your app?")
             app_names = [app_name]
 
-    template.install(project, app_names, version=version, data=data)
+    template.install(project, app_names, version=version, data=data, commit=commit)

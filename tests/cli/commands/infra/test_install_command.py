@@ -1,3 +1,6 @@
+import pytest
+from copier.errors import DirtyLocalWarning
+
 from tests.lib import DirectoryContent, FileChange
 from tests.lib.changeset import ChangeSet
 
@@ -129,16 +132,17 @@ def test_install_with_data_app_name_same_as_existing_dir_non_git_project(
 
 
 def test_install_infra_template_dirty(cli, infra_template_dirty, new_project):
-    cli(
-        [
-            "infra",
-            "install",
-            str(new_project.dir),
-            "--template-uri",
-            str(infra_template_dirty.template_dir),
-        ],
-        input="foo\n",
-    )
+    with pytest.warns(DirtyLocalWarning):
+        cli(
+            [
+                "infra",
+                "install",
+                str(new_project.dir),
+                "--template-uri",
+                str(infra_template_dirty.template_dir),
+            ],
+            input="foo\n",
+        )
 
     dir_content = DirectoryContent.from_fs(new_project.dir, ignore=[".git"])
 
@@ -149,18 +153,19 @@ def test_install_infra_template_dirty(cli, infra_template_dirty, new_project):
 
 
 def test_install_infra_template_dirty_version(cli, infra_template_dirty, new_project):
-    cli(
-        [
-            "infra",
-            "install",
-            str(new_project.dir),
-            "--template-uri",
-            str(infra_template_dirty.template_dir),
-            "--version",
-            "v0.0.0",
-        ],
-        input="foo\n",
-    )
+    with pytest.warns(DirtyLocalWarning):
+        cli(
+            [
+                "infra",
+                "install",
+                str(new_project.dir),
+                "--template-uri",
+                str(infra_template_dirty.template_dir),
+                "--version",
+                "v0.0.0",
+            ],
+            input="foo\n",
+        )
 
     dir_content = DirectoryContent.from_fs(new_project.dir, ignore=[".git"])
 

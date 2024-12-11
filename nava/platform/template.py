@@ -1,7 +1,7 @@
 import dataclasses
 import re
 from pathlib import Path
-from typing import ClassVar, Self, cast
+from typing import ClassVar, Literal, Self, cast
 
 import dunamai
 import yaml
@@ -158,6 +158,7 @@ class Template:
         *,
         version: str | None = None,
         data: dict[str, str] | None = None,
+        commit: bool = False,
     ) -> None:
         data = (data or {}) | {
             "app_name": app_name,
@@ -175,6 +176,9 @@ class Template:
             src_exclude=self.src_excludes,
             vcs_ref=version,
         )
+
+        if commit:
+            self._commit_action(project, "install", app_name)
 
     def update(
         self,
@@ -223,15 +227,7 @@ class Template:
         )
 
         if commit:
-            if self.template_name.is_singular_instance(app_name):
-                msg_app_identifier = f"`{self.template_name.id}`"
-            else:
-                msg_app_identifier = f"`{self.template_name.id}` `{app_name}`"
-
-            self._commit_project(
-                project,
-                f"Update {msg_app_identifier} to version {self.copier_template.version}",
-            )
+            self._commit_action(project, "update", app_name)
 
     def project_state_dir_rel(self) -> RelativePath:
         return project_state_dir_rel(self.template_name)
@@ -239,6 +235,37 @@ class Template:
     def answers_file_rel(self, app_name: str) -> RelativePath:
         return answers_file_rel(template_name=self.template_name, app_name=app_name)
 
+    def _commit_action(
+        self, project: Project, action: Literal["install", "update"], app_name: str
+    ) -> None:
+        msg = self._commit_action_msg(action, app_name)
+
+        if not project.git.is_git():
+            from rich.markdown import Markdown
+
+            self.ctx.console.warning.print(
+                "Asked to commit, but project is not a git repository. Would have used message:"
+            )
+            self.ctx.console.print(Markdown(msg))
+            return
+
+        self._commit_project(project, msg)
+
+    def _commit_action_msg(self, action: Literal["install", "update"], app_name: str) -> str:
+        if self.template_name.is_singular_instance(app_name):
+            msg_app_identifier = f"`{self.template_name.id}`"
+        else:
+            msg_app_identifier = f"`{self.template_name.id}` `{app_name}`"
+
+        match action:
+            case "install":
+                msg = f"Install {msg_app_identifier} version {self.copier_template.version}"
+            case "update":
+                msg = f"Update {msg_app_identifier} to version {self.copier_template.version}"
+
+        return msg
+
+    # TODO: move to Project?
     def _commit_project(self, project: Project, msg: str) -> None:
         if project.git.has_merge_conflicts():
             raise MergeConflictsDuringUpdateError()

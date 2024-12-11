@@ -8,10 +8,6 @@ from nava.platform.infra_project import InfraProject
 from nava.platform.template import Template
 
 
-class MergeConflictsDuringUpdateError(Exception):
-    pass
-
-
 class InfraTemplate:
     ctx: CliContext
     template_uri: Path | str
@@ -47,13 +43,16 @@ class InfraTemplate:
         *,
         version: str | None = None,
         data: dict[str, str] | None = None,
+        commit: bool = False,
     ) -> None:
         self.ctx.console.rule("Infra base")
-        self.template_base.install(project, app_name="base", version=version, data=data)
+        self.template_base.install(
+            project, app_name="base", version=version, data=data, commit=commit
+        )
 
         for app_name in app_names:
             self.ctx.console.rule(f"Infra app: {app_name}")
-            self.add_app(project, app_name, version=version, data=data)
+            self.add_app(project, app_name, version=version, data=data, commit=commit)
 
     def update(
         self,
@@ -89,10 +88,7 @@ class InfraTemplate:
         )
 
         if commit:
-            self._commit_project(
-                project,
-                f"Update infra-base to version {self.template_base.version}",
-            )
+            self.template_base._commit_action(project, "update", app_name="base")
 
     def update_app(
         self,
@@ -104,23 +100,8 @@ class InfraTemplate:
         commit: bool = False,
     ) -> None:
         self.template_app.update(
-            project, app_name=app_name, version=version, data=data, commit=False
+            project, app_name=app_name, version=version, data=data, commit=commit
         )
-
-        if commit:
-            self._commit_project(
-                project,
-                f"Update infra-app `{app_name}` to version {self.template_app.version}",
-            )
-
-    def _commit_project(self, project: InfraProject, msg: str) -> None:
-        if project.git.has_merge_conflicts():
-            raise MergeConflictsDuringUpdateError()
-
-        result = project.git.commit_all(msg)
-
-        if result.stdout:
-            self.ctx.console.print(result.stdout)
 
     def add_app(
         self,
@@ -130,12 +111,15 @@ class InfraTemplate:
         version: str | None = None,
         data: dict[str, str] | None = None,
         existing_apps: list[str] | None = None,
+        commit: bool = False,
     ) -> None:
         # Use the template version that the project is currently on, unless
         # an override is provided (mainly during initial install)
         vcs_ref = version if version is not None else project.template_version
 
-        self.template_app.install(project, app_name=app_name, version=vcs_ref, data=data)
+        self.template_app.install(
+            project, app_name=app_name, version=vcs_ref, data=data, commit=False
+        )
 
         # the network config is added/maintained in the base template, but it is
         # supposed to import every app config module, so update it for the added app
@@ -147,6 +131,9 @@ class InfraTemplate:
             app_names=sorted(set((existing_apps or project.app_names) + [app_name])),
             version=version,
         )
+
+        if commit:
+            self.template_app._commit_action(project, "install", app_name)
 
     def _update_network_config(
         self, project: InfraProject, app_names: list[str], *, version: str | None = None
