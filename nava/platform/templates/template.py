@@ -8,7 +8,7 @@ from packaging.version import Version
 from nava.platform.cli.context import CliContext
 from nava.platform.copier_worker import run_copy, run_update
 from nava.platform.get_template_name_from_uri import get_template_name_from_uri
-from nava.platform.project import Project
+from nava.platform.projects.project import Project
 from nava.platform.templates.errors import MergeConflictsDuringUpdateError
 from nava.platform.templates.state import (
     answers_file_rel,

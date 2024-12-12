@@ -3,7 +3,7 @@ from pathlib import Path
 import typer
 
 from nava.platform.cli.context import CliContext
-from nava.platform.infra_project import InfraProject
+from nava.platform.projects.infra_project import InfraProject
 from nava.platform.templates.infra_template import InfraTemplate
 
 

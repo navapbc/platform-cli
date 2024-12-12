@@ -3,7 +3,7 @@ from typing import Any
 
 import pytest
 
-from nava.platform.get_app_names_from_infra_dir import get_app_names_from_infra_dir
+from nava.platform.projects.get_app_names_from_infra_dir import get_app_names_from_infra_dir
 from tests.lib import DirectoryContent
 
 get_app_names_test_data: dict[str, tuple[dict[str, dict[str, Any]], list[str]]] = {

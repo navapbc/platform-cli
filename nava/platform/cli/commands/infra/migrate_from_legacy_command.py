@@ -1,8 +1,8 @@
 from pathlib import Path
 
 from nava.platform.cli.context import CliContext
-from nava.platform.infra_project import InfraProject
-from nava.platform.migrate_from_legacy_template import MigrateFromLegacyTemplate
+from nava.platform.projects.infra_project import InfraProject
+from nava.platform.projects.migrate_from_legacy_template import MigrateFromLegacyTemplate
 
 
 def migrate_from_legacy(ctx: CliContext, project_dir: str, origin_template_uri: str) -> None:

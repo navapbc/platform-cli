@@ -2,7 +2,7 @@ import pytest
 
 from nava.platform.cli.commands.infra import migrate_from_legacy_command, update_command
 from nava.platform.cli.context import CliContext
-from nava.platform.infra_project import InfraProject
+from nava.platform.projects.infra_project import InfraProject
 from tests.lib import FileChange
 from tests.lib.changeset import ChangeSet
 from tests.lib.infra_template_writable import InfraTemplateWritable

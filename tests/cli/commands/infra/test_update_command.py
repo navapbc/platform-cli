@@ -3,7 +3,7 @@ from copier.errors import DirtyLocalWarning
 from typer.testing import CliRunner
 
 from nava.platform.cli.main import app as nava_cli
-from nava.platform.infra_project import InfraProject
+from nava.platform.projects.infra_project import InfraProject
 from tests.lib import DirectoryContent, FileChange
 from tests.lib.changeset import ChangeSet
 from tests.lib.infra_template_writable import InfraTemplateWritable

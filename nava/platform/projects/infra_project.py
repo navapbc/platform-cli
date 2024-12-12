@@ -2,8 +2,8 @@ from pathlib import Path
 
 import yaml
 
-from nava.platform.get_app_names_from_infra_dir import get_app_names_from_infra_dir
-from nava.platform.project import Project
+from nava.platform.projects.get_app_names_from_infra_dir import get_app_names_from_infra_dir
+from nava.platform.projects.project import Project
 from nava.platform.types import RelativePath
 
 

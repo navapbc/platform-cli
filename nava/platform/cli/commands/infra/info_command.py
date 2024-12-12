@@ -10,7 +10,7 @@ from rich.panel import Panel
 from rich.table import Table
 
 from nava.platform.cli.context import CliContext
-from nava.platform.infra_project import InfraProject
+from nava.platform.projects.infra_project import InfraProject
 from nava.platform.util.git import GitProject
 
 

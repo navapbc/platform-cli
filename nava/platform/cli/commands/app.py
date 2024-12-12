@@ -7,8 +7,8 @@ import typer
 import nava.platform.util.collections.dict as dict_util
 from nava.platform.cli.commands.infra import opt_data
 from nava.platform.cli.context import CliContext
-from nava.platform.migrate_from_legacy_template import MigrateFromLegacyTemplate
-from nava.platform.project import Project
+from nava.platform.projects.migrate_from_legacy_template import MigrateFromLegacyTemplate
+from nava.platform.projects.project import Project
 from nava.platform.templates.template import Template
 
 app = typer.Typer(help="Manage application templates")

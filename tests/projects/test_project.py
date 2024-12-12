@@ -2,7 +2,7 @@ from typing import Any
 
 import pytest
 
-from nava.platform.project import Project
+from nava.platform.projects.project import Project
 from tests.lib import DirectoryContent
 
 DirContentArg = dict[str, Any]

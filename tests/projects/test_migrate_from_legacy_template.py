@@ -3,8 +3,8 @@ from pathlib import Path
 import pytest
 
 from nava.platform.cli.context import CliContext
-from nava.platform.migrate_from_legacy_template import MigrateFromLegacyTemplate
-from nava.platform.project import Project
+from nava.platform.projects.migrate_from_legacy_template import MigrateFromLegacyTemplate
+from nava.platform.projects.project import Project
 from nava.platform.util.git import GitProject
 from tests.lib.new_directory import new_dir, new_dir_with_git
 

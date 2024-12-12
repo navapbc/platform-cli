@@ -6,7 +6,7 @@ import dunamai
 import yaml
 from packaging.version import Version
 
-from nava.platform.project import Project
+from nava.platform.projects.project import Project
 from nava.platform.templates.template_name import TemplateName
 from nava.platform.types import RelativePath
 
