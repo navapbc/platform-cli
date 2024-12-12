@@ -67,6 +67,8 @@ lint.select = [
     "N",
     # perflint
     "PERF",
+    # flake8-pytest-style
+    "PT",
     # ruff stuff
     "RUF",
     # flake8-simplify

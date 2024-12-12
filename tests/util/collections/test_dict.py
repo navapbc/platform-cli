@@ -39,7 +39,7 @@ def test_least_recently_used_dict():
 
 
 @pytest.mark.parametrize(
-    "given,expected",
+    ("given", "expected"),
     [
         (None, None),
         ([""], None),

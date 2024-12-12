@@ -86,7 +86,7 @@ installed_template_names_test_data = map_scenarios(
 
 
 @pytest.mark.parametrize(
-    "dir_content,expected",
+    ("dir_content", "expected"),
     installed_template_names_test_data.values(),
     ids=installed_template_names_test_data.keys(),
 )
@@ -115,7 +115,7 @@ installed_template_names_for_app_foo_test_data = map_scenarios(
 
 
 @pytest.mark.parametrize(
-    "dir_content,expected",
+    ("dir_content", "expected"),
     installed_template_names_for_app_foo_test_data.values(),
     ids=installed_template_names_for_app_foo_test_data.keys(),
 )

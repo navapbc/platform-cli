@@ -43,7 +43,7 @@ get_app_names_test_data: dict[str, tuple[dict[str, dict[str, Any]], list[str]]] 
 
 
 @pytest.mark.parametrize(
-    "dir_content,expected",
+    ("dir_content", "expected"),
     get_app_names_test_data.values(),
     ids=get_app_names_test_data.keys(),
 )
