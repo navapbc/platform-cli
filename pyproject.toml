@@ -47,25 +47,34 @@ disallow_incomplete_defs = false
 
 [tool.ruff]
 line-length = 100
+# see docs at https://docs.astral.sh/ruff/rules
 lint.select = [
+    # flake8-bugbear
+    "B",
     # pydocstyle
     "D", "D404",
     # pycodestyle, ones that don't deal with formatting
     "E4", "E7", "E9",
     # Pyflakes
     "F",
+    # refurb
+    "FURB",
+    # isort
+    "I",
+    # flake8-no-pep420
+    "INP",
     # pep8-naming
     "N",
-    # pyupgrade
-    "UP",
-    # flake8-bugbear
-    "B",
+    # perflint
+    "PERF",
+    # ruff stuff
+    "RUF",
     # flake8-simplify
     "SIM",
     # flake8-debugger
     "T10",
-    # isort
-    "I",
+    # pyupgrade
+    "UP",
 ]
 lint.ignore = [
     # don't require *every* public thing to have a docstring, at least for now

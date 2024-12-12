@@ -59,10 +59,10 @@ class GitProject:
         self._run_cmd(["git", "init", "--initial-branch=main"])
 
     def checkout(self, *args: str) -> subprocess.CompletedProcess[str]:
-        return self._run_cmd(["git", "checkout"] + list(args))
+        return self._run_cmd(["git", "checkout", *list(args)])
 
     def add(self, *args: str) -> subprocess.CompletedProcess[str]:
-        return self._run_cmd(["git", "add"] + list(args))
+        return self._run_cmd(["git", "add", *list(args)])
 
     def commit(self, msg: str) -> subprocess.CompletedProcess[str]:
         return self._run_cmd(["git", "commit", "-m", msg])
@@ -75,10 +75,10 @@ class GitProject:
         return self.commit(msg)
 
     def log(self, *args: str) -> subprocess.CompletedProcess[str]:
-        return self._run_cmd(["git", "log"] + list(args))
+        return self._run_cmd(["git", "log", *list(args)])
 
     def reset(self, *args: str) -> subprocess.CompletedProcess[str]:
-        return self._run_cmd(["git", "reset"] + list(args))
+        return self._run_cmd(["git", "reset", *list(args)])
 
     def stash(self) -> None:
         self._run_cmd(["git", "stash"])
@@ -113,7 +113,7 @@ class GitProject:
         return result.stdout.splitlines()
 
     def get_tags(self, *args: str) -> list[str]:
-        result = self._run_cmd(["git", "tag"] + list(args))
+        result = self._run_cmd(["git", "tag", *list(args)])
         return result.stdout.splitlines()
 
     def get_closest_tag(self, commit_hash: str) -> str | None:
