@@ -1,6 +1,6 @@
 import inspect
-from contextlib import nullcontext
-from typing import Any, ContextManager
+from contextlib import AbstractContextManager, nullcontext
+from typing import Any
 
 import pytest
 
@@ -52,7 +52,7 @@ def test_least_recently_used_dict():
     ],
 )
 def test_from_str_values(given, expected):
-    context: ContextManager[Any] = nullcontext()
+    context: AbstractContextManager[Any] = nullcontext()
     if inspect.isclass(expected) and issubclass(expected, BaseException):
         context = pytest.raises(expected)
 

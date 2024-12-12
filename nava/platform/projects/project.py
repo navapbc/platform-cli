@@ -1,7 +1,7 @@
+from collections.abc import Iterable
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
-from typing import Iterable
 
 from nava.platform.util import git
 

@@ -4,10 +4,11 @@ See the upstream:
 https://github.com/copier-org/copier/blob/259f351fc3c017c82b235888c119b9010d80494a/copier/main.py
 """
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
-from typing import Any, Callable, Self, Sequence
+from typing import Any, Callable, Self
 
 from copier.main import Worker
 from copier.types import (

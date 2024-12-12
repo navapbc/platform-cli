@@ -1,8 +1,9 @@
 import subprocess
+from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any, Generator, Self
+from typing import Any, Self
 
 
 class GitProject:

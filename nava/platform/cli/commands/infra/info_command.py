@@ -1,7 +1,6 @@
 import re
-from contextlib import nullcontext
+from contextlib import AbstractContextManager, nullcontext
 from pathlib import Path
-from typing import ContextManager
 
 import yaml
 from packaging.version import Version
@@ -23,7 +22,7 @@ def info(ctx: CliContext, project_dir: Path, template_uri: str | None = None) ->
         template_uri = base_answers.get("_src_path", None)
 
     if template_uri:
-        template_git_ctx: ContextManager[GitProject | None] = GitProject.clone_if_necessary(
+        template_git_ctx: AbstractContextManager[GitProject | None] = GitProject.clone_if_necessary(
             template_uri
         )
     else:

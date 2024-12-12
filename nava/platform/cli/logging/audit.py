@@ -1,6 +1,7 @@
 import sys
+from collections.abc import Sequence
 from functools import partial
-from typing import Any, Callable, Sequence
+from typing import Any, Callable
 
 from nava.platform.util.collections.dict import LeastRecentlyUsedDict
 

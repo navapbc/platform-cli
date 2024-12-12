@@ -1,5 +1,6 @@
 import collections
-from typing import Any, Hashable, Iterable
+from collections.abc import Hashable, Iterable
+from typing import Any
 
 
 def from_str_values(value: Iterable[str] | None) -> dict[str, str] | None:
