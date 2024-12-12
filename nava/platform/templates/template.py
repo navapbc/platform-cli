@@ -186,16 +186,15 @@ class Template:
         self._commit_project(project, msg)
 
     def _commit_action_msg(self, action: Literal["install", "update"], app_name: str) -> str:
-        if self.template_name.is_singular_instance(app_name):
-            msg_app_identifier = f"`{self.template_name.id}`"
-        else:
-            msg_app_identifier = f"`{self.template_name.id}` `{app_name}`"
+        msg_prefix = ""
+        if not self.template_name.is_singular_instance(app_name):
+            msg_prefix = f"{app_name}: "
 
         match action:
             case "install":
-                msg = f"Install {msg_app_identifier} version {self.copier_template.version}"
+                msg = f"{msg_prefix}Install `{self.template_name.id}` at version {self.copier_template.version}"
             case "update":
-                msg = f"Update {msg_app_identifier} to version {self.copier_template.version}"
+                msg = f"{msg_prefix}Update `{self.template_name.id}` to version {self.copier_template.version}"
 
         return msg
 
