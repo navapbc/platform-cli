@@ -4,7 +4,7 @@ import typer
 
 from nava.platform.cli.context import CliContext
 from nava.platform.infra_project import InfraProject
-from nava.platform.infra_template import InfraTemplate
+from nava.platform.templates.infra_template import InfraTemplate
 
 
 def install(

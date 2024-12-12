@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Any
 
 from nava.platform.cli.context import CliContext
-from nava.platform.infra_template import InfraTemplate
+from nava.platform.templates.infra_template import InfraTemplate
 from nava.platform.util.git import GitProject
 
 
