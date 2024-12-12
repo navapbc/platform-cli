@@ -91,7 +91,7 @@ def update(
             ctx, project, app_name=app_name, template_name=template_name
         )
 
-    ctx.console.rule(f"{app_name} ({template.template_name})")
+    ctx.console.rule(f"{app_name} ({template.template_name.id})")
     template.update(
         project=project,
         app_name=app_name,

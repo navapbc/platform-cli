@@ -1,7 +1,7 @@
 import dataclasses
 import re
 from pathlib import Path
-from typing import Self, cast
+from typing import ClassVar, Self, cast
 
 import dunamai
 import yaml
@@ -16,18 +16,90 @@ from nava.platform.util import git, wrappers
 
 RelativePath = Path
 
+BASE_SRC_EXCLUDE = ["*template-only*"]
+
 
 class MergeConflictsDuringUpdateError(Exception):
     pass
 
 
-BASE_SRC_EXCLUDE = ["*template-only*"]
+@dataclasses.dataclass
+class TemplateName:
+    """Handling the "name" of "a" "template".
+
+    There are a number of conventions the tooling follows based on the "name" of
+    a template. Most of the time a single repo == a single template and the
+    "name" of the template is just the name of the repo. Easy.
+
+    Some times, notably ``navapbc/template-infra``, there are multiple
+    "templates" (a distinct collection of templated files that are handled
+    together) in the same repo, though the repo itself is also referred to as a
+    "template" in conversation. These multiple templates are not necessarily
+    hierarchical, though generally related/interdependent. So both when
+    outputting info to a user and for internal operations at different times we
+    need refer to just the repo name (e.g., for state directory location), just
+    the template name (e.g., for state file location, context variables), and
+    both (e.g., to uniquely identify the template in some user messaging).
+
+    This class papers over those differences.
+    """
+
+    SEPARATOR: ClassVar[str] = ":"
+
+    repo_name: str
+    template_name: str
+
+    @classmethod
+    def parse(cls, s: Self | str) -> Self:
+        if isinstance(s, cls):
+            return s
+
+        return cls.from_str(cast(str, s))
+
+    @classmethod
+    def from_str(cls, s: str) -> Self:
+        parts = s.split(cls.SEPARATOR)
+
+        if len(parts) == 1:
+            return cls(repo_name=parts[0], template_name=parts[0])
+        else:
+            return cls(repo_name=parts[0], template_name=cls.SEPARATOR.join(parts[1:]))
+
+    @property
+    def id(self) -> str:
+        if self.repo_name == self.template_name:
+            return self.repo_name
+
+        return self.SEPARATOR.join([self.repo_name, self.template_name])
+
+    @property
+    def answers_file_prefix(self) -> str:
+        if self.repo_name == self.template_name:
+            return ""
+
+        return self.template_name + "-"
+
+    def is_singular_instance(self, app_name: str) -> bool:
+        """Check if this app_name implies the template only exists once for project.
+
+        Effectively, when the app name is the same name as the template itself,
+        assume the template is something which only has one instance in a given
+        project.
+        """
+        return app_name == self.template_name
 
 
 class Template:
+    """A collection of templated files and things to do with them.
+
+    Represents both the current state of a template (akin to ``copier``'s
+    ``Template``) and some operational logic against it (akin to ``copier``'s
+    ``Worker``).
+    """
+
     ctx: CliContext
     template_uri: Path | str
-    template_name: str
+    template_name: TemplateName
     src_excludes: list[str]
     copier_template: CopierTemplate
 
@@ -37,22 +109,22 @@ class Template:
         template_uri: Path | str,
         src_excludes: list[str] | None = None,
         *,
-        template_name: str | None = None,
+        template_name: TemplateName | str | None = None,
     ):
         self.ctx = ctx
         self.template_uri = template_uri
 
         if template_name is None:
-            self.template_name = get_template_name_from_uri(template_uri)
+            self.template_name = TemplateName.parse(get_template_name_from_uri(template_uri))
         else:
-            self.template_name = template_name
+            self.template_name = TemplateName.parse(template_name)
 
         if src_excludes is not None and len(src_excludes) == 0:
             self.src_excludes = []
         else:
             self.src_excludes = BASE_SRC_EXCLUDE + (src_excludes or [])
 
-        self.copier_template = CopierTemplate(url=str(template_uri), ref="HEAD")
+        self.copier_template = CopierTemplate(url=str(template_uri), ref=None)
 
         self._run_copy = wrappers.log_call(run_copy, logger=ctx.log.info)
         self._run_update = wrappers.log_call(run_update, logger=ctx.log.info)
@@ -63,11 +135,11 @@ class Template:
         ctx: CliContext,
         project: Project,
         app_name: str,
-        template_name: str,
+        template_name: TemplateName | str,
         src_excludes: list[str] | None = None,
     ) -> Self:
         template_uri = get_template_uri_for_existing_app(
-            project, app_name=app_name, template_name=template_name
+            project, app_name=app_name, template_name=TemplateName.parse(template_name)
         )
 
         if not template_uri:
@@ -85,7 +157,11 @@ class Template:
         version: str | None = None,
         data: dict[str, str] | None = None,
     ) -> None:
-        data = (data or {}) | {"app_name": app_name}
+        data = (data or {}) | {
+            "app_name": app_name,
+            "template": self.template_name.template_name,
+            "template_name_id": self.template_name.id,
+        }
 
         self._checkout_copier_ref(version)
 
@@ -107,7 +183,11 @@ class Template:
         data: dict[str, str] | None = None,
         commit: bool = False,
     ) -> None:
-        data = (data or {}) | {"app_name": app_name}
+        data = (data or {}) | {
+            "app_name": app_name,
+            "template": self.template_name.template_name,
+            "template_name_id": self.template_name.id,
+        }
 
         self._checkout_copier_ref(version)
 
@@ -141,9 +221,14 @@ class Template:
         )
 
         if commit:
+            if self.template_name.is_singular_instance(app_name):
+                msg_app_identifier = f"`{self.template_name.id}`"
+            else:
+                msg_app_identifier = f"`{self.template_name.id}` `{app_name}`"
+
             self._commit_project(
                 project,
-                f"Update app `{app_name}` to version {self.copier_template.version}",
+                f"Update {msg_app_identifier} to version {self.copier_template.version}",
             )
 
     def project_state_dir_rel(self) -> RelativePath:
@@ -182,20 +267,30 @@ class Template:
         return self.copier_template.version
 
     @property
+    def commit(self) -> str | None:
+        """The value that will be saved in the answers file."""
+        return self.copier_template.commit
+
+    @property
     def commit_hash(self) -> str | None:
         return self.copier_template.commit_hash
 
 
-def project_state_dir_rel(template_name: str) -> RelativePath:
-    return Path(f".{template_name}")
+def project_state_dir_rel(template_name: TemplateName) -> RelativePath:
+    return Path(f".{template_name.repo_name}")
 
 
-def answers_file_rel(template_name: str, app_name: str) -> RelativePath:
-    return project_state_dir_rel(template_name) / (app_name + ".yml")
+def answers_file_rel(template_name: TemplateName, app_name: str) -> RelativePath:
+    if template_name.is_singular_instance(app_name):
+        answers_file_name = app_name
+    else:
+        answers_file_name = template_name.answers_file_prefix + app_name
+
+    return project_state_dir_rel(template_name) / (answers_file_name + ".yml")
 
 
 def get_template_uri_for_existing_app(
-    project: Project, app_name: str, template_name: str
+    project: Project, app_name: str, template_name: TemplateName
 ) -> str | None:
     answers = get_answers(project, app_name, template_name)
 
@@ -212,7 +307,7 @@ def get_template_uri_from_answers(answers: dict[str, str] | None) -> str | None:
 
 
 def get_template_version_for_existing_app(
-    project: Project, app_name: str, template_name: str
+    project: Project, app_name: str, template_name: TemplateName
 ) -> Version | str | None:
     answers = get_answers(project, app_name, template_name)
 
@@ -235,7 +330,9 @@ def get_template_version_from_answers(answers: dict[str, str] | None) -> Version
     return template_version
 
 
-def get_answers(project: Project, app_name: str, template_name: str) -> dict[str, str] | None:
+def get_answers(
+    project: Project, app_name: str, template_name: TemplateName
+) -> dict[str, str] | None:
     answers_file = project.dir / answers_file_rel(template_name, app_name)
 
     if not answers_file.exists():
