@@ -33,15 +33,17 @@ def install(
 ) -> None:
     """Install application template in project."""
     ctx = typer_context.ensure_object(CliContext)
-    template = Template(ctx, template_uri=template_uri)
-    project = Project(project_dir)
-    template.install(
-        project=project,
-        app_name=app_name,
-        version=version,
-        data=dict_util.from_str_values(data),
-        commit=commit,
-    )
+
+    with ctx.handle_exceptions():
+        template = Template(ctx, template_uri=template_uri)
+        project = Project(project_dir)
+        template.install(
+            project=project,
+            app_name=app_name,
+            version=version,
+            data=dict_util.from_str_values(data),
+            commit=commit,
+        )
 
 
 @app.command()
@@ -66,46 +68,48 @@ def update(
 ) -> None:
     """Update application based on template in project."""
     ctx = typer_context.ensure_object(CliContext)
-    project = Project(project_dir)
 
-    if template_uri:
-        template = Template(ctx, template_uri=template_uri)
-    else:
-        installed_templates_for_app = list(
-            filter(
-                lambda t_name: t_name != "template-infra",
-                project.installed_template_names_for_app(app_name),
-            )
-        )
+    with ctx.handle_exceptions():
+        project = Project(project_dir)
 
-        if len(installed_templates_for_app) == 1:
-            template_name = installed_templates_for_app[0]
+        if template_uri:
+            template = Template(ctx, template_uri=template_uri)
         else:
-            template_name = cast(
-                str,
-                questionary.select(
-                    f"Which template for {app_name}?",
-                    choices=installed_templates_for_app,
-                    use_search_filter=True,
-                    use_jk_keys=False,
-                    validate=lambda choices: "You must choose a template to update"
-                    if not choices
-                    else True,
-                ).unsafe_ask(),
+            installed_templates_for_app = list(
+                filter(
+                    lambda t_name: t_name != "template-infra",
+                    project.installed_template_names_for_app(app_name),
+                )
             )
 
-        template = Template.from_existing(
-            ctx, project, app_name=app_name, template_name=template_name
-        )
+            if len(installed_templates_for_app) == 1:
+                template_name = installed_templates_for_app[0]
+            else:
+                template_name = cast(
+                    str,
+                    questionary.select(
+                        f"Which template for {app_name}?",
+                        choices=installed_templates_for_app,
+                        use_search_filter=True,
+                        use_jk_keys=False,
+                        validate=lambda choices: "You must choose a template to update"
+                        if not choices
+                        else True,
+                    ).unsafe_ask(),
+                )
 
-    ctx.console.rule(f"{app_name} ({template.template_name.id})")
-    template.update(
-        project=project,
-        app_name=app_name,
-        version=version,
-        data=dict_util.from_str_values(data),
-        commit=commit,
-    )
+            template = Template.from_existing(
+                ctx, project, app_name=app_name, template_name=template_name
+            )
+
+        ctx.console.rule(f"{app_name} ({template.template_name.id})")
+        template.update(
+            project=project,
+            app_name=app_name,
+            version=version,
+            data=dict_util.from_str_values(data),
+            commit=commit,
+        )
 
 
 @app.command()
@@ -124,10 +128,12 @@ def migrate_from_legacy(
 ) -> None:
     """Migrate an older version of a template to platform-cli setup."""
     ctx = typer_context.ensure_object(CliContext)
-    project = Project(Path(project_dir))
-    MigrateFromLegacyTemplate(
-        ctx,
-        project,
-        origin_template_uri=origin_template_uri,
-        new_version_answers_file_name=app_name + ".yml",
-    ).migrate_from_legacy()
+
+    with ctx.handle_exceptions():
+        project = Project(Path(project_dir))
+        MigrateFromLegacyTemplate(
+            ctx,
+            project,
+            origin_template_uri=origin_template_uri,
+            new_version_answers_file_name=app_name + ".yml",
+        ).migrate_from_legacy()

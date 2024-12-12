@@ -150,13 +150,13 @@ def clean_install(infra_template, new_project, cli):
         [
             "infra",
             "install",
-            str(new_project.dir),
+            "--commit",
             "--template-uri",
             str(infra_template.template_dir),
+            str(new_project.dir),
         ],
         input="foo\n",
     )
-    new_project.git.commit_all("Install template")
 
 
 @pytest.fixture

@@ -174,16 +174,15 @@ class Template:
     ) -> None:
         msg = self._commit_action_msg(action, app_name)
 
-        if not project.git.is_git():
+        if project.git.is_git():
+            self._commit_project(project, msg)
+        else:
             from rich.markdown import Markdown
 
             self.ctx.console.warning.print(
                 "Asked to commit, but project is not a git repository. Would have used message:"
             )
             self.ctx.console.print(Markdown(msg))
-            return
-
-        self._commit_project(project, msg)
 
     def _commit_action_msg(self, action: Literal["install", "update"], app_name: str) -> str:
         msg_prefix = ""
@@ -201,7 +200,7 @@ class Template:
     # TODO: move to Project?
     def _commit_project(self, project: Project, msg: str) -> None:
         if project.git.has_merge_conflicts():
-            raise MergeConflictsDuringUpdateError()
+            raise MergeConflictsDuringUpdateError(commit_msg=msg)
 
         result = project.git.commit_all(msg)
 

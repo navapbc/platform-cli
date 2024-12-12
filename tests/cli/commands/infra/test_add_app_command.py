@@ -13,7 +13,6 @@ def test_add_app(cli, infra_template, new_project, clean_install):
             str(infra_template.template_dir),
         ]
     )
-    new_project.git.commit_all("Add app bar")
 
     dir_content = DirectoryContent.from_fs(new_project.dir, ignore=[".git"])
 
@@ -91,7 +90,6 @@ def test_add_app_uses_existing_template_version(cli, infra_template, new_project
             str(infra_template.template_dir),
         ]
     )
-    new_project.git.commit_all("Add app bar")
 
     assert new_project.template_version == existing_template_version
     assert (new_project.dir / "infra/modules/service/main.tf").read_text() == ""

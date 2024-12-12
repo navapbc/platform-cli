@@ -65,14 +65,16 @@ def install(
 ) -> None:
     """Install template-infra in project."""
     ctx = typer_context.ensure_object(CliContext)
-    install_command.install(
-        ctx,
-        template_uri,
-        project_dir,
-        version=version,
-        data=dict_util.from_str_values(data),
-        commit=commit,
-    )
+
+    with ctx.handle_exceptions():
+        install_command.install(
+            ctx,
+            template_uri,
+            project_dir,
+            version=version,
+            data=dict_util.from_str_values(data),
+            commit=commit,
+        )
 
 
 @app.command()
@@ -84,18 +86,20 @@ def add_app(
     data: Annotated[list[str] | None, opt_data] = None,
     commit: Annotated[
         bool, typer.Option(help="Commit changes with standard message if able.")
-    ] = False,
+    ] = True,
 ) -> None:
     """Add infra for APP_NAME."""
     ctx = typer_context.ensure_object(CliContext)
-    add_app_command.add_app(
-        ctx,
-        template_uri,
-        project_dir,
-        app_name,
-        data=dict_util.from_str_values(data),
-        commit=commit,
-    )
+
+    with ctx.handle_exceptions():
+        add_app_command.add_app(
+            ctx,
+            template_uri,
+            project_dir,
+            app_name,
+            data=dict_util.from_str_values(data),
+            commit=commit,
+        )
 
 
 @app.command()
@@ -108,16 +112,22 @@ def update(
 ) -> None:
     """Update base and application infrastructure."""
     ctx = typer_context.ensure_object(CliContext)
-    try:
-        update_command.update(
-            ctx, template_uri, project_dir, version=version, data=dict_util.from_str_values(data)
-        )
-    except MergeConflictsDuringUpdateError:
-        message = (
-            "Merge conflicts found occurred during the update\n"
-            "Try running `infra update-base` and `infra update-app` commands separately and resolve conflicts as needed"
-        )
-        ctx.fail(message)
+
+    with ctx.handle_exceptions():
+        try:
+            update_command.update(
+                ctx,
+                template_uri,
+                project_dir,
+                version=version,
+                data=dict_util.from_str_values(data),
+            )
+        except MergeConflictsDuringUpdateError:
+            message = (
+                "Merge conflicts found occurred during the update\n"
+                "Try running `infra update-base` and `infra update-app` commands separately and resolve conflicts as needed"
+            )
+            ctx.fail(message)
 
 
 @app.command()
@@ -133,14 +143,16 @@ def update_base(
 ) -> None:
     """Update base infrastructure."""
     ctx = typer_context.ensure_object(CliContext)
-    update_command.update_base(
-        ctx,
-        template_uri,
-        project_dir,
-        version=version,
-        data=dict_util.from_str_values(data),
-        commit=commit,
-    )
+
+    with ctx.handle_exceptions():
+        update_command.update_base(
+            ctx,
+            template_uri,
+            project_dir,
+            version=version,
+            data=dict_util.from_str_values(data),
+            commit=commit,
+        )
 
 
 @app.command()
@@ -158,16 +170,18 @@ def update_app(
 ) -> None:
     """Update application(s) infrastructure."""
     ctx = typer_context.ensure_object(CliContext)
-    update_command.update_app(
-        ctx,
-        template_uri,
-        project_dir,
-        app_names=app_name,
-        version=version,
-        data=dict_util.from_str_values(data),
-        commit=commit,
-        all=all,
-    )
+
+    with ctx.handle_exceptions():
+        update_command.update_app(
+            ctx,
+            template_uri,
+            project_dir,
+            app_names=app_name,
+            version=version,
+            data=dict_util.from_str_values(data),
+            commit=commit,
+            all=all,
+        )
 
 
 @app.command()
@@ -183,7 +197,9 @@ def migrate_from_legacy(
 ) -> None:
     """Migrate an older version of the template to platform-cli setup."""
     ctx = typer_context.ensure_object(CliContext)
-    migrate_from_legacy_command.migrate_from_legacy(ctx, project_dir, origin_template_uri)
+
+    with ctx.handle_exceptions():
+        migrate_from_legacy_command.migrate_from_legacy(ctx, project_dir, origin_template_uri)
 
 
 @app.command()
@@ -205,4 +221,6 @@ def info(
 ) -> None:
     """Display some information about the state of template-infra in the project."""
     ctx = typer_context.ensure_object(CliContext)
-    info_command.info(ctx, project_dir, template_uri)
+
+    with ctx.handle_exceptions():
+        info_command.info(ctx, project_dir, template_uri)

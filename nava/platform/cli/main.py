@@ -8,6 +8,7 @@ import nava.platform.cli.console
 import nava.platform.cli.logging
 from nava.platform.cli.config import OutputLevel
 from nava.platform.cli.context import CliContext
+from nava.platform.cli.exceptions import exception_handler
 
 app = typer.Typer()
 
@@ -39,6 +40,7 @@ def main(
         console=console,
         fail_with_usage=ctx.fail,
         exit=ctx.exit,
+        exception_handler=exception_handler,
     )
 
 

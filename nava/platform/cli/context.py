@@ -1,4 +1,5 @@
-from collections.abc import Callable
+from collections.abc import Callable, Generator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import NoReturn
 
@@ -20,9 +21,18 @@ class CliContext:
     """Aborts the execution of the program with a specific error message and CLI help message."""
     exit: Callable[[int], NoReturn]
     """Exits the application with a given exit code."""
+    exception_handler: Callable[["CliContext", BaseException], None]
+    """Handle exceptions with this context object."""
     app_dirs: AppDirs = app_dirs
 
     def fail(self, message: str) -> NoReturn:
         """Aborts the execution of the program with a specific error message."""
         self.console.error.print(message)
         self.exit(1)
+
+    @contextmanager
+    def handle_exceptions(self) -> Generator[None, None, None]:
+        try:
+            yield
+        except BaseException as e:
+            self.exception_handler(self, e)
