@@ -12,7 +12,7 @@ from nava.platform.cli.context import CliContext
 from nava.platform.copier_worker import run_copy, run_update
 from nava.platform.get_template_name_from_uri import get_template_name_from_uri
 from nava.platform.project import Project
-from nava.platform.util import git, wrappers
+from nava.platform.util import wrappers
 
 RelativePath = Path
 
@@ -102,6 +102,7 @@ class Template:
     template_name: TemplateName
     src_excludes: list[str]
     copier_template: CopierTemplate
+    ref: str | None
 
     def __init__(
         self,
@@ -110,6 +111,7 @@ class Template:
         src_excludes: list[str] | None = None,
         *,
         template_name: TemplateName | str | None = None,
+        ref: str | None = None,
     ):
         self.ctx = ctx
         self.template_uri = template_uri
@@ -124,7 +126,7 @@ class Template:
         else:
             self.src_excludes = BASE_SRC_EXCLUDE + (src_excludes or [])
 
-        self.copier_template = CopierTemplate(url=str(template_uri), ref=None)
+        self.copier_template = CopierTemplate(url=str(template_uri), ref=ref)
 
         self._run_copy = wrappers.log_call(run_copy, logger=ctx.log.info)
         self._run_update = wrappers.log_call(run_update, logger=ctx.log.info)
@@ -247,18 +249,13 @@ class Template:
             self.ctx.console.print(result.stdout)
 
     def _checkout_copier_ref(self, ref: str | None = None) -> None:
-        if self.copier_template.vcs == "git" and ref:
-            prev_template = self.copier_template
+        # only update if the ref is different from existing, this may have some
+        # edge cases if the underlying template repo has changes the caller was
+        # intending to be picked up
+        if self.copier_template.ref == ref:
+            return None
 
-            # CopierTemplate caches a lot of info on first access, most of which
-            # is dependant on what version is requested, so create a new copy
-            # that will pickup any changes, but point it at the existing temp
-            # checkout so it doesn't have to re-fetch remote repos
-            self.copier_template = dataclasses.replace(self.copier_template, ref=ref)
-            self.copier_template.local_abspath = prev_template.local_abspath
-
-            copier_git = git.GitProject(self.copier_template.local_abspath)
-            copier_git.checkout(ref)
+        self.copier_template = dataclasses.replace(self.copier_template, ref=ref)
 
         return None
 
