@@ -4,7 +4,8 @@
 #
 # which is in the public domain
 import datetime
-from typing import Callable, Literal
+from collections.abc import Callable
+from typing import Literal
 
 import structlog
 

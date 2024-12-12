@@ -1,5 +1,6 @@
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, NoReturn
+from typing import NoReturn
 
 import nava.platform.cli.console
 import nava.platform.cli.logging
