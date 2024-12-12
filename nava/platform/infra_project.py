@@ -4,8 +4,7 @@ import yaml
 
 from nava.platform.get_app_names_from_infra_dir import get_app_names_from_infra_dir
 from nava.platform.project import Project
-
-RelativePath = Path
+from nava.platform.types import RelativePath
 
 
 class InfraProject(Project):

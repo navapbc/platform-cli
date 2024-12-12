@@ -7,8 +7,7 @@ import yaml
 from nava.platform.cli.context import CliContext
 from nava.platform.get_template_name_from_uri import get_template_name_from_uri
 from nava.platform.project import Project
-
-RelativePath = Path
+from nava.platform.types import RelativePath
 
 
 @dataclass
