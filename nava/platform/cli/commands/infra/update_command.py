@@ -37,7 +37,7 @@ def update_app(
     ctx: CliContext,
     template_uri: str,
     project_dir: str,
-    app_names: list[str],
+    app_names: list[str] | None = None,
     version: str | None = None,
     data: dict[str, str] | None = None,
     commit: bool = False,

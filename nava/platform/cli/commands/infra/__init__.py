@@ -147,7 +147,7 @@ def update_base(
 def update_app(
     typer_context: typer.Context,
     project_dir: str,
-    app_name: list[str],
+    app_name: Annotated[list[str] | None, typer.Argument()] = None,
     template_uri: Annotated[str, opt_template_uri] = DEFAULT_TEMPLATE_URI,
     version: Annotated[str, opt_version] = DEFAULT_VERSION,
     data: Annotated[list[str] | None, opt_data] = None,
