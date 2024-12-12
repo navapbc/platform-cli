@@ -5,7 +5,7 @@ from packaging.version import Version
 from nava.platform.cli.context import CliContext
 from nava.platform.copier_worker import render_template_file
 from nava.platform.infra_project import InfraProject
-from nava.platform.template import Template
+from nava.platform.templates.template import Template
 
 
 class InfraTemplate:

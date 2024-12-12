@@ -5,7 +5,7 @@ import typer
 
 import nava.platform.util.collections.dict as dict_util
 from nava.platform.cli.context import CliContext
-from nava.platform.template import MergeConflictsDuringUpdateError
+from nava.platform.templates.errors import MergeConflictsDuringUpdateError
 
 from . import (
     add_app_command,

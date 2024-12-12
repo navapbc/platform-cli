@@ -1,10 +1,7 @@
 import dataclasses
-import re
 from pathlib import Path
-from typing import ClassVar, Literal, Self, cast
+from typing import Literal, Self
 
-import dunamai
-import yaml
 from copier.template import Template as CopierTemplate
 from packaging.version import Version
 
@@ -12,81 +9,18 @@ from nava.platform.cli.context import CliContext
 from nava.platform.copier_worker import run_copy, run_update
 from nava.platform.get_template_name_from_uri import get_template_name_from_uri
 from nava.platform.project import Project
+from nava.platform.templates.errors import MergeConflictsDuringUpdateError
+from nava.platform.templates.state import (
+    answers_file_rel,
+    get_template_uri_for_existing_app,
+    get_template_version_for_existing_app,
+    project_state_dir_rel,
+)
+from nava.platform.templates.template_name import TemplateName
+from nava.platform.types import RelativePath
 from nava.platform.util import git, wrappers
 
-RelativePath = Path
-
 BASE_SRC_EXCLUDE = ["*template-only*"]
-
-
-class MergeConflictsDuringUpdateError(Exception):
-    pass
-
-
-@dataclasses.dataclass
-class TemplateName:
-    """Handling the "name" of "a" "template".
-
-    There are a number of conventions the tooling follows based on the "name" of
-    a template. Most of the time a single repo == a single template and the
-    "name" of the template is just the name of the repo. Easy.
-
-    Some times, notably ``navapbc/template-infra``, there are multiple
-    "templates" (a distinct collection of templated files that are handled
-    together) in the same repo, though the repo itself is also referred to as a
-    "template" in conversation. These multiple templates are not necessarily
-    hierarchical, though generally related/interdependent. So both when
-    outputting info to a user and for internal operations at different times we
-    need refer to just the repo name (e.g., for state directory location), just
-    the template name (e.g., for state file location, context variables), and
-    both (e.g., to uniquely identify the template in some user messaging).
-
-    This class papers over those differences.
-    """
-
-    SEPARATOR: ClassVar[str] = ":"
-
-    repo_name: str
-    template_name: str
-
-    @classmethod
-    def parse(cls, s: Self | str) -> Self:
-        if isinstance(s, cls):
-            return s
-
-        return cls.from_str(cast(str, s))
-
-    @classmethod
-    def from_str(cls, s: str) -> Self:
-        parts = s.split(cls.SEPARATOR)
-
-        if len(parts) == 1:
-            return cls(repo_name=parts[0], template_name=parts[0])
-        else:
-            return cls(repo_name=parts[0], template_name=cls.SEPARATOR.join(parts[1:]))
-
-    @property
-    def id(self) -> str:
-        if self.repo_name == self.template_name:
-            return self.repo_name
-
-        return self.SEPARATOR.join([self.repo_name, self.template_name])
-
-    @property
-    def answers_file_prefix(self) -> str:
-        if self.repo_name == self.template_name:
-            return ""
-
-        return self.template_name + "-"
-
-    def is_singular_instance(self, app_name: str) -> bool:
-        """Check if this app_name implies the template only exists once for project.
-
-        Effectively, when the app name is the same name as the template itself,
-        assume the template is something which only has one instance in a given
-        project.
-        """
-        return app_name == self.template_name
 
 
 class Template:
@@ -340,93 +274,3 @@ class Template:
     @property
     def commit_hash(self) -> str | None:
         return self.copier_template.commit_hash
-
-
-def project_state_dir_rel(template_name: TemplateName) -> RelativePath:
-    return Path(f".{template_name.repo_name}")
-
-
-def answers_file_rel(template_name: TemplateName, app_name: str) -> RelativePath:
-    if template_name.is_singular_instance(app_name):
-        answers_file_name = app_name
-    else:
-        answers_file_name = template_name.answers_file_prefix + app_name
-
-    return project_state_dir_rel(template_name) / (answers_file_name + ".yml")
-
-
-def get_template_uri_for_existing_app(
-    project: Project, app_name: str, template_name: TemplateName
-) -> str | None:
-    answers = get_answers(project, app_name, template_name)
-
-    return get_template_uri_from_answers(answers)
-
-
-def get_template_uri_from_answers(answers: dict[str, str] | None) -> str | None:
-    if not answers:
-        return None
-
-    template_uri = answers.get("_src_path", None)
-
-    return template_uri
-
-
-def get_template_version_for_existing_app(
-    project: Project, app_name: str, template_name: TemplateName
-) -> Version | str | None:
-    answers = get_answers(project, app_name, template_name)
-
-    return get_template_version_from_answers(answers)
-
-
-def get_template_version_from_answers(answers: dict[str, str] | None) -> Version | str | None:
-    if not answers:
-        return None
-
-    template_version = answers.get("_commit", None)
-
-    if template_version:
-        try:
-            return get_version_from_git_describe(template_version)
-        except ValueError:
-            # TODO: log? or return a tuple of (raw, parsed) value of type `(str, Version | None) | None`?
-            pass
-
-    return template_version
-
-
-def get_answers(
-    project: Project, app_name: str, template_name: TemplateName
-) -> dict[str, str] | None:
-    answers_file = project.dir / answers_file_rel(template_name, app_name)
-
-    if not answers_file.exists():
-        return None
-
-    answers = yaml.safe_load(answers_file.read_text())
-
-    return cast(dict[str, str], answers)
-
-
-def get_version_from_git_describe(v: str) -> Version:
-    if not re.match(r"^.+-\d+-g\w+$", v):
-        raise ValueError(f"Not a valid git describe: {v}")
-
-    base, count, git_hash = v.rsplit("-", 2)
-
-    dunamai_version = dunamai.Version(
-        base=base.removeprefix("v"), distance=int(count), commit=git_hash.removeprefix("g")
-    )
-
-    # We could just:
-    #
-    #   Version(f"{base}.post{count}+{git_hash}")
-    #
-    # but dunamai adds a default `.dev0` in there during the serialization
-    # logic, which is what upstream uses[1], so match upstream's version logic
-    # for correct comparisions against git templates (i.e., calls to
-    # `template.version`).
-    #
-    # [1] https://github.com/copier-org/copier/blob/63fec9a500d9319f332b489b6d918ecb2e0598e3/copier/template.py#L584-L588
-    return Version(dunamai_version.serialize(style=dunamai.Style.Pep440))

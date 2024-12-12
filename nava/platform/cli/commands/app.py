@@ -9,7 +9,7 @@ from nava.platform.cli.commands.infra import opt_data
 from nava.platform.cli.context import CliContext
 from nava.platform.migrate_from_legacy_template import MigrateFromLegacyTemplate
 from nava.platform.project import Project
-from nava.platform.template import Template
+from nava.platform.templates.template import Template
 
 app = typer.Typer(help="Manage application templates")
 
