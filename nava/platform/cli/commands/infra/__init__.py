@@ -129,7 +129,7 @@ def update_base(
     data: Annotated[list[str] | None, opt_data] = None,
     commit: Annotated[
         bool, typer.Option(help="Commit changes with standard message if able.")
-    ] = False,
+    ] = True,
 ) -> None:
     """Update base infrastructure."""
     ctx = typer_context.ensure_object(CliContext)
@@ -153,7 +153,7 @@ def update_app(
     data: Annotated[list[str] | None, opt_data] = None,
     commit: Annotated[
         bool, typer.Option(help="Commit changes with standard message if able.")
-    ] = False,
+    ] = True,
     all: Annotated[bool, typer.Option("--all", help="Attempt to update all known apps")] = False,
 ) -> None:
     """Update application(s) infrastructure."""

@@ -62,7 +62,7 @@ def update(
     data: Annotated[list[str] | None, opt_data] = None,
     commit: Annotated[
         bool, typer.Option(help="Commit changes with standard message if able")
-    ] = False,
+    ] = True,
 ) -> None:
     """Update application based on template in project."""
     ctx = typer_context.ensure_object(CliContext)
