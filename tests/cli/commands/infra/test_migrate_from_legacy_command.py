@@ -40,6 +40,9 @@ def test_migrate_from_legacy(
     )
     project.git.commit_all("Migrate from legacy")
 
+    # legacy file should be removed
+    assert not (project.dir / ".template-version").exists()
+
     ChangeSet(
         [
             FileChange("infra/modules/service/main.tf", "", "changed\n"),

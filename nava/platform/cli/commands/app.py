@@ -125,6 +125,9 @@ def migrate_from_legacy(
     app_name: Annotated[
         str, typer.Argument(help="Name of the application based on given template to migrate")
     ],
+    commit: Annotated[
+        bool, typer.Option(help="Commit changes with standard message if able")
+    ] = True,
 ) -> None:
     """Migrate an older version of a template to platform-cli setup."""
     ctx = typer_context.ensure_object(CliContext)
@@ -136,4 +139,4 @@ def migrate_from_legacy(
             project,
             origin_template_uri=origin_template_uri,
             new_version_answers_file_name=app_name + ".yml",
-        ).migrate_from_legacy()
+        ).migrate_from_legacy(commit=commit)

@@ -5,7 +5,9 @@ from nava.platform.projects.infra_project import InfraProject
 from nava.platform.projects.migrate_from_legacy_template import MigrateFromLegacyTemplate
 
 
-def migrate_from_legacy(ctx: CliContext, project_dir: str, origin_template_uri: str) -> None:
+def migrate_from_legacy(
+    ctx: CliContext, project_dir: str, origin_template_uri: str, commit: bool = False
+) -> None:
     project = InfraProject(Path(project_dir))
 
     if not project.has_legacy_version_file:
@@ -14,11 +16,11 @@ def migrate_from_legacy(ctx: CliContext, project_dir: str, origin_template_uri: 
         )
         ctx.exit(1)
 
-    _migrate_from_legacy(ctx, project, origin_template_uri)
+    _migrate_from_legacy(ctx, project, origin_template_uri, commit)
 
 
 def _migrate_from_legacy(
-    ctx: CliContext, infra_project: InfraProject, origin_template_uri: str
+    ctx: CliContext, infra_project: InfraProject, origin_template_uri: str, commit: bool
 ) -> None:
     base_project_config_answers = _answers_from_project_config(ctx, infra_project.dir)
 
@@ -33,7 +35,7 @@ def _migrate_from_legacy(
         new_version_answers_file_name="base.yml",
         extra_answers=lambda _: (base_project_config_answers | {"template": "base"}),
     )
-    base_migrate.migrate_from_legacy()
+    base_migrate.migrate_from_legacy(preserve_legacy_file=True, commit=commit)
 
     for app_name in infra_project.app_names_possible:
         app_answers = {"app_name": app_name, "template": "app"}
@@ -46,7 +48,13 @@ def _migrate_from_legacy(
             new_version_answers_file_name=f"app-{app_name}.yml",
             extra_answers=lambda _: app_answers,  # noqa: B023
         )
-        app_migrate.migrate_from_legacy()
+        app_migrate.migrate_from_legacy(preserve_legacy_file=True, commit=commit)
+
+    # remove the old file once we are done with it
+    base_migrate.legacy_version_file_path().unlink()
+
+    if commit and project.git.is_git():
+        project.git.commit_all("Remove legacy version file")
 
 
 def _answers_from_project_config(ctx: CliContext, project_dir: Path) -> dict[str, str]:

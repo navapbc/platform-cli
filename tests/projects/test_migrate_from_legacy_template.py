@@ -40,7 +40,7 @@ def legacy_project_dir_with_git(
     return new_project_dir_with_git
 
 
-def test_migrate_from_legacy(
+def test_migrate_from_legacy_preserve_legacy_file(
     new_template_dir_with_git: GitProject,
     legacy_project_dir_with_git: GitProject,
     cli_context: CliContext,
@@ -51,7 +51,58 @@ def test_migrate_from_legacy(
         project=project,
         origin_template_uri=str(new_template_dir_with_git.dir),
         new_version_answers_file_name="foo.yml",
-    ).migrate_from_legacy()
-    project.git.commit_all("Migrate from legacy")
+    ).migrate_from_legacy(preserve_legacy_file=True)
 
+    # both new and legacy file should exist
     assert (project.dir / ".template" / "foo.yml").exists()
+    assert (project.dir / ".template-version").exists()
+
+
+def test_migrate_from_legacy_no_commit(
+    new_template_dir_with_git: GitProject,
+    legacy_project_dir_with_git: GitProject,
+    cli_context: CliContext,
+):
+    project = Project(legacy_project_dir_with_git.dir)
+    commit_count_before = len(project.git.log().stdout.splitlines())
+
+    MigrateFromLegacyTemplate(
+        ctx=cli_context,
+        project=project,
+        origin_template_uri=str(new_template_dir_with_git.dir),
+        new_version_answers_file_name="foo.yml",
+    ).migrate_from_legacy(commit=False)
+
+    commit_count_after = len(project.git.log().stdout.splitlines())
+
+    # only new file should exist
+    assert (project.dir / ".template" / "foo.yml").exists()
+    assert not (project.dir / ".template-version").exists()
+    # there should be no additional commits
+    assert commit_count_after == commit_count_before
+
+
+def test_migrate_from_legacy_commit(
+    new_template_dir_with_git: GitProject,
+    legacy_project_dir_with_git: GitProject,
+    cli_context: CliContext,
+):
+    project = Project(legacy_project_dir_with_git.dir)
+    commit_count_before = len(project.git.log().stdout.splitlines())
+
+    MigrateFromLegacyTemplate(
+        ctx=cli_context,
+        project=project,
+        origin_template_uri=str(new_template_dir_with_git.dir),
+        new_version_answers_file_name="foo.yml",
+    ).migrate_from_legacy(commit=True)
+
+    commit_count_after = len(project.git.log().stdout.splitlines())
+
+    # only new file should exist
+    assert (project.dir / ".template" / "foo.yml").exists()
+    assert not (project.dir / ".template-version").exists()
+    # there should be an additional commits
+    assert commit_count_after == commit_count_before + 1
+    # with a clean repo
+    assert len(project.git.get_untracked_files()) == 0

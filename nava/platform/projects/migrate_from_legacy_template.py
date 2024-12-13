@@ -61,7 +61,7 @@ class MigrateFromLegacyTemplate:
     def answers_file(self) -> Path:
         return self.project.dir / self.answers_file_rel()
 
-    def migrate_from_legacy(self) -> None:
+    def migrate_from_legacy(self, preserve_legacy_file: bool = False, commit: bool = False) -> None:
         if not self.has_legacy_version_file:
             raise ValueError(
                 f"No legacy version file found (looking for {self.legacy_version_file_path()})."
@@ -89,6 +89,14 @@ class MigrateFromLegacyTemplate:
 
         answers = common_answers | extra_answers
         self.answers_file().write_text(yaml.dump(answers, default_flow_style=False))
+
+        if not preserve_legacy_file:
+            self.legacy_version_file_path().unlink()
+
+        if commit and self.project.git.is_git():
+            self.project.git.commit_all(
+                f"Migrate {self.legacy_version_file_path()} to {self.answers_file_rel()}"
+            )
 
     def _extra_answers(self: Self) -> dict[str, str]:
         if self.extra_answers:

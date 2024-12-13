@@ -194,12 +194,17 @@ def migrate_from_legacy(
             help="Path or URL to the legacy infra template that was used to set up the project. Can be a path to a local clone of template-infra. Defaults to the template-infra repository on GitHub.",
         ),
     ] = "https://github.com/navapbc/template-infra",
+    commit: Annotated[
+        bool, typer.Option(help="Commit changes with standard message if able.")
+    ] = False,
 ) -> None:
     """Migrate an older version of the template to platform-cli setup."""
     ctx = typer_context.ensure_object(CliContext)
 
     with ctx.handle_exceptions():
-        migrate_from_legacy_command.migrate_from_legacy(ctx, project_dir, origin_template_uri)
+        migrate_from_legacy_command.migrate_from_legacy(
+            ctx, project_dir, origin_template_uri, commit=commit
+        )
 
 
 @app.command()
