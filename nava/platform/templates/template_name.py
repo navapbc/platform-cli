@@ -40,7 +40,7 @@ class TemplateName:
         parts = s.split(cls.SEPARATOR)
 
         if len(parts) == 1:
-            return cls(repo_name=parts[0], template_name="")
+            return cls(repo_name=parts[0], template_name=parts[0])
         else:
             return cls(repo_name=parts[0], template_name=cls.SEPARATOR.join(parts[1:]))
 
@@ -60,5 +60,9 @@ class TemplateName:
 
     def is_singular_instance(self, app_name: str) -> bool:
         """Check if this app_name implies the template only exists once for project.
+
+        Effectively, when the app name is the same name as the template itself,
+        assume the template is something which only has one instance in a given
+        project.
         """
-        return self.template_name == ""
+        return app_name == self.template_name
