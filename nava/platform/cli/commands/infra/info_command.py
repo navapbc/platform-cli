@@ -55,7 +55,7 @@ def info(ctx: CliContext, project_dir: Path, template_uri: str | None = None) ->
 
             legacy_project_info = Group(
                 f"Has legacy version?: {project.has_legacy_version_file} {'(' + legacy_template_version + ')' if legacy_template_version else ''}",
-                f"Closest upstream version: {closest_template_version_to_legacy if closest_template_version_to_legacy is not None else "Unknown"}",
+                f"Closest upstream version: {closest_template_version_to_legacy if closest_template_version_to_legacy is not None else 'Unknown'}",
             )
 
             ctx.console.print(Panel.fit(legacy_project_info, title="Legacy Project Info"))
