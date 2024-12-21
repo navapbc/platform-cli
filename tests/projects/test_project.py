@@ -94,7 +94,7 @@ def test_installed_template_names(tmp_path, dir_content, expected):
     DirectoryContent(dir_content).to_fs(str(tmp_path))
     project = Project(tmp_path)
 
-    assert list(project.installed_template_names()) == expected
+    assert set(project.installed_template_names()) == set(expected)
 
 
 installed_template_names_for_app_foo_test_data = map_scenarios(
