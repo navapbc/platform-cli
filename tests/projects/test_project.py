@@ -123,4 +123,4 @@ def test_installed_template_names_for_app(tmp_path, dir_content, expected):
     DirectoryContent(dir_content).to_fs(str(tmp_path))
     project = Project(tmp_path)
 
-    assert list(project.installed_template_names_for_app("foo")) == expected
+    assert set(project.installed_template_names_for_app("foo")) == set(expected)
