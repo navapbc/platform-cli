@@ -5,6 +5,15 @@ PY_SRCS := nava tests
 
 PY_RUN ?= poetry run
 
+
+ifdef CI
+FMT_ARGS :=--check
+LINT_ARGS :=
+else
+FMT_ARGS :=
+LINT_ARGS :=--fix
+endif
+
 build: ## Build docker image
 	docker build --tag $(PKG_NAME) .
 
@@ -30,7 +39,7 @@ deps: ## Install dev dependencies
 	poetry install
 
 fmt: ## Run formatter
-	$(PY_RUN) ruff format $(PY_SRCS)
+	$(PY_RUN) ruff format $(FMT_ARGS) $(PY_SRCS)
 
 lint: ## Run linting
 lint: lint-mypy lint-ruff lint-poetry
@@ -39,7 +48,7 @@ lint-mypy: ## Run mypy
 	$(PY_RUN) mypy $(args) $(PY_SRCS)
 
 lint-ruff: ## Run ruff linting with auto-fixes
-	$(PY_RUN) ruff check --fix $(args) $(PY_SRCS)
+	$(PY_RUN) ruff check $(LINT_ARGS) $(args) $(PY_SRCS)
 
 lint-poetry: ## Run poetry checks
 	poetry check --lock

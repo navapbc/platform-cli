@@ -1,0 +1,73 @@
+name: Template for CI (nix)
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+
+jobs:
+  # we do this first and make other jobs dependent on this mainly for
+  # compute-time efficiency, as the other jobs will re-use built artifacts
+  # pushed to the cache, no need for a bunch of jobs to build the same stuff in
+  # parallel when a new dependency is added for example
+  build:
+    name: Build
+    runs-on: ${{ inputs.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - name: Run build
+        run: nix build
+
+  lint:
+    name: Lint
+    runs-on: ${{ inputs.os }}
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - uses: DeterminateSystems/flake-checker-action@main
+
+      - name: Run lint
+        run: nix develop --command bash -c "make check-static"
+
+  test:
+    name: Test
+    runs-on: ${{ inputs.os }}
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/configure-git
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - name: Run tests
+        run: nix develop --command bash -c "make test"
+
+  install:
+    name: Install
+    runs-on: ${{ inputs.os }}
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/configure-git
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - name: Run install
+        run: nix profile install --accept-flake-config '.'
+
+      - name: Run --help
+        run: nava-platform --help
+
+      - name: Run e2e
+        run: make test-e2e
