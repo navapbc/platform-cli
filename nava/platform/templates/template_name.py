@@ -61,8 +61,15 @@ class TemplateName:
     def is_singular_instance(self, app_name: str) -> bool:
         """Check if this app_name implies the template only exists once for project.
 
-        Effectively, when the app name is the same name as the template itself,
-        assume the template is something which only has one instance in a given
-        project.
+        Effectively, when the app name is the same name as the template itself
+        (barring some special cases), assume the template is something which
+        only has one instance in a given project.
         """
+        # special case templates with the name "app", which by convention
+        # shouldn't be unique and if someone wants to install an instance of the
+        # template as "app" instead of "example-app"/a name that corresponds to
+        # its purpose, well...let them
+        if self.template_name == "app":
+            return False
+
         return app_name == self.template_name
