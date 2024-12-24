@@ -1,0 +1,21 @@
+name: CI (nix)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  ci:
+    strategy:
+      fail-fast: false
+      matrix:
+        # macos is currently broken due to:
+        # https://github.com/copier-org/copier/issues/1595
+        os: [ubuntu-latest]
+
+    uses: ./.github/workflows/ci-nix-template.yml
+    with:
+      os: ${{ matrix.os }}

@@ -1,0 +1,69 @@
+name: CI (pip/pipx/native)
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        required: true
+        type: string
+      os:
+        required: true
+        type: string
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ${{ inputs.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+      - name: install poetry
+        run: pip install poetry
+
+      - name: Install packages
+        run: make deps
+
+      - name: Run lint
+        run: make check-static
+
+  test:
+    name: Test
+    runs-on: ${{ inputs.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/configure-git
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+      - name: install poetry
+        run: pip install poetry
+
+      - name: Install packages
+        run: make deps
+
+      - name: Run test
+        run: make test
+
+  install:
+    name: Install
+    runs-on: ${{ inputs.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/configure-git
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      - name: Install with pipx
+        run: pipx install .
+
+      - name: Run --help
+        run: nava-platform --help
+
+      - name: Run e2e
+        run: make test-e2e

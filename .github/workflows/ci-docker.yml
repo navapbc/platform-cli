@@ -1,0 +1,28 @@
+name: CI (docker)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-and-run:
+    name: Build and run
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/configure-git
+
+      - name: Build
+        run: make build
+
+      - name: Run --help
+        run: docker run --rm nava-platform-cli --help
+
+      - name: Run e2e through docker-wrapper
+        env:
+          CMD: ./bin/docker-wrapper
+        run: make test-e2e
