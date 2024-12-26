@@ -2,11 +2,4 @@
 
 set -eu
 
-PROJECT_DIR=${PROJECT_DIR:-.}
-
-if [ "$(id -u)" -ne "$(stat -c '%u' "${PROJECT_DIR}")" ]; then
-    # shellcheck disable=SC2046
-    exec setpriv --clear-groups $(stat -c '--reuid %u --regid %g' "${PROJECT_DIR}") "$0" "$@"
-fi
-
 exec nava-platform "$@"

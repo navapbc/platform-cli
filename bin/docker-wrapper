@@ -11,63 +11,103 @@
 # not explode in complexity, it does make some assumptions (or reserves the
 # right to):
 #
-# - There will always be a project directory argument present and it will always
-#   be the last argument passed in
 # - File path arguments will start with either `.` or `/`
 #
 set -euo pipefail
 
 processed_args=()
 docker_flags=()
+detected_host_paths=()
+
+looks_like_path() {
+  [[ "$1" =~ ^[.]*/ ]]
+}
+
+uname_out="$(uname -s)"
+case "${uname_out}" in
+    Linux*)     host_os=Linux;;
+    Darwin*)    host_os=Mac;;
+    *)          host_os="UNKNOWN:${uname_out}"
+esac
 
 # not strictly required with magic in `docker-entry` script and mostly for when
 # running on Linux, but explicitly run as host user to help avoid any file
 # permission issues with mounted locations from the host file system
 docker_flags+=(--user "$(id -u):$(id -g)")
 
+# connect the host git config if present, for better chance committing with work
+# inside the container (theoretically someone may not have their name/email
+# configured even if the config file exists)
+if [[ -e "$HOME/.gitconfig" ]]; then
+  docker_flags+=("-v=$HOME/.gitconfig:/.gitconfig")
+fi
+
+# figure out what location to mount for logs
+HOST_LOG_DIR=${HOST_LOG_DIR:-}
+
+if [[ -z "${HOST_LOG_DIR}" ]]; then
+  if [[ "${host_os}" == "Linux" ]]; then
+    HOST_LOG_DIR="${XDG_STATE_HOME:-${HOME}/.local/state}/nava-platform-cli/log"
+  elif [[ "${host_os}" == "Mac" ]]; then
+    HOST_LOG_DIR="${HOME}/Library/Logs/nava-platform-cli"
+  else
+    echo "Your host OS '${host_os}' is not supported automatically. Please set HOST_LOG_DIR env var explicitly and try again."
+    exit 1
+  fi
+fi
+
+if [[ ! -d "${HOST_LOG_DIR}" ]]; then
+    mkdir -p "${HOST_LOG_DIR}"
+fi
+docker_flags+=("-v=${HOST_LOG_DIR}:/.local/state/nava-platform-cli/log:z")
+
+# process the script arguments
 for ((i=1;i<=$#;i++))
 do
   eval "arg=\${$i}"
 
+  option=""
   # shellcheck disable=SC2154
-  if [[ "${arg}" =~ --template-uri.* ]]; then
-      if [[ "${arg}" == *"="* ]]; then
-        template_value="${arg#*=}"
-      else
-        ((i += 1)) # next value should be the path
-        eval "template_value=\${$i}"
-      fi
+  if [[ "${arg}" =~ ^- && "${arg}" == *"="* ]]; then
+      # part before the =
+      option="${arg%%=*}"
+      # part after the =
+      value="${arg#*=}"
 
-      # does it look like a local path?
-      if [[ -d "${template_value}" ]]; then
-        abs_path=$(realpath "${template_value}")
-        docker_flags+=("-v=${abs_path}:/template-dir:ro")
-        processed_args+=("--template-uri=/template-dir")
-        continue
-      fi
+      processed_args+=("${option}")
+  else
+    value="${arg}"
   fi
 
-  # the last argument should be the project path, will need adjusted if/when
-  # that's not the case for all commands
-  if [[ $i == "$#" ]]; then
-    last_arg="${arg}"
-    abs_last_arg=$(realpath "${last_arg}")
+  if looks_like_path "${value}"; then
+      abs_value=$(realpath "${value}")
+      detected_host_paths+=("${abs_value}")
 
-    host_project_dir=${abs_last_arg}
-    project_dir="/project-dir"
-
-    docker_flags+=("-v=${host_project_dir}:${project_dir}:z")
-    processed_args+=("${project_dir}")
-    continue
+      docker_flags+=("-v=${abs_value}:${abs_value}:z")
+      processed_args+=("${abs_value}")
+  else
+    processed_args+=("${value}")
   fi
-
-  processed_args+=("${arg}")
 done
 
-# if the project path doesn't exist yet, create it before Docker tries to (with
-# incorrect permissions)
-if [[ ! -d "${host_project_dir}" ]]; then
-    mkdir "${host_project_dir}"
-fi
+# if host paths don't exist yet, particularly directories, create them before
+# Docker does (with incorrect permissions) when it goes to mount them as a
+# volume
+#
+# TODO: this is basically only to support initializing a project with a
+# template. We could isolate that functionality in an `init` command that we
+# have simpler special handling for or just not support that mode via docker?
+for dpath in "${detected_host_paths[@]}"; do
+  if [[ ! -e "${dpath}" ]]; then
+    # basically, does the path look like a directory?
+    # - ends in a slash
+    # - or doesn't contain a `.` followed by a few characters, limiting the
+    #   "file extension" to 8 charactes as the e2e tests create tmp directories
+    #   with a dot followed by 9 characters
+    if [[ "${dpath}" =~ /$ || ! "${dpath}" =~ \..{1,8}$ ]]; then
+        mkdir -p "${dpath}"
+    fi
+  fi
+done
 
-docker run --interactive --tty --rm "${docker_flags[@]}" nava-platform-cli "${processed_args[@]}"
+docker run --interactive --rm "${docker_flags[@]}" nava-platform-cli "${processed_args[@]}"
