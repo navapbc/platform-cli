@@ -30,13 +30,26 @@ def new_template_dir_with_git(tmp_path: Path) -> GitProject:
 
 
 @pytest.fixture
+def new_template_dir_with_git_and_content(new_template_dir_with_git: GitProject) -> GitProject:
+    template_git = new_template_dir_with_git
+
+    (template_git.dir / "foo.txt").write_text("bar")
+    template_git.commit_all("Initial commit")
+
+    return template_git
+
+
+@pytest.fixture
 def legacy_project_dir_with_git(
-    new_project_dir_with_git: GitProject, new_template_dir_with_git: GitProject
+    new_project_dir_with_git: GitProject, new_template_dir_with_git_and_content: GitProject
 ) -> GitProject:
+    template_git = new_template_dir_with_git_and_content
+
     (new_project_dir_with_git.dir / ".template-version").write_text(
-        new_template_dir_with_git.get_commit_hash_for_head()
+        template_git.get_commit_hash_for_head() or "foobar"
     )
     new_project_dir_with_git.commit_all("Legacy install")
+
     return new_project_dir_with_git
 
 
@@ -64,7 +77,7 @@ def test_migrate_from_legacy_no_commit(
     cli_context: CliContext,
 ):
     project = Project(legacy_project_dir_with_git.dir)
-    commit_count_before = len(project.git.log().stdout.splitlines())
+    commit_count_before = project.git.get_commit_count()
 
     MigrateFromLegacyTemplate(
         ctx=cli_context,
@@ -73,7 +86,7 @@ def test_migrate_from_legacy_no_commit(
         new_version_answers_file_name="foo.yml",
     ).migrate_from_legacy(commit=False)
 
-    commit_count_after = len(project.git.log().stdout.splitlines())
+    commit_count_after = project.git.get_commit_count()
 
     # only new file should exist
     assert (project.dir / ".template" / "foo.yml").exists()
@@ -88,7 +101,7 @@ def test_migrate_from_legacy_commit(
     cli_context: CliContext,
 ):
     project = Project(legacy_project_dir_with_git.dir)
-    commit_count_before = len(project.git.log().stdout.splitlines())
+    commit_count_before = project.git.get_commit_count() or 0
 
     MigrateFromLegacyTemplate(
         ctx=cli_context,
@@ -97,7 +110,7 @@ def test_migrate_from_legacy_commit(
         new_version_answers_file_name="foo.yml",
     ).migrate_from_legacy(commit=True)
 
-    commit_count_after = len(project.git.log().stdout.splitlines())
+    commit_count_after = project.git.get_commit_count()
 
     # only new file should exist
     assert (project.dir / ".template" / "foo.yml").exists()

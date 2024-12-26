@@ -92,8 +92,16 @@ class GitProject:
     def rename_branch(self, new_branch_name: str) -> None:
         self._run_cmd(["git", "branch", "-m", new_branch_name])
 
-    def get_commit_hash_for_head(self) -> str:
-        return self._run_cmd(["git", "rev-parse", "HEAD"]).stdout.strip()
+    def get_commit_hash_for_head(self) -> str | None:
+        result = self._run_cmd(["git", "rev-parse", "HEAD"])
+
+        # say you run this against an empty repo, you'll get a return code of
+        # 128 and message "fatal: ambiguous argument 'HEAD': unknown revision or
+        # path not in the working tree."
+        if result.returncode != 0:
+            return None
+
+        return result.stdout.strip()
 
     def is_path_ignored(self, path: str) -> bool:
         result = self._run_cmd(["git", "check-ignore", "-q", path])
@@ -134,6 +142,14 @@ class GitProject:
             return None
 
         return result.stdout.strip()
+
+    def get_commit_count(self, ref: str = "HEAD") -> int | None:
+        result = self._run_cmd(["git", "rev-list", "--count", ref])
+
+        if result.returncode != 0:
+            return None
+
+        return int(result.stdout.strip())
 
 
 def is_a_git_worktree(dir: Path) -> bool:
