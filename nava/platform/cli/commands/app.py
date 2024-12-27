@@ -30,12 +30,18 @@ def install(
     commit: Annotated[
         bool, typer.Option(help="Commit changes with standard message if able")
     ] = False,
+    template_name: Annotated[
+        str | None,
+        typer.Option(
+            help="The name of the template. Usually this can be derived from the repository name automatically, but if you are running from a local checkout under a different name, you will need to specify the upstream name here."
+        ),
+    ] = None,
 ) -> None:
     """Install application template in project."""
     ctx = typer_context.ensure_object(CliContext)
 
     with ctx.handle_exceptions():
-        template = Template(ctx, template_uri=template_uri)
+        template = Template(ctx, template_uri=template_uri, template_name=template_name)
         project = Project(project_dir)
         template.install(
             project=project,
@@ -65,6 +71,12 @@ def update(
     commit: Annotated[
         bool, typer.Option(help="Commit changes with standard message if able")
     ] = True,
+    template_name: Annotated[
+        str | None,
+        typer.Option(
+            help="The name of the template. Usually this can be derived from the repository name automatically, but if you are running from a local checkout under a different name, you will need to specify the upstream name here."
+        ),
+    ] = None,
 ) -> None:
     """Update application based on template in project."""
     ctx = typer_context.ensure_object(CliContext)
@@ -73,7 +85,7 @@ def update(
         project = Project(project_dir)
 
         if template_uri:
-            template = Template(ctx, template_uri=template_uri)
+            template = Template(ctx, template_uri=template_uri, template_name=template_name)
         else:
             installed_templates_for_app = list(
                 filter(

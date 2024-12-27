@@ -83,7 +83,9 @@ class Template:
                 f"Can not determine existing template `{template_name}` source for `{app_name}`"
             )
 
-        return cls(ctx, template_uri=template_uri, src_excludes=src_excludes)
+        return cls(
+            ctx, template_uri=template_uri, template_name=template_name, src_excludes=src_excludes
+        )
 
     def install(
         self,
