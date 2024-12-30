@@ -131,6 +131,8 @@ class Template:
             "template_name_id": self.template_name.id,
         }
 
+        self._check_answers_file(project, app_name)
+
         self._checkout_copier_ref(version)
 
         existing_version = get_template_version_for_existing_app(
@@ -170,6 +172,13 @@ class Template:
 
     def answers_file_rel(self, app_name: str) -> RelativePath:
         return answers_file_rel(template_name=self.template_name, app_name=app_name)
+
+    def _check_answers_file(self, project: Project, app_name: str) -> bool:
+        answers_file = project.dir / self.answers_file_rel(app_name)
+        if not answers_file.exists():
+            raise ValueError(f"Answers file does not exist: {answers_file}")
+
+        return True
 
     def _commit_action(
         self, project: Project, action: Literal["install", "update"], app_name: str
