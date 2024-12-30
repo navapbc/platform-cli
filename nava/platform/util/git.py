@@ -52,6 +52,11 @@ class GitProject:
         )
         return result.returncode != 0
 
+    def is_clean(self) -> bool:
+        result = self._run_cmd(["git", "status", "--porcelain"])
+
+        return result.stdout.strip() == ""
+
     def is_git(self) -> bool:
         return is_a_git_worktree(self.dir)
 

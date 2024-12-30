@@ -213,7 +213,15 @@ class Template:
         if project.git.has_merge_conflicts():
             raise MergeConflictsDuringUpdateError(commit_msg=msg)
 
+        if project.git.is_clean():
+            self.ctx.console.print("Nothing to commit.")
+            return
+
         result = project.git.commit_all(msg)
+
+        if result.returncode != 0:
+            self.ctx.console.error.print(result.stderr if result.stderr else result.stdout)
+            self.ctx.exit(2)
 
         if result.stdout:
             self.ctx.console.print(result.stdout)
