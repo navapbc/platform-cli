@@ -60,13 +60,23 @@ class InfraTemplate:
         *,
         version: str | None = None,
         data: dict[str, str] | None = None,
+        answers_only: bool = False,
     ) -> None:
         self.ctx.console.rule("Infra base")
-        self.update_base(project, version=version, data=data, commit=True)
+        self.update_base(
+            project, version=version, data=data, commit=True, answers_only=answers_only
+        )
 
         for app_name in project.app_names:
             self.ctx.console.rule(f"Infra app: {app_name}")
-            self.update_app(project, app_name, version=version, data=data, commit=True)
+            self.update_app(
+                project,
+                app_name,
+                version=version,
+                data=data,
+                commit=True,
+                answers_only=answers_only,
+            )
 
     def update_base(
         self,
@@ -75,9 +85,15 @@ class InfraTemplate:
         version: str | None = None,
         data: dict[str, str] | None = None,
         commit: bool = False,
+        answers_only: bool = False,
     ) -> None:
         self.template_base.update(
-            project, app_name="base", version=version, data=data, commit=False
+            project,
+            app_name="base",
+            version=version,
+            data=data,
+            commit=False,
+            answers_only=answers_only,
         )
 
         # the network file needs re-rendered with the app_names
@@ -98,9 +114,15 @@ class InfraTemplate:
         version: str | None = None,
         data: dict[str, str] | None = None,
         commit: bool = False,
+        answers_only: bool = False,
     ) -> None:
         self.template_app.update(
-            project, app_name=app_name, version=version, data=data, commit=commit
+            project,
+            app_name=app_name,
+            version=version,
+            data=data,
+            commit=commit,
+            answers_only=answers_only,
         )
 
     def add_app(

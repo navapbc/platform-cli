@@ -109,6 +109,7 @@ def update(
     template_uri: Annotated[str, opt_template_uri] = DEFAULT_TEMPLATE_URI,
     version: Annotated[str, opt_version] = DEFAULT_VERSION,
     data: Annotated[list[str] | None, opt_data] = None,
+    answers_only: Annotated[bool, typer.Option(help="Do not change the version")] = False,
 ) -> None:
     """Update base and application infrastructure."""
     ctx = typer_context.ensure_object(CliContext)
@@ -119,8 +120,9 @@ def update(
                 ctx,
                 template_uri,
                 project_dir,
-                version=version,
+                version=version if not answers_only else None,
                 data=dict_util.from_str_values(data),
+                answers_only=answers_only,
             )
         except MergeConflictsDuringUpdateError:
             message = (
@@ -140,6 +142,7 @@ def update_base(
     commit: Annotated[
         bool, typer.Option(help="Commit changes with standard message if able.")
     ] = True,
+    answers_only: Annotated[bool, typer.Option(help="Do not change the version")] = False,
 ) -> None:
     """Update base infrastructure."""
     ctx = typer_context.ensure_object(CliContext)
@@ -149,9 +152,10 @@ def update_base(
             ctx,
             template_uri,
             project_dir,
-            version=version,
+            version=version if not answers_only else None,
             data=dict_util.from_str_values(data),
             commit=commit,
+            answers_only=answers_only,
         )
 
 
@@ -167,6 +171,7 @@ def update_app(
         bool, typer.Option(help="Commit changes with standard message if able.")
     ] = True,
     all: Annotated[bool, typer.Option("--all", help="Attempt to update all known apps")] = False,
+    answers_only: Annotated[bool, typer.Option(help="Do not change the version")] = False,
 ) -> None:
     """Update application(s) infrastructure."""
     ctx = typer_context.ensure_object(CliContext)
@@ -177,10 +182,11 @@ def update_app(
             template_uri,
             project_dir,
             app_names=app_name,
-            version=version,
+            version=version if not answers_only else None,
             data=dict_util.from_str_values(data),
             commit=commit,
             all=all,
+            answers_only=answers_only,
         )
 
 

@@ -77,6 +77,7 @@ def update(
             help="The name of the template. Usually this can be derived from the repository name automatically, but if you are running from a local checkout under a different name, you will need to specify the upstream name here."
         ),
     ] = None,
+    answers_only: Annotated[bool, typer.Option(help="Do not change the version")] = False,
 ) -> None:
     """Update application based on template in project."""
     ctx = typer_context.ensure_object(CliContext)
@@ -121,6 +122,7 @@ def update(
             version=version,
             data=dict_util.from_str_values(data),
             commit=commit,
+            answers_only=answers_only,
         )
 
 
