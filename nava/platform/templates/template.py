@@ -11,6 +11,7 @@ from nava.platform.get_template_name_from_uri import get_template_name_from_uri
 from nava.platform.projects.project import Project
 from nava.platform.templates.errors import MergeConflictsDuringUpdateError
 from nava.platform.templates.state import (
+    TemplateVersionAnswer,
     answers_file_rel,
     get_template_uri_for_existing_app,
     get_template_version_for_existing_app,
@@ -124,7 +125,12 @@ class Template:
         version: str | None = None,
         data: dict[str, str] | None = None,
         commit: bool = False,
+        answers_only: bool = False,
     ) -> None:
+        # save the data as provided for later usage
+        passed_data = data
+
+        # but this is really the "data" for the template
         data = (data or {}) | {
             "app_name": app_name,
             "template": self.template_name.template_name,
@@ -133,21 +139,37 @@ class Template:
 
         self._check_answers_file(project, app_name)
 
-        self._checkout_copier_ref(version)
-
         existing_version = get_template_version_for_existing_app(
             project, app_name, self.template_name
         )
 
-        if (
-            isinstance(self.version, Version)
-            and isinstance(existing_version, Version)
-            and self.version == existing_version
-        ):
-            self.ctx.console.print(f"Already up to date ({existing_version})")
+        if not existing_version:
+            raise ValueError(
+                "Can not find existing version in answers file (or issue reading the file)"
+            )
+
+        # if just updating answers, re-use existing version
+        if answers_only:
+            # not necessarily true, could just print a message that we are
+            # ignoring the provided version, but being strict for now
+            if version is not None:
+                raise ValueError("Can not specify a version and 'answers only'")
+
+            # not necessarily true either, but should probably be the case
+            if not passed_data:
+                raise ValueError("If 'answers only', must specify some data")
+
+            version = existing_version.answer_value
+
+        self._checkout_copier_ref(version)
+
+        # if we are not just updating answers or providing data and are already
+        # running the version that would be installed, then skip
+        if (not answers_only or not passed_data) and self._is_same_version(existing_version):
+            self.ctx.console.print(f"Already up to date ({existing_version.display_str})")
             return
 
-        self.ctx.console.print(f"Current template version: {existing_version}")
+        self.ctx.console.print(f"Current template version: {existing_version.display_str}")
 
         self._run_update(
             project.dir,
@@ -196,6 +218,11 @@ class Template:
             self.ctx.console.print(Markdown(msg))
 
     def _commit_action_msg(self, action: Literal["install", "update"], app_name: str) -> str:
+        # TODO: include hash of answers file in message body? Since if someone
+        # is just changing answers the "Updating" message points to the same
+        # version? Which is kinda correct.
+        #
+        # Or different message if just re-rendering with different answers?
         msg_prefix = ""
         if not self.template_name.is_singular_instance(app_name):
             msg_prefix = f"{app_name}: "
@@ -291,3 +318,10 @@ class Template:
     @property
     def commit_hash(self) -> str | None:
         return self.copier_template.commit_hash
+
+    def _is_same_version(self, version_obj: TemplateVersionAnswer) -> bool:
+        commit = self.commit
+        if commit is None:
+            return False
+
+        return commit == version_obj.answer_value

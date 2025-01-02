@@ -36,6 +36,21 @@ $CMD infra install \
 $CMD infra info "${PROJECT_DIR}"
 
 $CMD infra update "${PROJECT_DIR}"
+$CMD infra update \
+    --answers-only \
+    --data base_owner=platform-admins2 \
+    --data app_local_port=2900 \
+    "${PROJECT_DIR}"
+$CMD infra update-base \
+    --answers-only \
+    --data base_code_repository_url=https://example.foo \
+    "${PROJECT_DIR}"
+# no actual changes
+$CMD infra update-app \
+    --answers-only \
+    --data base_owner=platform-admins3 \
+    "${PROJECT_DIR}" \
+    rails
 
 { yes || true; } | $CMD app install \
     --template-uri https://github.com/navapbc/template-application-rails \
@@ -48,6 +63,12 @@ $CMD infra update "${PROJECT_DIR}"
 $CMD app update \
     --template-uri https://github.com/navapbc/template-application-rails \
     --version platform-cli \
+    "${PROJECT_DIR}" \
+    rails
+
+$CMD app update \
+    --answers-only \
+    --data app_local_port=3100 \
     "${PROJECT_DIR}" \
     rails
 
@@ -71,6 +92,12 @@ for app_template in flask nextjs; do
     $CMD app update \
         --template-uri https://github.com/navapbc/template-application-"${app_template}" \
         --version platform-cli \
+        "${PROJECT_DIR}" \
+        "${app_template}"
+
+    $CMD app update \
+        --answers-only \
+        --data app_local_port=3100 \
         "${PROJECT_DIR}" \
         "${app_template}"
 done
