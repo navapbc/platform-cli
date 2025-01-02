@@ -57,10 +57,20 @@ class NavaWorker(Worker):
 
     # not a part of the upstream class, but put here for convenience until we
     # find a better approach
-    def render_template_file(self, src_file_path: Path, data: AnyByStrDict | None = None) -> None:
+    def render_template_file(
+        self, src_file_path: Path, data: AnyByStrDict | None = None, render_path: Path | None = None
+    ) -> None:
         """Render an individual file with the template settings."""
         src_relpath = src_file_path
-        dst_relpath = self._render_path(src_relpath)
+
+        # TODO: upstream is more like:
+        #
+        #   src_abspath = self.template.local_abspath / src_relpath
+        #   self._render_path(Path(src_abspath).relative_to(self.template_copy_root))
+        #
+        # but that that means the template needs configured correctly/we need to
+        # run _ask() first
+        dst_relpath = render_path or self._render_path(src_relpath)
 
         # hack to just pass the data down to Jinja
         self.answers = AnswersMap(user=data or dict())
@@ -102,12 +112,15 @@ def render_template_file(
     src_path: str,
     src_file_path: StrOrPath,
     dst_path: StrOrPath = ".",
+    render_path: StrOrPath | None = None,
     data: AnyByStrDict | None = None,
     **kwargs: Any,
 ) -> Worker:
     """Hackily render an individual file with the template settings."""
     if data is not None:
         kwargs["data"] = data
+    if render_path is not None:
+        render_path = Path(render_path)
     with NavaWorker(src_path=src_path, dst_path=Path(dst_path), **kwargs) as worker:
-        worker.render_template_file(Path(src_file_path), data)
+        worker.render_template_file(Path(src_file_path), data, render_path=render_path)
     return worker

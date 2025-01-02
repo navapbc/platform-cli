@@ -129,7 +129,7 @@ class InfraTemplate:
             # but in case caching is ever added there, be sure to included the
             # new app name
             app_names=sorted(set((existing_apps or project.app_names) + [app_name])),
-            version=version,
+            version=vcs_ref,
         )
 
         if commit:
@@ -139,19 +139,34 @@ class InfraTemplate:
         self, project: InfraProject, app_names: list[str], *, version: str | None = None
     ) -> None:
         data = {"app_names": list(app_names)}
-        path = "infra/networks/main.tf.jinja"
+        possible_network_file_paths_rel = [
+            "templates/base/infra/networks/main.tf.jinja",
+            "infra/networks/main.tf.jinja",
+        ]
 
-        if not (self.template_base.copier_template.local_abspath / path).exists():
+        self.template_base._checkout_copier_ref(version)
+
+        found_path = None
+        for network_file_path_rel in possible_network_file_paths_rel:
+            if (self.template_base.copier_template.local_abspath / network_file_path_rel).exists():
+                found_path = network_file_path_rel
+                break
+
+        if not found_path:
+            # TODO: actually an error to not find one?
             return
 
-        self.ctx.console.print(f"Regenerating {path.removesuffix('.jinja')}")
+        render_path = found_path.removeprefix("templates/base/").removesuffix(".jinja")
+
+        self.ctx.console.print(f"Regenerating {render_path} with apps {app_names}")
 
         # TODO: this might conceivably need to include the base template
         # data/answers at some point
         render_template_file(
             src_path=str(self.template_uri),
-            src_file_path=path,
+            src_file_path=found_path,
             dst_path=project.dir,
+            render_path=render_path,
             data=data,
             # Use the template version that the project is currently on, unless
             # an override is provided (mainly during initial install)
