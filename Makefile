@@ -58,8 +58,9 @@ test: ## Run tests
 
 test-e2e: ## Run tests
 	@set -e; for test_script in tests-e2e/test*; do \
-        echo "*** Running $${test_script} ***";\
+        echo "::group::$${test_script}";\
         ./"$${test_script}";\
+        echo "::endgroup::";\
     done
 
 help: ## Display this help screen
