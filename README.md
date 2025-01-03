@@ -85,7 +85,7 @@ make build
 `bin/docker-wrapper` exists to streamline running via Docker, so you can just:
 
 ```sh
-./bin/docker-wrapper infra install ~/my_project_directory
+./bin/docker-wrapper infra install ./my_project_directory
 ```
 
 (it can be a little fragile, so treat gently and read about the assumptions it
@@ -120,26 +120,11 @@ this)
 After you have `nava-platform` installed, try
 
 ```sh
-nava-platform infra install --template-uri <path_to_local_copy_of>/template-infra ./just-a-test
+nava-platform infra install ./just-a-test
 ```
 
 to see it in action. Then read the docs for how to apply it to existing projects
 and more.
-
-### Things to be aware of
-
-There are a few limitations or non-obvious things about the behavior of this
-tool that can cause you to hit issues. For brevity they won't be detailed here,
-but you can avoid the pitfalls by doing the following:
-
-1. Always run `nava-platform` from the root of your project directory
-   - For example: `nava-platform infra <install/update> <args> .` (`.` as the project argument)
-2. Always pass a relative path as `--template-uri` one directory up from the project and use the upstream repo name as the directory name for the local checkout of the template
-   - For example: `nava-platform infra <install/update> --template-uri ../template-infra .`
-
-This basically ensures that a consistent set of source paths get saved, with
-none of them being system-specific, so that things work consistently between CI
-and local systems.
 
 ### Shell Completion
 
