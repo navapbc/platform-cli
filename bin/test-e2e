@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+set -e
+
+for test_script in tests-e2e/test*; do
+    echo "::group::${test_script}"
+    ./"${test_script}"
+    echo "::endgroup::"
+done

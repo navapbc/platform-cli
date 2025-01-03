@@ -57,11 +57,7 @@ test: ## Run tests
 	$(PY_RUN) pytest $(args)
 
 test-e2e: ## Run tests
-	@set -e; for test_script in tests-e2e/test*; do \
-        echo "::group::$${test_script}";\
-        ./"$${test_script}";\
-        echo "::endgroup::";\
-    done
+	./bin/test-e2e $(args)
 
 help: ## Display this help screen
 	@grep -Eh '^[[:print:]]+:.*?##' $(MAKEFILE_LIST) | \
