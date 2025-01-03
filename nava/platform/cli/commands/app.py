@@ -5,7 +5,13 @@ import questionary
 import typer
 
 import nava.platform.util.collections.dict as dict_util
-from nava.platform.cli.commands.infra import opt_data
+from nava.platform.cli.commands.common import (
+    opt_answers_only,
+    opt_commit,
+    opt_data,
+    opt_template_uri,
+    opt_version,
+)
 from nava.platform.cli.context import CliContext
 from nava.platform.projects.migrate_from_legacy_template import MigrateFromLegacyTemplate
 from nava.platform.projects.project import Project
@@ -24,12 +30,10 @@ def install(
         ),
     ],
     app_name: Annotated[str, typer.Argument(help="What to call the new application")],
-    template_uri: Annotated[str, typer.Option()],
-    version: Annotated[str | None, typer.Option()] = None,
+    template_uri: Annotated[str, opt_template_uri],
+    version: Annotated[str | None, opt_version] = None,
     data: Annotated[list[str] | None, opt_data] = None,
-    commit: Annotated[
-        bool, typer.Option(help="Commit changes with standard message if able")
-    ] = False,
+    commit: Annotated[bool, opt_commit] = False,
     template_name: Annotated[
         str | None,
         typer.Option(
@@ -65,19 +69,17 @@ def update(
     app_name: Annotated[
         str, typer.Argument(help="Name of the application based on given template to update")
     ],
-    template_uri: Annotated[str | None, typer.Option()] = None,
-    version: Annotated[str | None, typer.Option()] = None,
+    template_uri: Annotated[str | None, opt_template_uri] = None,
+    version: Annotated[str | None, opt_version] = None,
     data: Annotated[list[str] | None, opt_data] = None,
-    commit: Annotated[
-        bool, typer.Option(help="Commit changes with standard message if able")
-    ] = True,
+    commit: Annotated[bool, opt_commit] = True,
     template_name: Annotated[
         str | None,
         typer.Option(
             help="The name of the template. Usually this can be derived from the repository name automatically, but if you are running from a local checkout under a different name, you will need to specify the upstream name here."
         ),
     ] = None,
-    answers_only: Annotated[bool, typer.Option(help="Do not change the version")] = False,
+    answers_only: Annotated[bool, opt_answers_only] = False,
 ) -> None:
     """Update application based on template in project."""
     ctx = typer_context.ensure_object(CliContext)
@@ -139,9 +141,7 @@ def migrate_from_legacy(
     app_name: Annotated[
         str, typer.Argument(help="Name of the application based on given template to migrate")
     ],
-    commit: Annotated[
-        bool, typer.Option(help="Commit changes with standard message if able")
-    ] = True,
+    commit: Annotated[bool, opt_commit] = True,
 ) -> None:
     """Migrate an older version of a template to platform-cli setup."""
     ctx = typer_context.ensure_object(CliContext)

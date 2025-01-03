@@ -4,6 +4,7 @@ from typing import Annotated
 import typer
 
 import nava.platform.util.collections.dict as dict_util
+from nava.platform.cli.commands.common import opt_answers_only, opt_commit, opt_data, opt_version
 from nava.platform.cli.context import CliContext
 from nava.platform.templates.errors import MergeConflictsDuringUpdateError
 
@@ -36,32 +37,15 @@ opt_template_uri = typer.Option(
 # TODO: Set the default back to None once the rollout plan is complete
 DEFAULT_VERSION = "lorenyu/platform-cli"
 
-opt_version = typer.Option(
-    help="Template version to install. Can be a branch, tag, or commit hash. Defaults to the latest tag version.",
-)
-
-
-# Unfortunately typer doesn't handle args annotated as dictionaries[1], even
-# when the dictionary parsing is happening via a `callback`. So we annotate
-# `data` as a list of strings, and do the parsing we'd normally do in `callback`
-# in the body of the command.
-#
-# https://github.com/fastapi/typer/issues/130
-opt_data = typer.Option(
-    help="Parameters in form VARIABLE=VALUE, will make VARIABLE available as VALUE when rendering the template.",
-)
-
 
 @app.command()
 def install(
     typer_context: typer.Context,
     project_dir: str,
     template_uri: Annotated[str, opt_template_uri] = DEFAULT_TEMPLATE_URI,
-    version: Annotated[str, opt_version] = DEFAULT_VERSION,
+    version: Annotated[str | None, opt_version] = DEFAULT_VERSION,
     data: Annotated[list[str] | None, opt_data] = None,
-    commit: Annotated[
-        bool, typer.Option(help="Commit changes with standard message if able.")
-    ] = False,
+    commit: Annotated[bool, opt_commit] = False,
 ) -> None:
     """Install template-infra in project."""
     ctx = typer_context.ensure_object(CliContext)
@@ -84,9 +68,7 @@ def add_app(
     app_name: str,
     template_uri: Annotated[str, opt_template_uri] = DEFAULT_TEMPLATE_URI,
     data: Annotated[list[str] | None, opt_data] = None,
-    commit: Annotated[
-        bool, typer.Option(help="Commit changes with standard message if able.")
-    ] = True,
+    commit: Annotated[bool, opt_commit] = True,
 ) -> None:
     """Add infra for APP_NAME."""
     ctx = typer_context.ensure_object(CliContext)
@@ -107,9 +89,9 @@ def update(
     typer_context: typer.Context,
     project_dir: str,
     template_uri: Annotated[str, opt_template_uri] = DEFAULT_TEMPLATE_URI,
-    version: Annotated[str, opt_version] = DEFAULT_VERSION,
+    version: Annotated[str | None, opt_version] = DEFAULT_VERSION,
     data: Annotated[list[str] | None, opt_data] = None,
-    answers_only: Annotated[bool, typer.Option(help="Do not change the version")] = False,
+    answers_only: Annotated[bool, opt_answers_only] = False,
 ) -> None:
     """Update base and application infrastructure."""
     ctx = typer_context.ensure_object(CliContext)
@@ -137,12 +119,10 @@ def update_base(
     typer_context: typer.Context,
     project_dir: str,
     template_uri: Annotated[str, opt_template_uri] = DEFAULT_TEMPLATE_URI,
-    version: Annotated[str, opt_version] = DEFAULT_VERSION,
+    version: Annotated[str | None, opt_version] = DEFAULT_VERSION,
     data: Annotated[list[str] | None, opt_data] = None,
-    commit: Annotated[
-        bool, typer.Option(help="Commit changes with standard message if able.")
-    ] = True,
-    answers_only: Annotated[bool, typer.Option(help="Do not change the version")] = False,
+    commit: Annotated[bool, opt_commit] = True,
+    answers_only: Annotated[bool, opt_answers_only] = False,
 ) -> None:
     """Update base infrastructure."""
     ctx = typer_context.ensure_object(CliContext)
@@ -165,13 +145,11 @@ def update_app(
     project_dir: str,
     app_name: Annotated[list[str] | None, typer.Argument()] = None,
     template_uri: Annotated[str, opt_template_uri] = DEFAULT_TEMPLATE_URI,
-    version: Annotated[str, opt_version] = DEFAULT_VERSION,
+    version: Annotated[str | None, opt_version] = DEFAULT_VERSION,
     data: Annotated[list[str] | None, opt_data] = None,
-    commit: Annotated[
-        bool, typer.Option(help="Commit changes with standard message if able.")
-    ] = True,
+    commit: Annotated[bool, opt_commit] = True,
     all: Annotated[bool, typer.Option("--all", help="Attempt to update all known apps")] = False,
-    answers_only: Annotated[bool, typer.Option(help="Do not change the version")] = False,
+    answers_only: Annotated[bool, opt_answers_only] = False,
 ) -> None:
     """Update application(s) infrastructure."""
     ctx = typer_context.ensure_object(CliContext)
@@ -200,9 +178,7 @@ def migrate_from_legacy(
             help="Path or URL to the legacy infra template that was used to set up the project. Can be a path to a local clone of template-infra. Defaults to the template-infra repository on GitHub.",
         ),
     ] = "https://github.com/navapbc/template-infra",
-    commit: Annotated[
-        bool, typer.Option(help="Commit changes with standard message if able.")
-    ] = False,
+    commit: Annotated[bool, opt_commit] = False,
 ) -> None:
     """Migrate an older version of the template to platform-cli setup."""
     ctx = typer_context.ensure_object(CliContext)
@@ -223,12 +199,7 @@ def info(
             file_okay=False,
         ),
     ],
-    template_uri: Annotated[
-        str | None,
-        typer.Option(
-            help="Path or URL to infra template. Can be a path to a local clone of template-infra. Defaults to the template-infra repository on GitHub."
-        ),
-    ] = None,
+    template_uri: Annotated[str | None, opt_template_uri] = None,
 ) -> None:
     """Display some information about the state of template-infra in the project."""
     ctx = typer_context.ensure_object(CliContext)
