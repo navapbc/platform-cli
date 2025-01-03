@@ -56,7 +56,7 @@ lint-poetry: ## Run poetry checks
 test: ## Run tests
 	$(PY_RUN) pytest $(args)
 
-test-e2e: ## Run tests
+test-e2e: ## Run "e2e" tests, requires that the tool is installed
 	./bin/test-e2e $(args)
 
 help: ## Display this help screen
