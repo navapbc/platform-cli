@@ -47,6 +47,9 @@ lint-poetry: ## Run poetry checks
 test: ## Run tests
 	$(PY_RUN) pytest $(args)
 
+test-e2e: ## Run tests
+	./bin/test-e2e $(args)
+
 help: ## Display this help screen
 	@grep -Eh '^[[:print:]]+:.*?##' $(MAKEFILE_LIST) | \
 	sort -d | \

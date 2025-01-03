@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+#
+# Simple, but more-or-less complete run through of core functionality. Doesn't
+# really check that things are *correct*, just that they run without unexpected
+# errors.
+
+set -xeuo pipefail
+
+#######################
+# Setup
+#######################
+
+source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/common.sh"
+
+init_project_dir
+
+#######################
+# Test
+#######################
+
+$CMD --help
+
+# TODO: add --data-file support to CLI and have as many of these
+# settings in more maintainable separate file
+$CMD infra install \
+    --commit \
+    --data base_project_name="${PROJECT_NAME}" \
+    --data base_owner=platform-admins \
+    --data base_code_repository_url=https://foo.example \
+    --data base_default_region=us-east-1 \
+    --data app_name=rails \
+    --data app_local_port=3000 \
+    --data app_has_dev_env_setup=true \
+    "${PROJECT_DIR}"
+
+$CMD infra info "${PROJECT_DIR}"
+
+$CMD infra update "${PROJECT_DIR}"
+
+{ yes || true; } | $CMD app install \
+    --template-uri https://github.com/navapbc/template-application-rails \
+    --version platform-cli \
+    --commit \
+    "${PROJECT_DIR}" \
+    rails \
+    --data app_local_port=3000
+
+$CMD app update \
+    --template-uri https://github.com/navapbc/template-application-rails \
+    --version platform-cli \
+    "${PROJECT_DIR}" \
+    rails
+
+for app_template in flask nextjs; do
+    $CMD infra add-app \
+        --commit \
+        --data app_name="${app_template}" \
+        --data app_local_port=3000 \
+        --data app_has_dev_env_setup=true \
+        "${PROJECT_DIR}" \
+        ${app_template}
+
+    { yes || true; } | $CMD app install \
+        --template-uri https://github.com/navapbc/template-application-"${app_template}" \
+        --version platform-cli \
+        --commit \
+        "${PROJECT_DIR}" \
+        "${app_template}" \
+        --data app_local_port=3000
+
+    $CMD app update \
+        --template-uri https://github.com/navapbc/template-application-"${app_template}" \
+        --version platform-cli \
+        "${PROJECT_DIR}" \
+        "${app_template}"
+done
+
+$CMD infra info "${PROJECT_DIR}"

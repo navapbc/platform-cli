@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+#
+# Test that local templates work
+
+set -xeuo pipefail
+
+#######################
+# Setup
+#######################
+
+source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/common.sh"
+
+init_project_dir
+
+#######################
+# Test
+#######################
+
+infra_template_dir=$(mk_temp_dir)
+git clone https://github.com/navapbc/template-infra.git "${infra_template_dir}"
+git -C "${infra_template_dir}" checkout lorenyu/platform-cli
+
+# TODO: add --data-file support to CLI and have as many of these
+# settings in more maintainable separate file
+$CMD infra install \
+    --template-uri "${infra_template_dir}" \
+    --commit \
+    --data base_project_name="${PROJECT_NAME}" \
+    --data base_owner=platform-admins \
+    --data base_code_repository_url=https://foo.example \
+    --data base_default_region=us-east-1 \
+    --data app_name=app \
+    --data app_local_port=3000 \
+    --data app_has_dev_env_setup=true \
+    "${PROJECT_DIR}"
+
+$CMD infra update \
+    --template-uri "${infra_template_dir}" \
+    "${PROJECT_DIR}"
+
+rails_template_dir=$(mk_temp_dir)
+git clone https://github.com/navapbc/template-application-rails "${rails_template_dir}"
+git -C "${rails_template_dir}" checkout platform-cli
+
+{ yes || true; } | $CMD app install \
+    --template-uri "${rails_template_dir}" \
+    --version platform-cli \
+    --template-name template-application-rails \
+    --commit \
+    "${PROJECT_DIR}" \
+    app \
+    --data app_local_port=3000
+
+$CMD app update \
+    --template-uri "${rails_template_dir}" \
+    --version platform-cli \
+    --template-name template-application-rails \
+    "${PROJECT_DIR}" \
+    app
