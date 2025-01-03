@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+#
+# Test that `install` commands will create the project directory when it doesn't
+# already exist
+
+set -xeuo pipefail
+
+#######################
+# Setup
+#######################
+
+source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/common.sh"
+
+#######################
+# Test
+#######################
+
+rm -rf "${PROJECT_DIR}"
+
+# TODO: add --data-file support to CLI and have as many of these
+# settings in more maintainable separate file
+$CMD infra install \
+    --data base_project_name="${PROJECT_NAME}" \
+    --data base_owner=platform-admins \
+    --data base_code_repository_url=https://foo.example \
+    --data base_default_region=us-east-1 \
+    --data app_name=app \
+    --data app_local_port=3000 \
+    --data app_has_dev_env_setup=true \
+    "${PROJECT_DIR}"
+
+rm -rf "${PROJECT_DIR}"
+
+$CMD app install \
+    --template-uri https://github.com/navapbc/template-application-rails \
+    --version platform-cli \
+    --data app_local_port=3000 \
+    "${PROJECT_DIR}" \
+    app
