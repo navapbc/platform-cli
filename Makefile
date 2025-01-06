@@ -53,6 +53,9 @@ lint-ruff: ## Run ruff linting with auto-fixes
 lint-poetry: ## Run poetry checks
 	poetry check --lock
 
+setup-tooling: ## Install build/development tools
+	pipx install 'poetry>=1.2.0,<2.0'
+
 test: ## Run tests
 	$(PY_RUN) pytest $(args)
 

@@ -149,9 +149,8 @@ For hacking on the tool itself, there are a couple setup options.
 
 #### Standard
 
-[Install poetry](https://python-poetry.org/docs/) >= 1.2.0 if you haven't. The
-project is not super sensitive to poetry versions, but try to match the version
-listed at the top of `poetry.lock`.
+[Install poetry](https://python-poetry.org/docs/) >= 1.2.0,<2.0 if you haven't
+(`make setup-tooling` for convenience).
 
 Run `make deps`
 

@@ -20,8 +20,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ inputs.python-version }}
-      - name: install poetry
-        run: pip install poetry
+
+      - name: Install build tooling
+        run: make setup-tooling
 
       - name: Install packages
         run: make deps
@@ -39,8 +40,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ inputs.python-version }}
-      - name: install poetry
-        run: pip install poetry
+
+      - name: Install build tooling
+        run: make setup-tooling
 
       - name: Install packages
         run: make deps

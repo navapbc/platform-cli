@@ -4,7 +4,7 @@ FROM python:3.11-slim
 # file, until better user juggling in the future
 RUN chmod -R 777 /root
 
-RUN pip install poetry
+RUN pip install 'poetry>=1.2.0,<2.0'
 RUN apt-get update \
  && apt-get install --no-install-recommends --yes \
        git
