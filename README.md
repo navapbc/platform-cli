@@ -17,7 +17,7 @@ Be sure `git` exists on your `$PATH`.
 Then install the tool with:
 
 ```sh
-pipx install git+ssh://git@github.com/navapbc/platform-cli
+pipx install --preinstall 'poetry>=1.2.0,<2.0' git+ssh://git@github.com/navapbc/platform-cli
 ```
 
 You can now run `nava-platform`.
