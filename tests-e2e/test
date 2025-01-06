@@ -41,14 +41,22 @@ $CMD infra update \
     --data base_owner=platform-admins2 \
     --data app_local_port=2900 \
     "${PROJECT_DIR}"
+$CMD infra update --force "${PROJECT_DIR}"
 $CMD infra update-base \
     --answers-only \
     --data base_code_repository_url=https://example.foo \
+    "${PROJECT_DIR}"
+$CMD infra update-base \
+    --force \
     "${PROJECT_DIR}"
 # no actual changes
 $CMD infra update-app \
     --answers-only \
     --data base_owner=platform-admins3 \
+    "${PROJECT_DIR}" \
+    rails
+$CMD infra update-app \
+    --force \
     "${PROJECT_DIR}" \
     rails
 
@@ -69,6 +77,11 @@ $CMD app update \
 $CMD app update \
     --answers-only \
     --data app_local_port=3100 \
+    "${PROJECT_DIR}" \
+    rails
+
+$CMD app update \
+    --force \
     "${PROJECT_DIR}" \
     rails
 

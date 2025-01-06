@@ -15,10 +15,11 @@ def update(
     version: str | None = None,
     data: dict[str, str] | None = None,
     answers_only: bool = False,
+    force: bool = False,
 ) -> None:
     template = InfraTemplate(ctx, template_uri)
     project = InfraProject(Path(project_dir))
-    template.update(project, version=version, data=data, answers_only=answers_only)
+    template.update(project, version=version, data=data, answers_only=answers_only, force=force)
 
 
 def update_base(
@@ -29,11 +30,12 @@ def update_base(
     data: dict[str, str] | None = None,
     commit: bool = False,
     answers_only: bool = False,
+    force: bool = False,
 ) -> None:
     template = InfraTemplate(ctx, template_uri)
     project = InfraProject(Path(project_dir))
     template.update_base(
-        project, version=version, data=data, commit=commit, answers_only=answers_only
+        project, version=version, data=data, commit=commit, answers_only=answers_only, force=force
     )
 
 
@@ -47,6 +49,7 @@ def update_app(
     commit: bool = False,
     all: bool = True,
     answers_only: bool = False,
+    force: bool = False,
 ) -> None:
     template = InfraTemplate(ctx, template_uri)
     project = InfraProject(Path(project_dir))
@@ -93,4 +96,5 @@ def update_app(
                 data=data,
                 commit=commit,
                 answers_only=answers_only,
+                force=force,
             )

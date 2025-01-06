@@ -106,8 +106,8 @@ class Template:
         self._checkout_copier_ref(version)
 
         self._run_copy(
-            str(self.template_uri),
-            project.dir,
+            src_path=str(self.template_uri),
+            dst_path=project.dir,
             answers_file=self.answers_file_rel(app_name),
             data=data,
             src_exclude=self.src_excludes,
@@ -126,6 +126,7 @@ class Template:
         data: dict[str, str] | None = None,
         commit: bool = False,
         answers_only: bool = False,
+        force: bool = False,
     ) -> None:
         # save the data as provided for later usage
         passed_data = data
@@ -171,8 +172,10 @@ class Template:
 
         self.ctx.console.print(f"Current template version: {existing_version.display_str}")
 
-        self._run_update(
-            project.dir,
+        update_func = self._run_update if not force else self._run_copy
+
+        update_func(
+            dst_path=project.dir,
             # note `src_path` currently has no effect on updates, the path from
             # answers file is used
             #

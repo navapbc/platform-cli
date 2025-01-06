@@ -4,7 +4,13 @@ from typing import Annotated
 import typer
 
 import nava.platform.util.collections.dict as dict_util
-from nava.platform.cli.commands.common import opt_answers_only, opt_commit, opt_data, opt_version
+from nava.platform.cli.commands.common import (
+    opt_answers_only,
+    opt_commit,
+    opt_data,
+    opt_force_update,
+    opt_version,
+)
 from nava.platform.cli.context import CliContext
 from nava.platform.templates.errors import MergeConflictsDuringUpdateError
 
@@ -92,6 +98,7 @@ def update(
     version: Annotated[str | None, opt_version] = DEFAULT_VERSION,
     data: Annotated[list[str] | None, opt_data] = None,
     answers_only: Annotated[bool, opt_answers_only] = False,
+    force: Annotated[bool, opt_force_update] = False,
 ) -> None:
     """Update base and application infrastructure."""
     ctx = typer_context.ensure_object(CliContext)
@@ -105,6 +112,7 @@ def update(
                 version=version if not answers_only else None,
                 data=dict_util.from_str_values(data),
                 answers_only=answers_only,
+                force=force,
             )
         except MergeConflictsDuringUpdateError:
             message = (
@@ -123,6 +131,7 @@ def update_base(
     data: Annotated[list[str] | None, opt_data] = None,
     commit: Annotated[bool, opt_commit] = True,
     answers_only: Annotated[bool, opt_answers_only] = False,
+    force: Annotated[bool, opt_force_update] = False,
 ) -> None:
     """Update base infrastructure."""
     ctx = typer_context.ensure_object(CliContext)
@@ -136,6 +145,7 @@ def update_base(
             data=dict_util.from_str_values(data),
             commit=commit,
             answers_only=answers_only,
+            force=force,
         )
 
 
@@ -150,6 +160,7 @@ def update_app(
     commit: Annotated[bool, opt_commit] = True,
     all: Annotated[bool, typer.Option("--all", help="Attempt to update all known apps")] = False,
     answers_only: Annotated[bool, opt_answers_only] = False,
+    force: Annotated[bool, opt_force_update] = False,
 ) -> None:
     """Update application(s) infrastructure."""
     ctx = typer_context.ensure_object(CliContext)
@@ -165,6 +176,7 @@ def update_app(
             commit=commit,
             all=all,
             answers_only=answers_only,
+            force=force,
         )
 
 

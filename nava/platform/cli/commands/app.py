@@ -9,6 +9,7 @@ from nava.platform.cli.commands.common import (
     opt_answers_only,
     opt_commit,
     opt_data,
+    opt_force_update,
     opt_template_uri,
     opt_version,
 )
@@ -80,6 +81,7 @@ def update(
         ),
     ] = None,
     answers_only: Annotated[bool, opt_answers_only] = False,
+    force: Annotated[bool, opt_force_update] = False,
 ) -> None:
     """Update application based on template in project."""
     ctx = typer_context.ensure_object(CliContext)
@@ -125,6 +127,7 @@ def update(
             data=dict_util.from_str_values(data),
             commit=commit,
             answers_only=answers_only,
+            force=force,
         )
 
 

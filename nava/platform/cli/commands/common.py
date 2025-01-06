@@ -21,3 +21,5 @@ opt_data = typer.Option(
 opt_commit = typer.Option(help="Commit changes with standard message if able.")
 
 opt_answers_only = typer.Option(help="Do not change the version.")
+
+opt_force_update = typer.Option(help="Ignore smart update algorithm.")

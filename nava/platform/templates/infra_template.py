@@ -61,10 +61,11 @@ class InfraTemplate:
         version: str | None = None,
         data: dict[str, str] | None = None,
         answers_only: bool = False,
+        force: bool = False,
     ) -> None:
         self.ctx.console.rule("Infra base")
         self.update_base(
-            project, version=version, data=data, commit=True, answers_only=answers_only
+            project, version=version, data=data, commit=True, answers_only=answers_only, force=force
         )
 
         for app_name in project.app_names:
@@ -76,6 +77,7 @@ class InfraTemplate:
                 data=data,
                 commit=True,
                 answers_only=answers_only,
+                force=force,
             )
 
     def update_base(
@@ -86,6 +88,7 @@ class InfraTemplate:
         data: dict[str, str] | None = None,
         commit: bool = False,
         answers_only: bool = False,
+        force: bool = False,
     ) -> None:
         self.template_base.update(
             project,
@@ -94,6 +97,7 @@ class InfraTemplate:
             data=data,
             commit=False,
             answers_only=answers_only,
+            force=force,
         )
 
         # the network file needs re-rendered with the app_names
@@ -115,6 +119,7 @@ class InfraTemplate:
         data: dict[str, str] | None = None,
         commit: bool = False,
         answers_only: bool = False,
+        force: bool = False,
     ) -> None:
         self.template_app.update(
             project,
@@ -123,6 +128,7 @@ class InfraTemplate:
             data=data,
             commit=commit,
             answers_only=answers_only,
+            force=force,
         )
 
     def add_app(
