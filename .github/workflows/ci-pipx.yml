@@ -62,7 +62,7 @@ jobs:
           python-version: ${{ inputs.python-version }}
 
       - name: Install with pipx
-        run: pipx install --preinstall 'poetry>=1.2.0,<2.0' .
+        run: pipx install .
 
       - name: Run --help
         run: nava-platform --help
