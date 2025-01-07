@@ -8,19 +8,48 @@ There are a few ways to get the tool as an end user.
 
 ### pipx
 
-[Install pipx](https://pipx.pypa.io/stable/) if you haven't. This requires you
-have a working Python installation of some kind just so pipx can run itself.
-Things installed via pipx will not depend on the system Python.
+> [!IMPORTANT]
+> Prereqs:
+>
+> - `git` 2.27+ exists on your `$PATH`
+> - Python 3.8+ available on your system
 
-Be sure `git` exists on your `$PATH`.
+[Install pipx](https://pipx.pypa.io/stable/) if you haven't. This does require
+you have a working Python 3.8+ installation of some kind so pipx can run itself.
+Things installed via pipx will not depend on the system Python packages, though
+may re-use the system interpreter.
 
-Then install the tool with:
+Then if you have Python 3.11+ available already, install the tool with:
 
 ```sh
-pipx install --preinstall 'poetry>=1.2.0,<2.0' git+ssh://git@github.com/navapbc/platform-cli
+pipx install git+https://github.com/navapbc/platform-cli
 ```
 
-You can now run `nava-platform`.
+<details>
+
+<summary>If you don't have Python 3.11+ available</summary>
+
+You can have pipx fetch and install an appropriate Python version for you, with
+the slightly longer:
+
+```sh
+pipx install --fetch-missing-python --python 3.12 git+https://github.com/navapbc/platform-cli
+```
+
+</details>
+
+You can now run `nava-platform`. See [Getting Started](#getting-started).
+
+If it's just a one-off operation and you don't want to install the tool to your
+`$PATH`, can use:
+
+```sh
+pipx run --spec git+https://github.com/navapbc/platform-cli nava-platform <platform_cli_args>
+```
+
+<details>
+
+<summary>Other notes</summary>
 
 If you want to get rid of it:
 
@@ -28,12 +57,15 @@ If you want to get rid of it:
 pipx uninstall nava-platform-cli
 ```
 
-If it's just a one-off operation and you don't want to install the tool to your
-`$PATH`, can use:
+Upgrade with:
 
 ```sh
-pipx run --spec git+ssh://git@github.com/navapbc/platform-cli nava-platform <platform_cli_args>
+pipx upgrade nava-platform-cli
 ```
+
+(or uninstall and install again)
+
+</details>
 
 ### Nix
 
@@ -47,34 +79,48 @@ faster.
 You can install the tool with:
 
 ```sh
-nix profile install --accept-flake-config 'git+ssh://git@github.com/navapbc/platform-cli'
+nix profile install github:navapbc/platform-cli
 ```
 
-Or for one-off runs:
+You can now run `nava-platform`. See [Getting Started](#getting-started).
+
+For one-off runs:
 
 ```sh
-nix run git+ssh://git@github.com/navapbc/platform-cli -- <platform_cli_args>
+nix run github:navapbc/platform-cli -- <platform_cli_args>
 ```
 
-You can also run particular branches or version of the tooling with this if
-needed:
+<details>
+
+<summary>Other notes</summary>
+
+Upgrade with:
+
+``` sh
+nix profile upgrade platform-cli
+```
+
+Uninstall with:
+
+``` sh
+nix profile remove platform-cli
+```
+
+Alternatively for one-offs, you can checkout the project locally and in the
+repository run:
 
 ```sh
-nix run git+ssh://git@github.com/navapbc/platform-cli?ref=my-branch-for-testing-new-thing-before-its-released -- <platform_cli_args>
+nix run . -- <platform_cli_args>
 ```
 
-Alternatively, you can checkout the project locally and in the repository run:
+</details>
 
-```sh
-nix run -- <platform_cli_args>
-```
-
-### Docker/Containers
+### Docker/Container
 
 Install Docker if you haven't already. Note, Docker is the default for these
 instructions, but other container runtimes may be similar.
 
-Docker images are not currently published, but eventually may be for releases.
+Docker images are not currently published, so you'll need to build it yourself.
 
 To get a Docker image, clone the repository and run:
 
@@ -149,6 +195,11 @@ For hacking on the tool itself, there are a couple setup options.
 
 #### Standard
 
+> [!IMPORTANT]
+> Prereqs:
+>
+> - GNU Make (not strictly, but practically)
+
 [Install poetry](https://python-poetry.org/docs/) >= 1.2.0,<2.0 if you haven't
 (`make setup-tooling` for convenience).
 
@@ -184,6 +235,13 @@ use flake
 The exact version and hash is probably out of date, refer to the [upstream docs
 for best
 info](https://github.com/nix-community/nix-direnv?tab=readme-ov-file#installation).
+
+You can then use the `poetry` command as normal, or run tooling directly. To run
+the tooling directly in Make targets, add to `.envrc`:
+
+```sh
+export PY_RUN=
+```
 
 ### Process
 
