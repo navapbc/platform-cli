@@ -222,18 +222,22 @@
           };
         };
       in
-      {
+      rec {
         packages = {
           default = pkgs.nava-platform-cli;
+          nava-platform-cli = pkgs.nava-platform-cli;
 
           docker = pkgs.dockerTools.buildLayeredImage dockerBuildArgs;
           dockerStream = pkgs.dockerTools.streamLayeredImage dockerBuildArgs;
         };
 
         # nix run .
-        apps.default = {
-          type = "app";
-          program = "${pkgs.nava-platform-cli}/bin/nava-platform";
+        apps = {
+          default = apps.nava-platform-cli;
+          nava-platform-cli = {
+            type = "app";
+            program = "${pkgs.nava-platform-cli}/bin/nava-platform";
+          };
         };
 
         devShells = {
