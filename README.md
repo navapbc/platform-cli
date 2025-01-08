@@ -6,6 +6,41 @@ Tooling to make installing, upgrading, and using the Nava Platform easier.
 
 There are a few ways to get the tool as an end user.
 
+### uv
+
+> [!IMPORTANT]
+> Prereqs:
+>
+> - `git` 2.27+ exists on your `$PATH`
+
+[Install uv](https://docs.astral.sh/uv/getting-started/installation/) 0.5.8+
+(released 2024-12-11) if you haven't.
+
+Then install the tool with:
+
+```sh
+uv tool install git+https://github.com/navapbc/platform-cli
+```
+
+One-off run:
+```sh
+uvx --from git+https://github.com/navapbc/platform-cli -- <platform_cli_args>
+```
+
+<details>
+
+<summary>Other notes</summary>
+
+```sh
+uv tool upgrade nava-platform-cli
+```
+
+```sh
+uv tool uninstall nava-platform-cli
+```
+
+</details>
+
 ### pipx
 
 > [!IMPORTANT]
@@ -200,12 +235,12 @@ For hacking on the tool itself, there are a couple setup options.
 >
 > - GNU Make (not strictly, but practically)
 
-[Install poetry](https://python-poetry.org/docs/) >= 1.2.0,<2.0 if you haven't
-(`make setup-tooling` for convenience).
+[Install uv](https://docs.astral.sh/uv/getting-started/installation/) 0.5.8+
+(released 2024-12-11) if you haven't (`make setup-tooling` for convenience).
 
 Run `make deps`
 
-Then you can run `poetry run nava-platform`
+Then you can run `uv run nava-platform`
 
 #### Nix
 
@@ -236,7 +271,7 @@ The exact version and hash is probably out of date, refer to the [upstream docs
 for best
 info](https://github.com/nix-community/nix-direnv?tab=readme-ov-file#installation).
 
-You can then use the `poetry` command as normal, or run tooling directly. To run
+You can then use the `uv` command as normal, or run tooling directly. To run
 the tooling directly in Make targets, add to `.envrc`:
 
 ```sh
@@ -245,7 +280,7 @@ export PY_RUN=
 
 ### Process
 
-The project is a standard Python project using poetry for dependency management.
+The project is a standard Python project using uv for dependency management.
 
 The Makefile has a number of useful commands, see the output of `make help`.
 

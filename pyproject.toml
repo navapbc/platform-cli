@@ -1,37 +1,48 @@
 [project]
 name = "nava-platform-cli"
-requires-python = ">=3.11"
-
-[tool.poetry]
-name = "nava-platform-cli"
 version = "0.1.0"
 description = "Nava PBC's Platform CLI tool for managing platform templates"
-authors = ["Your Name <you@example.com>"]
-license = "Apache License Version 2.0"
+# once https://peps.python.org/pep-0639 is in force
+# license = "Apache-2.0"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+]
 readme = "README.md"
-packages = [{ include = "nava" }]
+requires-python = ">=3.11"
+dependencies = [
+    "click>=8.1.7",
+    "copier",
+    "packaging>=24.1",
+    "platformdirs>=4.3.6",
+    "pyyaml>=6.0.2",
+    "questionary",
+    "rich>=13.9.4",
+    "structlog>=24.4.0",
+    "typer>=0.15.1",
+]
 
-[tool.poetry.dependencies]
-python = "^3.11"
-copier = {git = "https://github.com/copier-org/copier.git"}
-pyyaml = "^6.0.2"
-rich = "^13.9.4"
-structlog = "^24.4.0"
-platformdirs = "^4.3.6"
-questionary = {git = "https://github.com/tmbo/questionary.git"}
-packaging = "^24.1"
-typer = "^0.15.1"
+[tool.uv]
+required-version = ">0.5.8"
 
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.3.3"
-pytest-watch = "^4.2.0"
-mypy = "^1.11.2"
-types-pyyaml = "^6.0.12.20240917"
-ruff = "0.8.3"
-pytest-mock = "^3.14.0"
+[tool.uv.sources]
+copier = { git = "https://github.com/copier-org/copier" }
+questionary = { git = "https://github.com/tmbo/questionary" }
 
-[tool.poetry.scripts]
+[project.scripts]
 nava-platform = "nava.platform.cli.__main__:__main__"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.13.0",
+    "pytest-mock>=3.14.0",
+    "pytest-watch>=4.2.0",
+    "pytest>=8.3.3",
+    "ruff>=0.8.3",
+    "types-pyyaml>=6.0.12.20240917",
+]
 
 [tool.mypy]
 strict = true
@@ -87,7 +98,9 @@ lint.ignore = [
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 
+[tool.hatch.build.targets.wheel]
+packages = ["nava"]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"

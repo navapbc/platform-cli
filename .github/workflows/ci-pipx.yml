@@ -1,4 +1,4 @@
-name: CI (pip/pipx/native)
+name: CI (pipx)
 
 on:
   workflow_call:
@@ -11,45 +11,6 @@ on:
         type: string
 
 jobs:
-  lint:
-    name: Lint
-    runs-on: ${{ inputs.os }}
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ inputs.python-version }}
-
-      - name: Install build tooling
-        run: make setup-tooling
-
-      - name: Install packages
-        run: make deps
-
-      - name: Run lint
-        run: make check-static
-
-  test:
-    name: Test
-    runs-on: ${{ inputs.os }}
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/configure-git
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ inputs.python-version }}
-
-      - name: Install build tooling
-        run: make setup-tooling
-
-      - name: Install packages
-        run: make deps
-
-      - name: Run test
-        run: make test
-
   install:
     name: Install
     runs-on: ${{ inputs.os }}
@@ -62,7 +23,7 @@ jobs:
           python-version: ${{ inputs.python-version }}
 
       - name: Install with pipx
-        run: pipx install .
+        run: pipx install --python "$(which python)" .
 
       - name: Run --help
         run: nava-platform --help

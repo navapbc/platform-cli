@@ -15,7 +15,7 @@ jobs:
         python-version: ["3.11", "3.12", "3.13"]
         os: [ubuntu-latest, macos-latest]
 
-    uses: ./.github/workflows/ci-pipx.yml
+    uses: ./.github/workflows/ci-py-template.yml
     with:
       python-version: ${{ matrix.python-version }}
       os: ${{ matrix.os }}

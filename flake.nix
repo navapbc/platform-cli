@@ -4,10 +4,28 @@
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable-small";
-    poetry2nix = {
-      url = "github:nix-community/poetry2nix";
+
+    pyproject-nix = {
+      url = "github:pyproject-nix/pyproject.nix";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-utils.follows = "flake-utils";
+    };
+
+    uv2nix = {
+      url = "github:pyproject-nix/uv2nix";
+      inputs.pyproject-nix.follows = "pyproject-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    pyproject-build-systems = {
+      url = "github:pyproject-nix/build-system-pkgs";
+      inputs.pyproject-nix.follows = "pyproject-nix";
+      inputs.uv2nix.follows = "uv2nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    uv2nix_hammer_overrides = {
+      url = "github:TyberiusPrime/uv2nix_hammer_overrides";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
@@ -16,162 +34,75 @@
       self,
       nixpkgs,
       flake-utils,
-      poetry2nix,
+      pyproject-nix,
+      uv2nix,
+      pyproject-build-systems,
+      uv2nix_hammer_overrides,
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
       let
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [
-            poetry2nix.overlays.default
-            (final: _: {
-              inherit nava-platform-cli nava-platform-cli-devEnv;
-            })
-          ];
         };
-
-        inherit (poetry2nix.lib.mkPoetry2Nix { inherit pkgs; })
-          mkPoetryApplication
-          mkPoetryEnv
-          defaultPoetryOverrides
-          ;
 
         # Non-Python runtime dependencies go here
         runtimePackages = with pkgs; [
           gitMinimal
         ];
 
-        # Python packages don't always completely capture their build
-        # requirements, this is some convenience functionality to make it easier
-        # to fix that on a case-by-case basis to get unblocked (push fixes
-        # upstream when you can)
-        customPoetryOverrides =
-          final: super:
-          (builtins.mapAttrs
-            (
-              attr: systems:
-              super.${attr}.overridePythonAttrs (old: {
-                nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ map (a: final.${a}) systems;
-              })
-            )
-            {
-              # https://github.com/nix-community/poetry2nix/blob/master/docs/edgecases.md#modulenotfounderror-no-module-named-packagename
-              # package = [ "setuptools" ];
-            }
-          )
-          // {
-            # https://github.com/nix-community/poetry2nix/blob/f554d27c1544d9c56e5f1f8e2b8aff399803674e/overrides/default.nix#L3334
-            ruff =
-              let
-                # generated with
-                # curl https://api.github.com/repos/astral-sh/ruff/releases | \
-                #   jq -r '.[].tag_name' | tr '\n' '\0' | xargs -0 sh -c '
-                #     for version in "$@"; do
-                #       nix_prefetch=$(nix-prefetch-github astral-sh ruff --rev "$version") || exit;
-                #       echo "\"${version#v}\" = \"$(echo "$nix_prefetch" | jq -r ".sha256 // .hash")\";"
-                #     done' _
-                getRepoHash =
-                  version:
-                  {
-                    "0.8.3" = "sha256-WCLt8t3T3S91Gim+OtvVXbdajsdoXiKBau3pNyBcexY=";
-                    "0.6.1" = "sha256-/tD1TJRq+/2/KMmRHqB8ZbShoDkXG9nnBqacxXYKjbg=";
-                  }
-                  .${version}
-                    or (pkgs.lib.warn "Unknown ruff version: '${version}'. Please update getRepoHash." pkgs.lib.fakeHash);
+        # uv2nix stuff --------------------------------------------------------
 
-                getCargoHash =
-                  version:
-                  {
-                    "0.8.3" = {
-                      # https://raw.githubusercontent.com/astral-sh/ruff/0.8.3/Cargo.lock
-                      outputHashes = {
-                        "lsp-types-0.95.1" = "sha256-8Oh299exWXVi6A39pALOISNfp8XBya8z+KT/Z7suRxQ=";
-                        "salsa-0.18.0" = "sha256-zUF2ZBorJzgo8O8ZEnFaitAvWXqNwtHSqx4JE8nByIg=";
-                      };
-                    };
-                    "0.6.1" = {
-                      # https://raw.githubusercontent.com/astral-sh/ruff/0.6.1/Cargo.lock
-                      outputHashes = {
-                        "lsp-types-0.95.1" = "sha256-8Oh299exWXVi6A39pALOISNfp8XBya8z+KT/Z7suRxQ=";
-                        "salsa-0.18.0" = "sha256-Gu7YVqEDJUSzBqTeZH1xU0b3CWsWZrEvjIg7QpUaKBw=";
-                      };
-                    };
-                  }
-                  .${version}
-                    or (pkgs.lib.warn "Unknown ruff version: '${version}'. Please update getCargoHash." null);
+        workspace = uv2nix.lib.workspace.loadWorkspace { workspaceRoot = ./.; };
 
-                sha256 = getRepoHash super.ruff.version;
-              in
-              super.ruff.overridePythonAttrs (
-                old:
-                let
-                  src = pkgs.fetchFromGitHub {
-                    owner = "astral-sh";
-                    repo = "ruff";
-                    rev = old.version;
-                    inherit sha256;
-                  };
-
-                  cargoDeps =
-                    let
-                      hash = getCargoHash super.ruff.version;
-                    in
-                    if (hash == null || builtins.isAttrs hash) then
-                      pkgs.rustPlatform.importCargoLock (
-                        {
-                          lockFile = "${src.out}/Cargo.lock";
-                        }
-                        // (if hash == null then { } else hash)
-                      )
-                    else
-                      pkgs.rustPlatform.fetchCargoTarball {
-                        name = "ruff-${old.version}-cargo-deps";
-                        inherit src hash;
-                      };
-                in
-                pkgs.lib.optionalAttrs (!(old.src.isWheel or false)) {
-                  inherit src cargoDeps;
-
-                  buildInputs =
-                    old.buildInputs or [ ]
-                    ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
-                      pkgs.darwin.apple_sdk.frameworks.Security
-                      pkgs.darwin.apple_sdk.frameworks.CoreServices
-                      pkgs.libiconv
-                    ];
-                  nativeBuildInputs = old.nativeBuildInputs or [ ] ++ [
-                    pkgs.rustPlatform.cargoSetupHook
-                    pkgs.rustPlatform.maturinBuildHook
-                  ];
-                }
-              );
-          };
-
-        poetryOverrides = [
-          defaultPoetryOverrides
-          customPoetryOverrides
-        ];
-
-        # see https://github.com/nix-community/poetry2nix/tree/master#api for more functions and examples.
-        nava-platform-cli = mkPoetryApplication {
-          projectDir = self;
-          propogatedBuildInputs = runtimePackages;
-          overrides = poetryOverrides;
+        # Create package overlay from workspace.
+        overlay = workspace.mkPyprojectOverlay {
+          # Prefer prebuilt binary wheels as a package source.
+          # Sdists are less likely to "just work" because of the metadata missing from uv.lock.
+          # Binary wheels are more likely to, but may still require overrides for library dependencies.
+          sourcePreference = "wheel"; # or sourcePreference = "sdist";
+          # Optionally customise PEP 508 environment
+          # environ = {
+          #   platform_release = "5.10.65";
+          # };
         };
 
-        nava-platform-cli-devEnv = mkPoetryEnv {
-          projectDir = self;
-          editablePackageSources = {
-            "nava-platform-cli" = ./.;
-          };
-          overrides = poetryOverrides;
-          extraPackages =
-            ps: with ps; [
-              jedi-language-server
-              python-lsp-server
-              pyflakes
-            ];
+        # Extend generated overlay with build fixups
+        #
+        # Uv2nix can only work with what it has, and uv.lock is missing essential metadata to perform some builds.
+        # This is an additional overlay implementing build fixups.
+        # See:
+        # - https://adisbladis.github.io/uv2nix/FAQ.html
+        pyprojectOverrides = final: prev: {
+          # Implement build fixups here.
+          # Note that uv2nix is _not_ using Nixpkgs buildPythonPackage.
+          # It's using https://pyproject-nix.github.io/pyproject.nix/build.html
+        };
+
+        python = pkgs.python312;
+
+        # Construct package set
+        pythonSet =
+          # Use base package set from pyproject.nix builders
+          (pkgs.callPackage pyproject-nix.build.packages {
+            inherit python;
+          }).overrideScope
+            (
+              pkgs.lib.composeManyExtensions [
+                pyproject-build-systems.overlays.default
+                overlay
+                (uv2nix_hammer_overrides.overrides pkgs)
+                pyprojectOverrides
+              ]
+            );
+
+        # see https://github.com/nix-community/poetry2nix/tree/master#api for more functions and examples.
+        nava-platform-cli-env = pythonSet.mkVirtualEnv "nava-platform-cli-env" workspace.deps.default;
+
+        # TODO: inject runtimePackages here?
+        nava-platform-cli = (pkgs.callPackages pyproject-nix.build.util { }).mkApplication {
+          venv = nava-platform-cli-env;
+          package = pythonSet.nava-platform-cli;
         };
 
         # TODO: could add docker-client here?
@@ -185,6 +116,9 @@
 
           # python
           # pipx # if wanting to test pipx stuff
+
+          # container things
+          skopeo
         ];
 
         dockerEntryPkg =
@@ -214,7 +148,7 @@
           tag = "latest";
           contents = [
             dockerEntryPkg
-            pkgs.nava-platform-cli
+            nava-platform-cli
           ] ++ runtimePackages;
           config = {
             Entrypoint = "docker-entry";
@@ -224,8 +158,8 @@
       in
       rec {
         packages = {
-          default = pkgs.nava-platform-cli;
-          nava-platform-cli = pkgs.nava-platform-cli;
+          default = nava-platform-cli;
+          nava-platform-cli = nava-platform-cli;
 
           docker = pkgs.dockerTools.buildLayeredImage dockerBuildArgs;
           dockerStream = pkgs.dockerTools.streamLayeredImage dockerBuildArgs;
@@ -236,7 +170,7 @@
           default = apps.nava-platform-cli;
           nava-platform-cli = {
             type = "app";
-            program = "${pkgs.nava-platform-cli}/bin/nava-platform";
+            program = "${nava-platform-cli}/bin/nava-platform";
           };
         };
 
@@ -246,9 +180,41 @@
           #     nix develop
           #
           # Use unless you are hitting issues, in which case see `devTools` below.
-          default = pkgs.nava-platform-cli-devEnv.env.overrideAttrs (oldAttrs: {
-            buildInputs = generalDevPackages ++ runtimePackages ++ [ pkgs.poetry ];
-          });
+          default =
+            let
+              # Create an overlay enabling editable mode for all local dependencies.
+              editableOverlay = workspace.mkEditablePyprojectOverlay {
+                # Use environment variable
+                root = "$REPO_ROOT";
+                # Optional: Only enable editable for these packages
+                # members = [ "hello-world" ];
+              };
+
+              # Override previous set with our overrideable overlay.
+              editablePythonSet = pythonSet.overrideScope editableOverlay;
+
+              # Build virtual environment, with local packages being editable.
+              #
+              # Enable all optional dependencies for development.
+              virtualenv = editablePythonSet.mkVirtualEnv "nava-platform-cli-dev-env" workspace.deps.all;
+            in
+            pkgs.mkShell {
+              inputsFrom = [ devShells.devTools ];
+              packages = [ virtualenv ];
+
+              env = {
+                # Don't create venv using uv
+                UV_NO_SYNC = "1";
+
+                # Force uv to use Python interpreter from venv
+                UV_PYTHON = "${virtualenv}/bin/python";
+              };
+
+              shellHook = ''
+                # Get repository root using git. This is expanded at runtime by the editable `.pth` machinery.
+                export REPO_ROOT=$(git rev-parse --show-toplevel)
+              '';
+            };
 
           # Shell for just dev tools, skipping Python dependencies (which may
           # have issues building, etc.).
@@ -257,7 +223,23 @@
           #
           # Can use this shell for changes to pyproject.toml/poetry.lock or
           # running misc make targets/dev scripts unrelated to Python.
-          devTools = pkgs.mkShell { packages = generalDevPackages ++ runtimePackages ++ [ pkgs.poetry ]; };
+          devTools = pkgs.mkShell {
+            packages =
+              generalDevPackages
+              ++ runtimePackages
+              ++ [
+                uv2nix.packages."${system}".uv-bin
+              ];
+
+            shellHook = ''
+              # Undo dependency propagation by nixpkgs.
+              unset PYTHONPATH
+
+              # Disable uv Python interpreter fetching, use nix provided one
+              export UV_PYTHON_PREFERENCE=only-system;
+              export UV_PYTHON_DOWNLOADS=never;
+            '';
+          };
         };
 
         legacyPackages = pkgs;

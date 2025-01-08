@@ -3,7 +3,7 @@ PKG_NAME := nava-platform-cli
 
 PY_SRCS := nava tests
 
-PY_RUN ?= poetry run
+PY_RUN ?= uv run
 
 
 ifdef CI
@@ -32,17 +32,17 @@ clean: ## Remove intermediate, cache, or build artifacts
 	$(PY_RUN) ruff clean
 	-docker image rm $(PKG_NAME)
 
-clean-venv: ## Remove active poetry virtualenv
-	rm -rf $(shell poetry env info --path)
+clean-venv: ## Remove active virtualenv
+	rm -rf ./.venv/
 
 deps: ## Install dev dependencies
-	poetry install
+	uv sync --dev
 
 fmt: ## Run formatter
 	$(PY_RUN) ruff format $(FMT_ARGS) $(PY_SRCS)
 
 lint: ## Run linting
-lint: lint-mypy lint-ruff lint-poetry
+lint: lint-mypy lint-ruff lint-uv
 
 lint-mypy: ## Run mypy
 	$(PY_RUN) mypy $(args) $(PY_SRCS)
@@ -50,17 +50,20 @@ lint-mypy: ## Run mypy
 lint-ruff: ## Run ruff linting with auto-fixes
 	$(PY_RUN) ruff check $(LINT_ARGS) $(args) $(PY_SRCS)
 
-lint-poetry: ## Run poetry checks
-	poetry check --lock
+lint-uv: ## Run uv checks
+	uv lock --check
 
 setup-tooling: ## Install build/development tools
-	pipx install 'poetry>=1.2.0,<2.0'
+	curl -LsSf https://astral.sh/uv/install.sh | sh
 
 test: ## Run tests
 	$(PY_RUN) pytest $(args)
 
 test-e2e: ## Run "e2e" tests, requires that the tool is installed
 	./bin/test-e2e $(args)
+
+update-container-digest: ## Update container digests to latest
+	./bin/update-container-digest Dockerfile
 
 help: ## Display this help screen
 	@grep -Eh '^[[:print:]]+:.*?##' $(MAKEFILE_LIST) | \
