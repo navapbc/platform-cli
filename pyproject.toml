@@ -18,7 +18,7 @@ dependencies = [
     "packaging>=24.1",
     "platformdirs>=4.3.6",
     "pyyaml>=6.0.2",
-    "questionary",
+    "questionary>=2.1.0",
     "rich>=13.9.4",
     "structlog>=24.4.0",
     "typer>=0.15.1",
@@ -29,7 +29,6 @@ required-version = ">0.5.8"
 
 [tool.uv.sources]
 copier = { git = "https://github.com/copier-org/copier" }
-questionary = { git = "https://github.com/tmbo/questionary" }
 
 [project.scripts]
 nava-platform = "nava.platform.cli.__main__:__main__"
