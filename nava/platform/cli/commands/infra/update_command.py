@@ -87,14 +87,17 @@ def update_app(
                 ctx.console.error.print(f"Apps {wrong_app_names} do not exist in the project")
             ctx.exit(1)
 
-        for app_name in app_names:
-            ctx.console.rule(f"Infra app: {app_name}")
-            template.update_app(
-                project,
-                app_name,
-                version=version,
-                data=data,
-                commit=commit,
-                answers_only=answers_only,
-                force=force,
-            )
+    if not app_names:
+        ctx.fail("No apps found")
+
+    for app_name in app_names:
+        ctx.console.rule(f"Infra app: {app_name}")
+        template.update_app(
+            project,
+            app_name,
+            version=version,
+            data=data,
+            commit=commit,
+            answers_only=answers_only,
+            force=force,
+        )
