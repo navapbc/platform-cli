@@ -64,7 +64,7 @@ jobs:
       - uses: DeterminateSystems/magic-nix-cache-action@main
 
       - name: Run install
-        run: nix profile install --accept-flake-config '.'
+        run: nix profile install '.'
 
       - name: Run --help
         run: nava-platform --help
