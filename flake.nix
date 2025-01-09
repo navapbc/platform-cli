@@ -114,9 +114,6 @@
           shellcheck
           nixfmt-rfc-style
 
-          # python
-          # pipx # if wanting to test pipx stuff
-
           # container things
           skopeo
         ];
@@ -239,6 +236,14 @@
               export UV_PYTHON_PREFERENCE=only-system;
               export UV_PYTHON_DOWNLOADS=never;
             '';
+          };
+
+          # Shell for pipx interaction. For testing installing the package via
+          # pipx or other needs.
+          pipx = pkgs.mkShell {
+            packages = [
+              pkgs.pipx
+            ];
           };
         };
 
