@@ -12,9 +12,9 @@ class InfraProject(Project):
     def template_version(self) -> str:
         base_version = self.base_template_version()
         app_versions = [self.app_template_version(app_name) for app_name in self.app_names]
-        assert all(
-            app_version == base_version for app_version in app_versions
-        ), "Project template base and app version are out of sync"
+        assert all(app_version == base_version for app_version in app_versions), (
+            "Project template base and app version are out of sync"
+        )
         return base_version
 
     def base_template_version(self) -> str:

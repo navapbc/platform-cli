@@ -1,0 +1,24 @@
+name: Template for CI (python)
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        required: true
+        type: string
+      os:
+        required: true
+        type: string
+
+jobs:
+  uv:
+    uses: ./.github/workflows/ci-uv.yml
+    with:
+      python-version: ${{ inputs.python-version }}
+      os: ${{ inputs.os }}
+
+  pipx:
+    uses: ./.github/workflows/ci-pipx.yml
+    with:
+      python-version: ${{ inputs.python-version }}
+      os: ${{ inputs.os }}
