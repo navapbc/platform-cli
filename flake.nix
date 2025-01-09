@@ -113,6 +113,7 @@
           # linting
           shellcheck
           nixfmt-rfc-style
+          actionlint
 
           # container things
           skopeo
