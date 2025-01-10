@@ -198,14 +198,15 @@ this)
 
 ## Getting Started
 
-After you have `nava-platform` installed, try
+After you have `nava-platform` installed, if you want to see the tool in action
+immediately, try:
 
 ```sh
 nava-platform infra install ./just-a-test
 ```
 
-to see it in action. Then read the docs for how to apply it to existing projects
-and more.
+Then read [the docs](./docs/getting-started/index.md) for how to apply it to
+existing projects and more.
 
 ### Shell Completion
 

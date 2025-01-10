@@ -24,6 +24,7 @@ check-static: ## Run static code checks
 check-static: fmt lint
 
 clean: ## Remove intermediate, cache, or build artifacts
+clean: clean-docs
 	find . -type f -name '*.py[cod]' -delete
 	find . -type d -name __pycache__ -print -exec rm -r {} +
 	find . -type d -name '*.egg-info' -print -exec rm -r {} +
@@ -32,11 +33,45 @@ clean: ## Remove intermediate, cache, or build artifacts
 	$(PY_RUN) ruff clean
 	-docker image rm $(PKG_NAME)
 
+clean-docs: ## Remove generated doc files
+	rm -f docs/index.md
+	rm -rf $(REFERENCE_DOC_DIR)
+	rm -rf site/
+
 clean-venv: ## Remove active virtualenv
 	rm -rf ./.venv/
 
 deps: ## Install dev dependencies
 	uv sync --dev
+
+.PHONY: docs
+docs: ## Generate documentation
+docs: docs/index.md docs-reference
+	$(PY_RUN) mkdocs build
+
+docs-watch: ## Start local server that will re-generate docs on file change
+docs-watch: docs-reference
+	$(PY_RUN) mkdocs serve
+
+docs/index.md: README.md
+	cp -f $< $@
+	sed -ri 's|\./docs/||g' $@
+
+REFERENCE_DOC_DIR := ./docs/reference
+
+python_module_files := $(shell find nava -type f -name '*.py')
+python_module_doc_files := $(patsubst %.py,$(REFERENCE_DOC_DIR)/%.md,$(python_module_files))
+
+docs-reference: $(python_module_doc_files)
+	find $(REFERENCE_DOC_DIR) -name '__init__.md' -print -exec bash -c 'mv $$0 $${0/__init__/index}' {} \;
+
+define python_module_name_from_file_name
+$(shell echo $(1) | sed 's/__init__.py//' | sed 's/.py//' | sed 's|/|\.|g' | sed 's/\.$$//')
+endef
+
+$(REFERENCE_DOC_DIR)/%.md: %.py
+	mkdir -p $(@D)
+	echo "::: $(call python_module_name_from_file_name, $<)" > $@
 
 fmt: ## Run formatter
 	$(PY_RUN) ruff format $(FMT_ARGS) $(PY_SRCS)
