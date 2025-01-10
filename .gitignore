@@ -2,3 +2,10 @@
 __pycache__/
 *.py[cod]
 *$py.class
+
+# generated docs
+docs/index.md
+docs/reference/
+
+# docs site output/build directory
+site/

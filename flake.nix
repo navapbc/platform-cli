@@ -153,11 +153,39 @@
             WorkingDir = "/project-dir";
           };
         };
+
+        nava-platform-cli-docs-env = pythonSet.mkVirtualEnv "nava-platform-cli-docs-env" workspace.deps.groups;
+
+        cli-docs-site = pkgs.stdenv.mkDerivation {
+          name = "nava-platform-cli-docs";
+          src = pkgs.lib.fileset.toSource {
+            root = ./.;
+            fileset = pkgs.lib.fileset.unions ([
+              ./docs
+              ./nava
+              ./Makefile
+              ./mkdocs.yml
+              ./README.md
+            ]);
+          };
+          buildInputs = [ nava-platform-cli-docs-env ] ++ [ pkgs.gnumake ];
+
+          PY_RUN = "";
+          buildPhase = ''
+            make docs
+          '';
+
+          installPhase = ''
+            cp -rf site/ $out
+          '';
+
+        };
       in
       rec {
         packages = {
           default = nava-platform-cli;
           nava-platform-cli = nava-platform-cli;
+          docs = cli-docs-site;
 
           docker = pkgs.dockerTools.buildLayeredImage dockerBuildArgs;
           dockerStream = pkgs.dockerTools.streamLayeredImage dockerBuildArgs;

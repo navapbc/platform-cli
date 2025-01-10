@@ -198,14 +198,15 @@ this)
 
 ## Getting Started
 
-After you have `nava-platform` installed, try
+After you have `nava-platform` installed, if you want to see the tool in action
+immediately, try:
 
 ```sh
 nava-platform infra install ./just-a-test
 ```
 
-to see it in action. Then read the docs for how to apply it to existing projects
-and more.
+Then read [the docs](./docs/getting-started/index.md) for how to apply it to
+existing projects and more.
 
 ### Shell Completion
 
@@ -281,3 +282,10 @@ The Makefile has a number of useful commands, see the output of `make help`.
 
 You may want to consider setting up a pre-commit hook for or just manually
 running `make check` before pushing work, as this will run useful checks.
+
+# Credits
+
+Icon designed by OpenMoji – the open-source emoji and icon project. License: [CC
+BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/#)
+
+Built on the back of [Copier](https://github.com/copier-org/copier).

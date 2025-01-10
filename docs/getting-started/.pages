@@ -1,0 +1,4 @@
+nav:
+  - index.md
+  - migrating-from-legacy-template.md
+  - new-project.md
