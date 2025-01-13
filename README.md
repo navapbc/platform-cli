@@ -271,12 +271,7 @@ The exact version and hash is probably out of date, refer to the [upstream docs
 for best
 info](https://github.com/nix-community/nix-direnv?tab=readme-ov-file#installation).
 
-You can then use the `uv` command as normal, or run tooling directly. To run
-the tooling directly in Make targets, add to `.envrc`:
-
-```sh
-export PY_RUN=
-```
+You can then use the `uv` command as normal, or run tooling directly.
 
 ### Process
 

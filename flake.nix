@@ -206,6 +206,10 @@
 
                 # Force uv to use Python interpreter from venv
                 UV_PYTHON = "${virtualenv}/bin/python";
+
+                # For Make targets, Python things will be available directly, so
+                # prefer that over running through uv
+                PY_RUN = "";
               };
 
               shellHook = ''
