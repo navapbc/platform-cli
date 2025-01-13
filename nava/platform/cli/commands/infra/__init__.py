@@ -100,7 +100,13 @@ def update(
     answers_only: Annotated[bool, opt_answers_only] = False,
     force: Annotated[bool, opt_force_update] = False,
 ) -> None:
-    """Update base and application infrastructure."""
+    """Update base and application infrastructure.
+
+    This effectively just runs `update-base` followed by `update-app --all`.
+    This automatically commits each phase of the update that is successful to
+    save progress. You can merge all these commits together after if you would
+    like.
+    """
     ctx = typer_context.ensure_object(CliContext)
 
     with ctx.handle_exceptions():
