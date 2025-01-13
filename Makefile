@@ -35,7 +35,11 @@ clean: clean-docs
 
 clean-docs: ## Remove generated doc files
 	rm -f docs/index.md
+
 	rm -rf $(REFERENCE_DOC_DIR)
+	mkdir -p $(REFERENCE_DOC_DIR)
+	touch $(REFERENCE_DOC_DIR)/.keep
+
 	rm -rf site/
 
 clean-venv: ## Remove active virtualenv
