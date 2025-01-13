@@ -67,6 +67,10 @@ class MigrateFromLegacyTemplate:
                 f"No legacy version file found (looking for {self.legacy_version_file_path()})."
             )
 
+        self.ctx.console.print(
+            f"Migrating {self.legacy_version_file_path()} to {self.answers_file_rel()}"
+        )
+
         if not self.project_state_dir().exists():
             self.project_state_dir().mkdir()
 
@@ -91,6 +95,7 @@ class MigrateFromLegacyTemplate:
         self.answers_file().write_text(yaml.dump(answers, default_flow_style=False))
 
         if not preserve_legacy_file:
+            self.ctx.console.print(f"Deleting legacy file ({self.legacy_version_file_path()})")
             self.legacy_version_file_path().unlink()
 
         if commit and self.project.git.is_git():
