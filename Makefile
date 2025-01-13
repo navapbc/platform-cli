@@ -18,7 +18,7 @@ build: ## Build docker image
 	docker build --tag $(PKG_NAME) .
 
 check: ## Run checks
-check: check-static test
+check: check-static test test-e2e
 
 check-static: ## Run static code checks
 check-static: fmt lint
