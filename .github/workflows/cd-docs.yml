@@ -26,12 +26,12 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@main
       - uses: DeterminateSystems/magic-nix-cache-action@main
 
-      - run: nix develop --command bash -c "make docs"
+      - run: nix build '.#docs'
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./site/
+          path: ./result/
 
   deploy:
     needs: build
