@@ -4,6 +4,8 @@ repo_name: navapbc/platform-cli
 
 theme:
   name: material
+  favicon: assets/favicon.png
+  logo: assets/logo.svg
   features:
     - content.code.annotate
     - content.code.copy
@@ -14,6 +16,7 @@ theme:
     # https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/#automatic-light-dark-mode
     # Palette toggle for automatic mode
     - media: "(prefers-color-scheme)"
+      primary: teal
       toggle:
         icon: material/brightness-auto
         name: Switch to light mode
@@ -21,6 +24,7 @@ theme:
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
       scheme: default
+      primary: teal
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
@@ -28,9 +32,13 @@ theme:
     # Palette toggle for dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
+      primary: teal
       toggle:
         icon: material/brightness-4
         name: Switch to system preference
+
+extra_css:
+  - stylesheets/extra.css
 
 markdown_extensions:
   - admonition
