@@ -43,7 +43,6 @@ git -C "${rails_template_dir}" checkout platform-cli
 
 { yes || true; } | $CMD app install \
     --template-uri "${rails_template_dir}" \
-    --version platform-cli \
     --template-name template-application-rails \
     --commit \
     "${PROJECT_DIR}" \
@@ -52,7 +51,6 @@ git -C "${rails_template_dir}" checkout platform-cli
 
 $CMD app update \
     --template-uri "${rails_template_dir}" \
-    --version platform-cli \
     --template-name template-application-rails \
     "${PROJECT_DIR}" \
     app

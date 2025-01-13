@@ -33,7 +33,6 @@ rm -rf "${PROJECT_DIR}"
 
 $CMD app install \
     --template-uri https://github.com/navapbc/template-application-rails \
-    --version platform-cli \
     --data app_local_port=3000 \
     "${PROJECT_DIR}" \
     app

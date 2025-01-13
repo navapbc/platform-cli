@@ -62,7 +62,6 @@ $CMD infra update-app \
 
 { yes || true; } | $CMD app install \
     --template-uri https://github.com/navapbc/template-application-rails \
-    --version platform-cli \
     --commit \
     "${PROJECT_DIR}" \
     rails \
@@ -70,7 +69,6 @@ $CMD infra update-app \
 
 $CMD app update \
     --template-uri https://github.com/navapbc/template-application-rails \
-    --version platform-cli \
     "${PROJECT_DIR}" \
     rails
 
@@ -96,7 +94,6 @@ for app_template in flask nextjs; do
 
     { yes || true; } | $CMD app install \
         --template-uri https://github.com/navapbc/template-application-"${app_template}" \
-        --version platform-cli \
         --commit \
         "${PROJECT_DIR}" \
         "${app_template}" \
@@ -104,7 +101,6 @@ for app_template in flask nextjs; do
 
     $CMD app update \
         --template-uri https://github.com/navapbc/template-application-"${app_template}" \
-        --version platform-cli \
         "${PROJECT_DIR}" \
         "${app_template}"
 
