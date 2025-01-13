@@ -38,10 +38,7 @@ opt_template_uri = typer.Option(
     help="Path or URL to infra template. Can be a path to a local clone of template-infra. Defaults to the template-infra repository on GitHub.",
 )
 
-# Temporarily default to using lorenyu/platform-cli as the version
-# until the rollout plan for the Platform CLI is complete
-# TODO: Set the default back to None once the rollout plan is complete
-DEFAULT_VERSION = "lorenyu/platform-cli"
+DEFAULT_VERSION: str | None = None
 
 
 @app.command()

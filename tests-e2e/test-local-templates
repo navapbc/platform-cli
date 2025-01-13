@@ -18,7 +18,6 @@ init_project_dir
 
 infra_template_dir=$(mk_temp_dir)
 git clone https://github.com/navapbc/template-infra.git "${infra_template_dir}"
-git -C "${infra_template_dir}" checkout lorenyu/platform-cli
 
 # TODO: add --data-file support to CLI and have as many of these
 # settings in more maintainable separate file

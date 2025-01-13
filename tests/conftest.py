@@ -99,14 +99,8 @@ def infra_template_no_tags(
     git_project.init()
     git_project.commit_all("Initial commit")
 
-    # TODO: Remove fixed ref once the rollout plan is complete
-    template = InfraTemplateWritable(cli_context, template_dir, ref="lorenyu/platform-cli")
+    template = InfraTemplateWritable(cli_context, template_dir)
 
-    # Temporarily rename main to lorenyu/platform-cli since the rollout plan
-    # for the Platform CLI will temporarily default the --version option
-    # to lorenyu/platform-cli, so we want our tests to reflect that.
-    # TODO: Remove this once the rollout plan is complete
-    template.git_project.rename_branch("lorenyu/platform-cli")
     return template
 
 
