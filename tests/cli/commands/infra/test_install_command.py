@@ -251,6 +251,7 @@ def test_install_with_other_data(cli, infra_template, new_project):
         ]
     ).apply(infra_template.template_dir)
     infra_template.git_project.commit_all("Change template")
+    infra_template.git_project.tag("v0.1.0")
 
     cli(
         [

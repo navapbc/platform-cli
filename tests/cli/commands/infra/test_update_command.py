@@ -34,6 +34,7 @@ def test_update_with_template_change(cli, infra_template, new_project, clean_ins
         ]
     ).apply(infra_template.template_dir)
     infra_template.git_project.commit_all("Change template")
+    infra_template.git_project.tag("v0.1.0")
 
     cli(
         [
@@ -115,6 +116,7 @@ def test_update_with_project_change(
         infra_template.template_dir
     )
     infra_template.git_project.commit_all("Change template")
+    infra_template.git_project.tag("v0.1.0")
 
     cli(
         [
@@ -154,6 +156,7 @@ def test_update_with_data(
 ):
     ChangeSet([FileChange("{{foo}}.txt", "", "new file\n")]).apply(infra_template.template_dir)
     infra_template.git_project.commit_all("Change template")
+    infra_template.git_project.tag("v0.1.0")
 
     cli(
         [

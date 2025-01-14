@@ -162,6 +162,7 @@ def merge_conflict(infra_template: InfraTemplateWritable, new_project: InfraProj
         ]
     ).apply(infra_template.template_dir)
     infra_template.git_project.commit_all("Change template")
+    infra_template.git_project.tag("v0.1.0")
 
     ChangeSet(
         [
