@@ -172,5 +172,7 @@ def migrate_from_legacy(
             project,
             origin_template_uri=origin_template_uri,
             new_version_answers_file_name=app_name + ".yml",
-            legacy_version_file_name=legacy_version_file.relative_to(project.dir.resolve()),
+            legacy_version_file_name=str(legacy_version_file.relative_to(project.dir.resolve()))
+            if legacy_version_file
+            else None,
         ).migrate_from_legacy(commit=commit)
