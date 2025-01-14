@@ -134,7 +134,13 @@ def update(
 @app.command()
 def migrate_from_legacy(
     typer_context: typer.Context,
-    project_dir: str,
+    project_dir: Annotated[
+        Path,
+        typer.Argument(
+            exists=True,
+            file_okay=False,
+        ),
+    ],
     origin_template_uri: Annotated[
         str,
         typer.Option(
@@ -145,15 +151,26 @@ def migrate_from_legacy(
         str, typer.Argument(help="Name of the application based on given template to migrate")
     ],
     commit: Annotated[bool, opt_commit] = True,
+    legacy_version_file: Annotated[
+        Path | None,
+        typer.Option(
+            exists=True,
+            dir_okay=False,
+            readable=True,
+            resolve_path=True,
+            help="Relative path to the old version file",
+        ),
+    ] = None,
 ) -> None:
     """Migrate an older version of a template to platform-cli setup."""
     ctx = typer_context.ensure_object(CliContext)
 
     with ctx.handle_exceptions():
-        project = Project(Path(project_dir))
+        project = Project(project_dir)
         MigrateFromLegacyTemplate(
             ctx,
             project,
             origin_template_uri=origin_template_uri,
             new_version_answers_file_name=app_name + ".yml",
+            legacy_version_file_name=legacy_version_file.relative_to(project.dir.resolve()),
         ).migrate_from_legacy(commit=commit)

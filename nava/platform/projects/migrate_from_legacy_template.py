@@ -99,9 +99,12 @@ class MigrateFromLegacyTemplate:
             self.legacy_version_file_path().unlink()
 
         if commit and self.project.git.is_git():
-            self.project.git.commit_all(
+            result = self.project.git.commit_all(
                 f"Migrate {self.legacy_version_file_path()} to {self.answers_file_rel()}"
             )
+
+            if result.stdout:
+                self.ctx.console.print(result.stdout)
 
     def _extra_answers(self: Self) -> dict[str, str]:
         if self.extra_answers:
