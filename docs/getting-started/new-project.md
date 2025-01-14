@@ -16,7 +16,7 @@
    `/infra/README.md` file for creating the initial resources/dev environment.
 1. Once you have a dev environment created, enable a host of other features by running:
     ```sh
-    nava-platform infra update --answers-only --data app_has_dev_env_setup=true .
+    nava-platform infra update-app --answers-only --data app_has_dev_env_setup=true . <APP_NAME>
     ```
 
 And you're off!

@@ -23,7 +23,7 @@ wanted to add a new application based on the rails template, you would run:
 
 ```sh
 nava-platform infra add-app --commit . my-super-awesome-app
-nava-platform app install --template-uri github:navapbc/template-application-rails --commit . my-super-awesome-app
+nava-platform app install --template-uri gh:navapbc/template-application-rails --commit . my-super-awesome-app
 ```
 
 The `app install` part may result in a conflict in the `<APP_NAME>/Makefile`
