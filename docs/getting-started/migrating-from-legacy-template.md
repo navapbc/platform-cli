@@ -49,7 +49,7 @@ and move on to the next app, until you've done them all.
 
 ## Application templates
 
-These are historically  less standard, so you'll have to provide a little more
+These are historically less standard, so you'll have to provide a little more
 info, see `nava-platform app migrate-from-legacy --help`.
 
 ```sh
@@ -63,3 +63,43 @@ The `<OLD_VERSION_FILE>` will likely be one of:
 - `.template-application-rails-version`
 
 but your project may have renamed it.
+
+You can then run:
+
+```sh
+nava-platform app update . <APP_NAME>
+```
+
+> [!IMPORTANT]
+> Review the changes, you may need to restore some project root files like:
+>
+> - `README.md`
+> - `.github/pull_request_template.md`
+>
+> This is due to how the underlying update runs and the initial migration to the
+> updated templates. Should not be an issue once running an updated template.
+>
+> Restore the version from the current remote `main` branch with something like:
+>
+> ```sh
+> git checkout origin/main -- README.md .github/pull_request_template.md
+> ```
+
+### template-application-flask
+
+After doing the migrate+initial update, you may want to restore `.dockleconfig`
+and `.hadolint.yaml` from template-infra:
+
+```sh
+curl -O https://raw.githubusercontent.com/navapbc/template-infra/refs/heads/main/.dockleconfig
+curl -O https://raw.githubusercontent.com/navapbc/template-infra/refs/heads/main/.hadolint.yaml
+```
+
+### template-application-nextjs
+
+After doing the migrate+initial update, you may want to restore `.grype.yml`
+from template-infra:
+
+```sh
+curl -O https://raw.githubusercontent.com/navapbc/template-infra/refs/heads/main/.grype.yml
+```
