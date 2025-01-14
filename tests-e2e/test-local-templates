@@ -39,7 +39,6 @@ $CMD infra update \
 
 rails_template_dir=$(mk_temp_dir)
 git clone https://github.com/navapbc/template-application-rails "${rails_template_dir}"
-git -C "${rails_template_dir}" checkout platform-cli
 
 { yes || true; } | $CMD app install \
     --template-uri "${rails_template_dir}" \
