@@ -2,6 +2,7 @@ import dataclasses
 from pathlib import Path
 from typing import Literal, Self
 
+import copier.vcs
 from copier.template import Template as CopierTemplate
 from packaging.version import Version
 
@@ -279,9 +280,18 @@ class Template:
             self.copier_template.__dict__["local_abspath"] = prev_template.local_abspath
 
             copier_git = git.GitProject(self.copier_template.local_abspath)
+
+            # TODO: do a fetch origin first?
+
             # might want to more closely mirror upstream behavior and support submodules:
             # https://github.com/copier-org/copier/blob/2dc1687af389505a708f25b0bc4e37af56179e99/copier/vcs.py#L216
-            copier_git.checkout(ref or "HEAD")
+            if ref is None:
+                copier.vcs.checkout_latest_tag(copier_git.dir, use_prereleases=False)
+            elif ref == "HEAD":
+                copier_git.checkout("origin/HEAD")
+            else:
+                copier_git.checkout(ref)
+
             # remove any dirty changes copier might have previously committed as
             # draft if not using HEAD
             if ref not in (None, "HEAD"):
@@ -293,7 +303,6 @@ class Template:
                 # something else and maybe safer to be a bit more targeted, so
                 # we'll look for if the latest commit is the expected "dirty
                 # commit" and remove it
-                import copier.vcs
 
                 # x09 is the hex code for tab
                 last_commit_parts = copier_git.log("-1", "--pretty=%an%x09%ae%x09%s").stdout
@@ -307,6 +316,7 @@ class Template:
                     and commit_subject == "Copier automated commit for draft changes"
                 ):
                     copier_git.reset("--hard", "HEAD~1")
+
         return None
 
     @property
