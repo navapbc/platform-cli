@@ -12,7 +12,7 @@ from tests.lib.infra_template_writable import InfraTemplateWritable
 def test_update_no_change(cli, infra_template, new_project, clean_install):
     content_before_update = DirectoryContent.from_fs(new_project.dir, ignore=[".git"])
 
-    cli(
+    result = cli(
         [
             "infra",
             "update",
@@ -24,6 +24,28 @@ def test_update_no_change(cli, infra_template, new_project, clean_install):
 
     content_after_update = DirectoryContent.from_fs(new_project.dir, ignore=[".git"])
     assert content_before_update == content_after_update
+
+    assert "Already up to date" in result.output
+
+
+def test_update_no_change_force(cli, infra_template, new_project, clean_install):
+    content_before_update = DirectoryContent.from_fs(new_project.dir, ignore=[".git"])
+
+    result = cli(
+        [
+            "infra",
+            "update",
+            str(new_project.dir),
+            "--template-uri",
+            str(infra_template.template_dir),
+            "--force",
+        ]
+    )
+
+    content_after_update = DirectoryContent.from_fs(new_project.dir, ignore=[".git"])
+    assert content_before_update == content_after_update
+
+    assert "Already up to date" not in result.output
 
 
 def test_update_with_template_change(cli, infra_template, new_project, clean_install):

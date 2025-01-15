@@ -165,9 +165,10 @@ class Template:
 
         self._checkout_copier_ref(version)
 
-        # if we are not just updating answers or providing data and are already
-        # running the version that would be installed, then skip
-        if (not answers_only or not passed_data) and self._is_same_version(existing_version):
+        # if we are already running the version that would be installed, then
+        # skip, unless overridden
+        bypass_same_version_check = force or (answers_only and passed_data)
+        if not bypass_same_version_check and self._is_same_version(existing_version):
             self.ctx.console.print(f"Already up to date ({existing_version.display_str})")
             return
 
