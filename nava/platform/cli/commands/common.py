@@ -5,7 +5,7 @@ opt_template_uri = typer.Option(
 )
 
 opt_version = typer.Option(
-    help="Template version to install. Can be a branch, tag, or commit hash. Defaults to the latest tag version.",
+    help="Template version to install. Can be a branch, tag, commit hash, or 'HEAD' (for latest commit). Defaults to the latest tag version.",
 )
 
 # Unfortunately typer doesn't handle args annotated as dictionaries[1], even
