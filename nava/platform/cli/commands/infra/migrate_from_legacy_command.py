@@ -51,6 +51,7 @@ def _migrate_from_legacy(
         app_migrate.migrate_from_legacy(preserve_legacy_file=True, commit=commit)
 
     # remove the old file once we are done with it
+    ctx.console.print(f"Deleting legacy file ({base_migrate.legacy_version_file_path()})")
     base_migrate.legacy_version_file_path().unlink()
 
     if commit and project.git.is_git():
@@ -70,23 +71,32 @@ def _answers_from_project_config(ctx: CliContext, project_dir: Path) -> dict[str
         return {}
 
     # be sure the local project has the lastest data
-    subprocess.run(["terraform", "refresh"], cwd=project_config_dir, stdout=subprocess.DEVNULL)
+    refresh_result = subprocess.run(
+        ["terraform", "refresh"], cwd=project_config_dir, capture_output=True, text=True
+    )
+    if refresh_result.returncode != 0:
+        ctx.console.warning.print(
+            "Error from terraform getting project config. Skipping migrating project config automatically."
+        )
+        ctx.console.error.print(refresh_result.stderr)
+        return {}
 
     # attempt to read the project-config
-    result = subprocess.run(
+    output_result = subprocess.run(
         ["terraform", "output", "-json"],
         cwd=project_config_dir,
         capture_output=True,
         text=True,
     )
-    if result.returncode != 0:
+    if output_result.returncode != 0:
         ctx.console.warning.print(
             "Error from terraform getting project config. Skipping migrating project config automatically."
         )
+        ctx.console.error.print(refresh_result.stderr)
         return {}
 
     try:
-        project_config = json.loads(result.stdout)
+        project_config = json.loads(output_result.stdout)
     except json.JSONDecodeError:
         ctx.console.warning.print(
             "Error parsing JSON response from terraform. Skipping migrating project config automatically."

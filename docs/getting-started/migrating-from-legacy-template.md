@@ -23,9 +23,8 @@ nava-platform infra migrate-from-legacy --commit .
 ```
 
 This will result in a `.template-infra/` directory with a number of files inside
-of it. Check that the `app-<APP_NAME>.yml` files all coorespond to proper
+of it. Check that the `app-<APP_NAME>.yml` files all correspond to proper
 applications. Remove any that don't and update the commit.
-
 
 Now perform the update, with:
 
@@ -102,4 +101,38 @@ from template-infra:
 
 ```sh
 curl -O https://raw.githubusercontent.com/navapbc/template-infra/refs/heads/main/.grype.yml
+```
+
+## Brute-force
+
+The previous sections describe an approach that will try to do a smarter
+migration, but if a) that is failing and b) you have some understanding of any
+deviations of your project from the upstream templates, you also have the option
+to force the new version of the template on your existing project:
+
+```sh
+nava-platform infra install .
+```
+
+You will be prompted to overwrite conflicting files, which you probably want to
+do. There are likely files that have been moved in the new version, you'll have
+to manually clean up the old ones. Then check the git diff, adjust the changes
+as necessary. Then commit.
+
+### Multiple applications
+
+If you have multiple applications, you may want to force the install above for
+only a single app to start by adding specifying `--data app_name=<APP_NAME>` on
+the `infra install`.
+
+Then the other apps one at a time, with:
+
+```sh
+nava-platform infra add-app . <APP_NAME>
+```
+
+Optionally, if you want to force an application-template version as well:
+
+```sh
+nava-platform app install . <APP_NAME>
 ```
