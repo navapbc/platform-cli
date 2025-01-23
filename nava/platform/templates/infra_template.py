@@ -104,7 +104,7 @@ class InfraTemplate:
         self._update_network_config(
             project,
             app_names=project.app_names,
-            version=version,
+            version=self.template_base.commit,
         )
 
         if commit:
