@@ -217,7 +217,40 @@
               };
 
               # Override previous set with our overrideable overlay.
-              editablePythonSet = pythonSet.overrideScope editableOverlay;
+              editablePythonSet = pythonSet.overrideScope (
+                pkgs.lib.composeManyExtensions [
+                  editableOverlay
+
+                  # Apply fixups for building an editable package of your workspace packages
+                  (final: prev: {
+                    nava-platform-cli = prev.nava-platform-cli.overrideAttrs (old: {
+                      # It's a good idea to filter the sources going into an editable build
+                      # so the editable package doesn't have to be rebuilt on every change.
+                      src = pkgs.lib.fileset.toSource {
+                        root = old.src;
+                        fileset = pkgs.lib.fileset.unions [
+                          (old.src + "/pyproject.toml")
+                          (old.src + "/README.md")
+                          (old.src + "/nava/__init__.py")
+                        ];
+                      };
+
+                      # Hatchling (our build system) has a dependency on the `editables` package when building editables.
+                      #
+                      # In normal Python flows this dependency is dynamically handled, and doesn't need to be explicitly declared.
+                      # This behaviour is documented in PEP-660.
+                      #
+                      # With Nix the dependency needs to be explicitly declared.
+                      nativeBuildInputs =
+                        old.nativeBuildInputs
+                        ++ final.resolveBuildSystem {
+                          editables = [ ];
+                        };
+                    });
+
+                  })
+                ]
+              );
 
               # Build virtual environment, with local packages being editable.
               #
@@ -260,6 +293,15 @@
               ++ [
                 uv2nix.packages."${system}".uv-bin
               ];
+
+            env = {
+              # Force uv to use nixpkgs Python interpreter
+              UV_PYTHON = python.interpreter;
+            } // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
+                # Python libraries often load native shared objects using dlopen(3).
+                # Setting LD_LIBRARY_PATH makes the dynamic library loader aware of libraries without using RPATH for lookup.
+                LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath pkgs.pythonManylinuxPackages.manylinux1;
+              };
 
             shellHook = ''
               # Undo dependency propagation by nixpkgs.
