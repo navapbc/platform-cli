@@ -108,8 +108,8 @@ wheels = [
 
 [[package]]
 name = "copier"
-version = "9.4.1.post61.dev0+de140f2"
-source = { git = "https://github.com/copier-org/copier#de140f2d36c0580e5c880c9ed869bca087ce3360" }
+version = "9.4.1.post67.dev0+cdbd0b1"
+source = { git = "https://github.com/copier-org/copier?rev=cdbd0b14e688d04a95873513473bf14e58784171#cdbd0b14e688d04a95873513473bf14e58784171" }
 dependencies = [
     { name = "colorama" },
     { name = "dunamai" },
@@ -538,7 +538,7 @@ docs = [
 [package.metadata]
 requires-dist = [
     { name = "click", specifier = ">=8.1.7" },
-    { name = "copier", git = "https://github.com/copier-org/copier" },
+    { name = "copier", git = "https://github.com/copier-org/copier?rev=cdbd0b14e688d04a95873513473bf14e58784171" },
     { name = "packaging", specifier = ">=24.1" },
     { name = "platformdirs", specifier = ">=4.3.6" },
     { name = "pyyaml", specifier = ">=6.0.2" },

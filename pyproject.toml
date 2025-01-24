@@ -14,7 +14,12 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "click>=8.1.7",
-    "copier",
+    # Pin to just before
+    #
+    # https://github.com/copier-org/copier/commit/557c0d614497e9b1b3382d4fd4be0d773d612bff
+    #
+    # as that change breaks our `NavaWorker`/src_exclude setup.
+    "copier@git+https://github.com/copier-org/copier@cdbd0b14e688d04a95873513473bf14e58784171",
     "packaging>=24.1",
     "platformdirs>=4.3.6",
     "pyyaml>=6.0.2",
@@ -26,9 +31,6 @@ dependencies = [
 
 [tool.uv]
 required-version = ">0.5.8"
-
-[tool.uv.sources]
-copier = { git = "https://github.com/copier-org/copier" }
 
 [project.scripts]
 nava-platform = "nava.platform.cli.__main__:__main__"
@@ -106,6 +108,9 @@ convention = "google"
 
 [tool.hatch.build.targets.wheel]
 packages = ["nava"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [build-system]
 requires = ["hatchling"]
