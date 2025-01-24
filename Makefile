@@ -3,7 +3,7 @@ PKG_NAME := nava-platform-cli
 
 PY_SRCS := nava tests
 
-PY_RUN ?= uv run
+PY_RUN ?= uv run --frozen
 
 
 ifdef CI
@@ -46,7 +46,7 @@ clean-venv: ## Remove active virtualenv
 	rm -rf ./.venv/
 
 deps: ## Install dev dependencies
-	uv sync --dev
+	uv sync --dev --frozen
 
 .PHONY: docs
 docs: ## Generate documentation
