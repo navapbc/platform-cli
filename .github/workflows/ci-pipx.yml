@@ -12,7 +12,7 @@ on:
 
 jobs:
   install:
-    name: Install
+    name: Install with pipx
     runs-on: ${{ inputs.os }}
 
     steps:
