@@ -23,7 +23,13 @@ jobs:
           python-version: ${{ inputs.python-version }}
 
       - name: Install with pipx
-        run: pipx install --python "$(which python)" .
+        run: |
+          pipx install --python "$(which python)" .
+
+          # list which versions of dependencies where resolved, for debugging
+          echo "::group::Installed dependencies"
+          pipx runpip nava-platform-cli list
+          echo "::endgroup::"
 
       - name: Run --help
         run: nava-platform --help
