@@ -24,10 +24,12 @@ Conflicts on Update](./avoiding-conflicts-on-update.md).
 nava-platform infra update .
 ```
 
-This can often run into merge conflicts that need resolved manually though. The
-tool will provide some guidance if this happens. But you can also approach the
-update in the separate pieces yourself, first updating the infrastructure base
-with:
+This will attempt to update the "base" template then each "app" instance in
+sequence. This can often run into merge conflicts that need resolved manually.
+The tool will provide some guidance if this happens.
+
+But you can also approach the update in the separate pieces yourself, first
+updating the infrastructure base with:
 
 ```sh
 nava-platform infra update-base .

@@ -35,7 +35,9 @@ def _migrate_from_legacy(
         new_version_answers_file_name="base.yml",
         extra_answers=lambda _: (base_project_config_answers | {"template": "base"}),
     )
-    base_migrate.migrate_from_legacy(preserve_legacy_file=True, commit=commit)
+    base_migrate.migrate_from_legacy(
+        preserve_legacy_file=True, commit=commit, use_migration_tags=True
+    )
 
     for app_name in infra_project.app_names_possible:
         app_answers = {"app_name": app_name, "template": "app"}
@@ -48,7 +50,9 @@ def _migrate_from_legacy(
             new_version_answers_file_name=f"app-{app_name}.yml",
             extra_answers=lambda _: app_answers,  # noqa: B023
         )
-        app_migrate.migrate_from_legacy(preserve_legacy_file=True, commit=commit)
+        app_migrate.migrate_from_legacy(
+            preserve_legacy_file=True, commit=commit, use_migration_tags=True
+        )
 
     # remove the old file once we are done with it
     ctx.console.print(f"Deleting legacy file ({base_migrate.legacy_version_file_path()})")

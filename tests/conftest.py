@@ -108,6 +108,13 @@ def infra_template_no_tags(
 def infra_template(infra_template_no_tags: InfraTemplateWritable) -> InfraTemplateWritable:
     template = infra_template_no_tags
     template.git_project.tag("v0.0.0")
+
+    template.git_project.checkout("-b", "migration-tag")
+    (template.template_dir / "migration-test.txt").write_text("foo")
+    template.git_project.commit_all("Migration checkpoint")
+    template.git_project.tag("platform-cli-migration/v0.0.0")
+    template.git_project.checkout("main")
+
     return template
 
 
