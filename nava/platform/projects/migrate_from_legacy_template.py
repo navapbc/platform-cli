@@ -9,6 +9,7 @@ from nava.platform.cli.context import CliContext
 from nava.platform.get_template_name_from_uri import get_template_name_from_uri
 from nava.platform.projects.project import Project
 from nava.platform.types import RelativePath
+from nava.platform.util.git import GitProject
 
 
 @dataclass
@@ -61,7 +62,12 @@ class MigrateFromLegacyTemplate:
     def answers_file(self) -> Path:
         return self.project.dir / self.answers_file_rel()
 
-    def migrate_from_legacy(self, preserve_legacy_file: bool = False, commit: bool = False) -> None:
+    def migrate_from_legacy(
+        self,
+        preserve_legacy_file: bool = False,
+        commit: bool = False,
+        use_migration_tags: bool = False,
+    ) -> None:
         if not self.has_legacy_version_file:
             raise ValueError(
                 f"No legacy version file found (looking for {self.legacy_version_file_path()})."
@@ -74,10 +80,23 @@ class MigrateFromLegacyTemplate:
         if not self.project_state_dir().exists():
             self.project_state_dir().mkdir()
 
-        template_version = self.legacy_version_file_path().read_text()
-        short_version = template_version[:7]
+        template_version = self.legacy_version_file_path().read_text().strip()
+
+        ref = template_version
+        if use_migration_tags:
+            with GitProject.clone_if_necessary(self.origin_template_uri) as template_git:
+                ref, perfect_match = get_closest_migration_tag(template_git, template_version)
+
+            if not ref:
+                raise ValueError("Issue finding suitable migration point")
+
+            if not perfect_match:
+                self.ctx.console.warning.print(
+                    f"Couldn't find a perfect match to the current commit, using closest tagged version '{ref}' which is slightly older."
+                )
+
         common_answers = {
-            "_commit": short_version,
+            "_commit": ref,
             # Copier requires this to be set to a valid template path, and that template git project
             # needs to have _commit as a valid commit hash
             # If _src_path is not set, run_update will raise
@@ -111,3 +130,57 @@ class MigrateFromLegacyTemplate:
             return self.extra_answers(self)
 
         return {}
+
+
+def get_closest_tag_before_commit(git: GitProject, commit: str) -> str:
+    """Find nearest tag before given commit."""
+    from nava.platform.cli.commands.infra.info_command import get_version
+
+    closest_tag = git.get_closest_tag(commit)
+    if not closest_tag:
+        raise Exception(f"Can't find closest tag for {commit}")
+
+    closest_version = get_version(closest_tag)
+    if not closest_version:
+        raise Exception(f"Can't determine version from tag {closest_tag}")
+
+    return "v" + closest_version.base_version
+
+
+MIGRATION_TAG_PREFIX = "platform-cli-migration/"
+
+
+def get_closest_migration_tag(git: GitProject, commit: str) -> tuple[str, bool]:
+    """Find nearest migration tag before given commit."""
+    from nava.platform.cli.commands.infra.info_command import get_version
+
+    closest_tag = get_closest_tag_before_commit(git, commit)
+    migration_tags = git.get_tags("--list", f"{MIGRATION_TAG_PREFIX}*")
+    if not migration_tags:
+        raise Exception("Can't find migration tags")
+
+    closest_version = get_version(closest_tag)
+    if not closest_version:
+        raise Exception(f"Can't determine version from {closest_tag}")
+
+    candidates = []
+
+    for migration_tag in migration_tags:
+        migration_version = get_version(
+            migration_tag.removeprefix(MIGRATION_TAG_PREFIX).removeprefix("v")
+        )
+
+        if not migration_version:
+            raise Exception(f"Can't determine migration version from {migration_tag}")
+
+        if closest_version == migration_version:
+            return migration_tag, True
+
+        if migration_version < closest_version:
+            candidates.append(migration_version)
+
+    if candidates:
+        closest_migration_version = sorted(candidates, reverse=True)[0]
+        return MIGRATION_TAG_PREFIX + "v" + str(closest_migration_version), False
+
+    raise Exception(f"Can't find matching migration version for {closest_tag}")

@@ -8,13 +8,34 @@ Platform CLI you'll need to convert the old file into the new format.
 The Platform CLI provides commands for doing this migration, though the exact
 steps you need to take will vary depending on what templates you have installed.
 
-> [!IMPORTANT]
->
-> If you running a very old (pre-summer 2024) version of a template
-> (particularly `template-infra`), reach out to the platform team for some
-> guidance.
-
 ## template-infra
+
+The switch to Platform CLI happened with `v0.15.0`. If you are running a version
+earlier than this, you'll need to migrate things.
+
+One way to figure out what version of `template-infra` your project is using is
+to run, at the root of your project:
+
+```sh
+nava-platform infra info --template-uri gh:navapbc/template-infra .
+```
+
+Look for the "Closest upstream version" value. If it is "Unknown", reach out to
+the Platform team for guidance.
+
+If the value is pre-`v0.12.0`, you may want to approach the update in smaller
+steps than jumping directly to `v0.15.0`. You can use the Platform CLI to do
+these updates as well, see [Migrate in smaller
+steps](#migrate-in-smaller-steps).
+
+As always, read the [release
+notes](https://github.com/navapbc/template-infra/releases) for each version
+between your current one and your ultimate target. This process does not
+eliminate the need to apply the state changes/manual migration steps, it just
+updates the code. See [Version callouts](#version-callouts) below for some
+particular things to consider.
+
+### Migrate to latest
 
 To transform the old `.template-version` file into the new format, run:
 
@@ -26,7 +47,9 @@ This will result in a `.template-infra/` directory with a number of files inside
 of it. Check that the `app-<APP_NAME>.yml` files all correspond to proper
 applications. Remove any that don't and update the commit.
 
-Now perform the update, with:
+This gets your project into a state that Platform CLI can understand.
+
+Now perform the actual template update, with:
 
 ```sh
 nava-platform infra update .
@@ -45,6 +68,78 @@ nava-platform infra update-app --all .
 
 Likely you'll hit merge conflicts for each app as well, resolve those, commit,
 and move on to the next app, until you've done them all.
+
+See [the docs on updating in general](../updating.md) for more details on running
+updates.
+
+### Migrate in smaller steps
+
+This is similar to the previous section, so read that first.
+
+1. Run the `migrate-from-legacy` command as stated in previous section. This
+   gets you into the Platform CLI ecosystem.
+2. Then decide which version of `template-infra` you want to update to,
+   represented by `v0.x.x` in the following example:
+   ```sh
+   nava-platform infra update --version platform-cli-migration/v0.x.x .
+   ```
+3. Follow update guidance as discussed in previous section.
+4. Do steps 2-3 over and over, jumping versions as you see fit until you hit
+   `v0.15.0`.
+5. Once on `v0.15.0`, run a final update to get to the latest release (or to
+   whatever post-`v0.15.0` version you want):
+   ```sh
+   nava-platform infra update [--version vA.B.C] .
+   ```
+
+### Version callouts
+
+No substitute for reading the [release
+notes](https://github.com/navapbc/template-infra/releases), but here are a few
+points to consider when deciding what version to update to if you are
+significantly behind the latest:
+
+- A Feature Flags module, backed by AWS Evidently, was added in
+  [v0.5.0](https://github.com/navapbc/template-infra/releases/tag/v0.5.0) and
+  removed in
+  [v0.13.0](https://github.com/navapbc/template-infra/releases/tag/v0.13.0).
+    - If you are coming from pre-v0.5.0, you can delete the feature flag module
+      as you move past v0.5.0, or just ignore/don't change anything about it and
+      it will get cleaned up once you are post-v0.13.0.
+- [v0.9.0](https://github.com/navapbc/template-infra/releases/tag/v0.9.0) moved
+  account mapping to each environment config file, then
+  [v0.11.0](https://github.com/navapbc/template-infra/releases/tag/v0.11.0)
+  removed it from each environment config file and moved it to the network config.
+    - If you are pre-v0.9.0, you may want to consider jumping to v0.11.x+ to
+      avoid dealing with moving things multiple times.
+
+Misc. others:
+
+- [v0.11.0](https://github.com/navapbc/template-infra/releases/tag/v0.11.0)
+    - Starts pinning specific Terraform version in CI/CD
+- [v0.10.0](https://github.com/navapbc/template-infra/releases/tag/v0.10.0)
+    - DB changes: PostgreSQL version update to 16.2 and DB schema name hardcoded
+to `app`
+- [v0.9.0](https://github.com/navapbc/template-infra/releases/tag/v0.9.0)
+    - Requires Terraform 1.8.x (previous requirement was just >=1.4, more or less)
+    - Changes the way secrets are defined
+- [v0.7.0](https://github.com/navapbc/template-infra/releases/tag/v0.7.0)
+    - Minor state migration needed
+- [v0.6.0](https://github.com/navapbc/template-infra/releases/tag/v0.6.0)
+    - Networking changes likely requiring hours of downtime to apply
+
+### Post-migration
+
+After completing the migration, you may want to see what results from
+re-applying, more holistically, the latest (or your ultimate target) version of
+the template to the project:
+
+```sh
+nava-platform infra update --force [--version vA.B.C] .
+```
+
+This discards some of the "smart" logic of a regular update and might catch some
+things that were missed while trying to be smarter.
 
 ## Application templates
 

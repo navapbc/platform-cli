@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+set -xeuo pipefail
+
+#######################
+# Setup
+#######################
+
+source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/common.sh"
+
+init_project_dir
+
+# checkout a project before it was migrated to test against
+pushd "${PROJECT_DIR}"
+git remote add origin https://github.com/navapbc/platform-test
+# just before the Copier files were added in
+#
+# https://github.com/navapbc/platform-test/commit/7807c81d67328b9c23eebf73d2c6d0801795e2d0
+git fetch origin --depth=1 bb2e4a7b064c4f78eb8008e02d8f984a9b588209
+git checkout FETCH_HEAD
+popd
+
+expected_migration_point=platform-cli-migration/v0.12.4
+
+#######################
+# Test
+#######################
+
+$CMD infra migrate-from-legacy --commit "${PROJECT_DIR}"
+
+grep "_commit: ${expected_migration_point}" "${PROJECT_DIR}"/.template-infra/*.yml
