@@ -52,7 +52,9 @@ def test_migrate_from_legacy(
     infra_template.git_project.commit_all("Change template")
     infra_template.git_project.tag("v0.1.0")
 
-    update_command.update(cli_context, str(infra_template.template_dir), str(project.dir))
+    update_command.update(
+        cli_context, str(project.dir), template_uri=str(infra_template.template_dir)
+    )
 
     assert project.template_version == infra_template.commit
     assert (project.dir / "infra/modules/service/main.tf").read_text() == "changed\n"
@@ -79,7 +81,9 @@ def test_migrate_from_legacy_with_multi_app_project(
     infra_template.git_project.commit_all("Change template")
     infra_template.git_project.tag("v0.1.0")
 
-    update_command.update(cli_context, str(infra_template.template_dir), str(project.dir))
+    update_command.update(
+        cli_context, str(project.dir), template_uri=str(infra_template.template_dir)
+    )
 
     assert project.template_version == infra_template.commit
     assert (project.dir / "infra/modules/service/main.tf").read_text() == "changed\n"
