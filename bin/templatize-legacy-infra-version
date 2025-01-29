@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# Run from the root of a template-infra repo
+
+set -eux
+
+VERSION=$1
+
+# add any executables next to this script to the PATH for easy calling, like
+# templatize-legacy-infra
+SCRIPT_PATH=$(dirname "$(realpath -s "$0")")
+PATH=${SCRIPT_PATH}:${PATH}
+export PATH
+
+worktree_path=$(realpath "../template-infra-${VERSION}")
+
+git worktree add -d "${worktree_path}" "${VERSION}"
+
+pushd "${worktree_path}"
+
+templatize-legacy-infra
+
+msg="${VERSION} Platform CLI Migration Checkpoint"
+git commit --all -m "${msg}"
+git tag -a "platform-cli-migration/${VERSION}" -m "${msg}"
+
+# could push up the tag:
+#
+#   git push origin "platform-cli-migration/${VERSION}"
+#
+# but will do that manually
+
+popd
+
+git worktree remove "${worktree_path}"
