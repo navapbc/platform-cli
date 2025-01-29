@@ -137,7 +137,7 @@ class GitProject:
         if result.returncode != 0:
             return None
 
-        first_tag = result.stdout.partition("~")[0]
+        first_tag = result.stdout.partition("~")[0].strip()
         return first_tag
 
     def get_commit_description(self, commit_ish: str = "HEAD") -> str | None:
