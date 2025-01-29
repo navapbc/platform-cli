@@ -91,7 +91,7 @@ def add_app(
 def update(
     typer_context: typer.Context,
     project_dir: str,
-    template_uri: Annotated[str, opt_template_uri] = DEFAULT_TEMPLATE_URI,
+    template_uri: Annotated[str | None, opt_template_uri] = None,
     version: Annotated[str | None, opt_version] = DEFAULT_VERSION,
     data: Annotated[list[str] | None, opt_data] = None,
     answers_only: Annotated[bool, opt_answers_only] = False,
@@ -110,8 +110,8 @@ def update(
         try:
             update_command.update(
                 ctx,
-                template_uri,
                 project_dir,
+                template_uri=template_uri,
                 version=version if not answers_only else None,
                 data=dict_util.from_str_values(data),
                 answers_only=answers_only,
@@ -129,7 +129,7 @@ def update(
 def update_base(
     typer_context: typer.Context,
     project_dir: str,
-    template_uri: Annotated[str, opt_template_uri] = DEFAULT_TEMPLATE_URI,
+    template_uri: Annotated[str | None, opt_template_uri] = None,
     version: Annotated[str | None, opt_version] = DEFAULT_VERSION,
     data: Annotated[list[str] | None, opt_data] = None,
     commit: Annotated[bool, opt_commit] = True,
@@ -142,8 +142,8 @@ def update_base(
     with ctx.handle_exceptions():
         update_command.update_base(
             ctx,
-            template_uri,
             project_dir,
+            template_uri=template_uri,
             version=version if not answers_only else None,
             data=dict_util.from_str_values(data),
             commit=commit,
@@ -157,7 +157,7 @@ def update_app(
     typer_context: typer.Context,
     project_dir: str,
     app_name: Annotated[list[str] | None, typer.Argument()] = None,
-    template_uri: Annotated[str, opt_template_uri] = DEFAULT_TEMPLATE_URI,
+    template_uri: Annotated[str | None, opt_template_uri] = None,
     version: Annotated[str | None, opt_version] = DEFAULT_VERSION,
     data: Annotated[list[str] | None, opt_data] = None,
     commit: Annotated[bool, opt_commit] = True,
@@ -171,8 +171,8 @@ def update_app(
     with ctx.handle_exceptions():
         update_command.update_app(
             ctx,
-            template_uri,
             project_dir,
+            template_uri=template_uri,
             app_names=app_name,
             version=version if not answers_only else None,
             data=dict_util.from_str_values(data),

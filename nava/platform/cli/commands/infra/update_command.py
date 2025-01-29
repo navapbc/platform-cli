@@ -10,30 +10,40 @@ from nava.platform.templates.infra_template import InfraTemplate
 
 def update(
     ctx: CliContext,
-    template_uri: str,
     project_dir: str,
+    template_uri: str | None = None,
     version: str | None = None,
     data: dict[str, str] | None = None,
     answers_only: bool = False,
     force: bool = False,
 ) -> None:
-    template = InfraTemplate(ctx, template_uri)
     project = InfraProject(Path(project_dir))
+
+    if template_uri:
+        template = InfraTemplate(ctx, template_uri)
+    else:
+        template = InfraTemplate.from_existing(ctx, project)
+
     template.update(project, version=version, data=data, answers_only=answers_only, force=force)
 
 
 def update_base(
     ctx: CliContext,
-    template_uri: str,
     project_dir: str,
+    template_uri: str | None = None,
     version: str | None = None,
     data: dict[str, str] | None = None,
     commit: bool = False,
     answers_only: bool = False,
     force: bool = False,
 ) -> None:
-    template = InfraTemplate(ctx, template_uri)
     project = InfraProject(Path(project_dir))
+
+    if template_uri:
+        template = InfraTemplate(ctx, template_uri)
+    else:
+        template = InfraTemplate.from_existing(ctx, project)
+
     template.update_base(
         project, version=version, data=data, commit=commit, answers_only=answers_only, force=force
     )
@@ -41,8 +51,8 @@ def update_base(
 
 def update_app(
     ctx: CliContext,
-    template_uri: str,
     project_dir: str,
+    template_uri: str | None = None,
     app_names: list[str] | None = None,
     version: str | None = None,
     data: dict[str, str] | None = None,
@@ -51,8 +61,12 @@ def update_app(
     answers_only: bool = False,
     force: bool = False,
 ) -> None:
-    template = InfraTemplate(ctx, template_uri)
     project = InfraProject(Path(project_dir))
+
+    if template_uri:
+        template = InfraTemplate(ctx, template_uri)
+    else:
+        template = InfraTemplate.from_existing(ctx, project)
 
     if all:
         if not commit:

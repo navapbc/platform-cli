@@ -1,11 +1,14 @@
 from pathlib import Path
+from typing import Self
 
 from packaging.version import Version
 
 from nava.platform.cli.context import CliContext
 from nava.platform.copier_worker import render_template_file
 from nava.platform.projects.infra_project import InfraProject
+from nava.platform.templates.state import get_template_uri_for_existing_app
 from nava.platform.templates.template import Template
+from nava.platform.templates.template_name import TemplateName
 
 
 class InfraTemplate:
@@ -35,6 +38,21 @@ class InfraTemplate:
             template_name="template-infra:app",
             ref=ref,
         )
+
+    @classmethod
+    def from_existing(
+        cls,
+        ctx: CliContext,
+        project: InfraProject,
+    ) -> Self:
+        template_uri = get_template_uri_for_existing_app(
+            project, app_name="base", template_name=TemplateName.parse("template-infra:base")
+        )
+
+        if not template_uri:
+            raise ValueError("Can not determine existing `template-infra` source")
+
+        return cls(ctx, template_uri=template_uri)
 
     def install(
         self,
