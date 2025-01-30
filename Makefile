@@ -54,7 +54,7 @@ docs: docs/index.md docs-reference
 	$(PY_RUN) mkdocs build
 
 docs-watch: ## Start local server that will re-generate docs on file change
-docs-watch: docs-reference
+docs-watch: docs/index.md docs-reference
 	$(PY_RUN) mkdocs serve
 
 docs/index.md: README.md
