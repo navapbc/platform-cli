@@ -5,6 +5,10 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any, Self
 
+# TODO: reimplment get_repo functionality here and also consider additionally
+# supporting slightly clearer `github:` prefix
+from copier.vcs import get_repo
+
 
 class GitProject:
     def __init__(self, dir: Path):
@@ -32,7 +36,11 @@ class GitProject:
         else:
             with TemporaryDirectory() as dir:
                 dir_path = Path(dir)
-                clone_result = clone_to(repo_uri, dir_path)
+                resolved_repo_uri = get_repo(repo_uri)
+                if not resolved_repo_uri:
+                    raise ValueError(f"Don't understand {repo_uri}")
+
+                clone_result = clone_to(resolved_repo_uri, dir_path)
                 clone_result.check_returncode()
 
                 yield cls(dir_path)
@@ -166,7 +174,6 @@ def is_a_git_worktree(dir: Path) -> bool:
     return result.stdout.strip() == "true"
 
 
-# TODO: could use copier.vcs.clone?
 def clone_to(url: str, dest: Path, ref: str | None = None) -> subprocess.CompletedProcess[str]:
     clone_result = run_text(["git", "clone", "--filter=blob:none", url, dest])
 
