@@ -109,9 +109,6 @@ def update(
                         choices=installed_templates_for_app,
                         use_search_filter=True,
                         use_jk_keys=False,
-                        validate=lambda choices: "You must choose a template to update"
-                        if not choices
-                        else True,
                     ).unsafe_ask(),
                 )
 
