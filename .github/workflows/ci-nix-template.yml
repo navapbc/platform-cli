@@ -18,8 +18,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: DeterminateSystems/nix-installer-action@main
-      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - uses: ./.github/actions/setup-nix
 
       - name: Run build
         run: nix build
@@ -31,8 +30,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: DeterminateSystems/nix-installer-action@main
-      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - uses: ./.github/actions/setup-nix
       - uses: DeterminateSystems/flake-checker-action@main
 
       - name: Run lint
@@ -46,8 +44,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/configure-git
-      - uses: DeterminateSystems/nix-installer-action@main
-      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - uses: ./.github/actions/setup-nix
 
       - name: Run tests
         run: nix develop --command bash -c "make test"
@@ -60,8 +57,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/configure-git
-      - uses: DeterminateSystems/nix-installer-action@main
-      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - uses: ./.github/actions/setup-nix
 
       - name: Run install
         run: nix profile install '.'
