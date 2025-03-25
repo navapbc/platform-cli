@@ -104,6 +104,11 @@ pipx upgrade nava-platform-cli
 
 ### Nix
 
+> [!IMPORTANT]
+> This is currently broken on macOS due to upstream issues:
+>
+> https://github.com/copier-org/copier/issues/1595
+
 [Install nix](https://nixos.org/download/) if you haven't. This approach
 requires nothing else in your environment.
 
@@ -244,6 +249,11 @@ Run `make deps`
 Then you can run `uv run nava-platform`
 
 #### Nix
+
+> [!IMPORTANT]
+> This is currently broken on macOS due to upstream issues:
+>
+> https://github.com/copier-org/copier/issues/1595
 
 `nix develop` will drop you into a shell with all dev tooling and python
 dependencies installed.
