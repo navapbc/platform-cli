@@ -2,8 +2,7 @@
 name = "nava-platform-cli"
 version = "0.1.0"
 description = "Nava PBC's Platform CLI tool for managing platform templates"
-# once https://peps.python.org/pep-0639 is in force
-# license = "Apache-2.0"
+license = "Apache-2.0"
 classifiers = [
   "Development Status :: 4 - Beta",
   "Environment :: Console",
