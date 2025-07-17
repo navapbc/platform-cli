@@ -10,6 +10,7 @@ from rich.table import Table
 
 from nava.platform.cli.context import CliContext
 from nava.platform.projects.infra_project import InfraProject
+from nava.platform.projects.migrate_from_legacy_template import MIGRATION_TAG_PREFIX
 from nava.platform.util.git import GitProject
 
 
@@ -98,7 +99,7 @@ def get_newer_versions(
     template_tagged_versions = template_git.get_tags("--list", "v*")
     template_versions = sorted(map(Version, template_tagged_versions))
 
-    project_v = get_version(project_version)
+    project_v = get_version(project_version.removeprefix(MIGRATION_TAG_PREFIX))
     if not project_v:
         return None
 
