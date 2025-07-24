@@ -58,7 +58,7 @@ strict = true
 # https://mypy.readthedocs.io/en/stable/changelog.html#mypy-1-12
 local_partial_types = true
 pretty = true
-enable_error_code = ["ignore-without-code"]
+enable_error_code = ["ignore-without-code", "exhaustive-match"]
 
 [[tool.mypy.overrides]]
 module = "tests.*"
