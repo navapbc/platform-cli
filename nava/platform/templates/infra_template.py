@@ -86,7 +86,7 @@ class InfraTemplate:
             project, version=version, data=data, commit=True, answers_only=answers_only, force=force
         )
 
-        for app_name in project.app_names:
+        for app_name in sorted(project.app_names):
             self.ctx.console.rule(f"Infra app: {app_name}")
             self.update_app(
                 project,
@@ -121,7 +121,7 @@ class InfraTemplate:
         # the network file needs re-rendered with the app_names
         self._update_network_config(
             project,
-            app_names=project.app_names,
+            app_names=sorted(project.app_names),
             version=self.template_base.commit,
         )
 
@@ -156,7 +156,7 @@ class InfraTemplate:
         *,
         version: str | None = None,
         data: dict[str, str] | None = None,
-        existing_apps: list[str] | None = None,
+        existing_apps: set[str] | None = None,
         commit: bool = False,
     ) -> None:
         # Use the template version that the project is currently on, unless
@@ -174,7 +174,7 @@ class InfraTemplate:
             # `project.app_names` should already include the just added app,
             # but in case caching is ever added there, be sure to included the
             # new app name
-            app_names=sorted(set((existing_apps or project.app_names) + [app_name])),
+            app_names=sorted((existing_apps or project.app_names) | {app_name}),
             version=vcs_ref,
         )
 

@@ -75,18 +75,18 @@ def update_app(
         if app_names:
             ctx.fail("If using --all, don't specify app names as arguments")
 
-        app_names = project.app_names
+        app_names = sorted(project.app_names)
     else:
         if not app_names:
             if len(project.app_names) == 1:
-                app_names = project.app_names
+                app_names = sorted(project.app_names)
                 ctx.console.print(f"Only one app detected, updating '{app_names[0]}'")
             else:
                 app_names = cast(
                     list[str],
                     questionary.checkbox(
                         "Which app(s)?",
-                        choices=project.app_names,
+                        choices=sorted(project.app_names),
                         use_search_filter=True,
                         use_jk_keys=False,
                         validate=lambda choices: "You must choose at least one app to update"

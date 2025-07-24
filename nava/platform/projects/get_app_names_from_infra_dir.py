@@ -1,7 +1,7 @@
 from pathlib import Path
 
 
-def get_app_names_from_infra_dir(dir: Path) -> list[str]:
+def get_app_names_from_infra_dir(dir: Path) -> frozenset[str]:
     """Get apps based on names in infra/.
 
     Args:
@@ -16,10 +16,10 @@ def get_app_names_from_infra_dir(dir: Path) -> list[str]:
     ]
     infra_dir = dir / "infra"
     if not infra_dir.exists():
-        return []
+        return frozenset()
     if not infra_dir.is_dir():
-        return []
+        return frozenset()
 
-    return sorted(
+    return frozenset(
         [dir.name for dir in infra_dir.iterdir() if dir.is_dir() and dir.name not in excluded_dirs]
     )

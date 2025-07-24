@@ -11,13 +11,19 @@ installed_template_scenarios: dict[str, DirContentArg] = {
     "empty": {},
     "just-infra-base": {
         ".template-infra": {
-            "base.yml": "blah",
+            "base.yml": """
+            template: base
+            """,
         },
     },
     "just-infra": {
         ".template-infra": {
-            "base.yml": "blah",
-            "app-foo.yml": "blah",
+            "base.yml": """
+            template: base
+            """,
+            "app-foo.yml": """
+            template: app
+            """,
         },
     },
     "just-app": {
@@ -27,8 +33,12 @@ installed_template_scenarios: dict[str, DirContentArg] = {
     },
     "infra-and-app": {
         ".template-infra": {
-            "base.yml": "blah",
-            "app-foo.yml": "blah",
+            "base.yml": """
+            template: base
+            """,
+            "app-foo.yml": """
+            template: app
+            """,
         },
         ".template-application-magic": {
             "foo.yml": "blah",
@@ -36,9 +46,15 @@ installed_template_scenarios: dict[str, DirContentArg] = {
     },
     "infra-and-muliple-apps": {
         ".template-infra": {
-            "base.yml": "blah",
-            "app-foo.yml": "blah",
-            "app-bar.yml": "blah",
+            "base.yml": """
+            template: base
+            """,
+            "app-foo.yml": """
+            template: app
+            """,
+            "app-bar.yml": """
+            template: app
+            """,
         },
         ".template-application-magic": {
             "foo.yml": "blah",
@@ -49,9 +65,15 @@ installed_template_scenarios: dict[str, DirContentArg] = {
     },
     "infra-and-muliple-apps-for-same-application": {
         ".template-infra": {
-            "base.yml": "blah",
-            "app-foo.yml": "blah",
-            "app-bar.yml": "blah",
+            "base.yml": """
+            template: base
+            """,
+            "app-foo.yml": """
+            template: app
+            """,
+            "app-bar.yml": """
+            template: app
+            """,
         },
         ".template-application-magic": {
             "foo.yml": "blah",
@@ -68,7 +90,7 @@ def map_scenarios(mapping: dict[str, list[str]]) -> dict[str, tuple[DirContentAr
     return {k: (v, mapping[k]) for k, v in installed_template_scenarios.items()}
 
 
-installed_template_names_test_data = map_scenarios(
+installed_template_repo_names_test_data = map_scenarios(
     {
         "empty": [],
         "just-infra-base": ["template-infra"],
@@ -87,6 +109,45 @@ installed_template_names_test_data = map_scenarios(
 
 @pytest.mark.parametrize(
     ("dir_content", "expected"),
+    installed_template_repo_names_test_data.values(),
+    ids=installed_template_repo_names_test_data.keys(),
+)
+def test_installed_template_repo_names(tmp_path, dir_content, expected):
+    DirectoryContent(dir_content).to_fs(str(tmp_path))
+    project = Project(tmp_path)
+
+    assert set(project.installed_template_repo_names()) == set(expected)
+
+
+installed_template_names_test_data = map_scenarios(
+    {
+        "empty": [],
+        "just-infra-base": ["template-infra:base"],
+        "just-infra": ["template-infra:base", "template-infra:app"],
+        "just-app": ["template-application-magic"],
+        "infra-and-app": [
+            "template-infra:base",
+            "template-infra:app",
+            "template-application-magic",
+        ],
+        "infra-and-muliple-apps": [
+            "template-infra:base",
+            "template-infra:app",
+            "template-application-magic",
+            "template-whoa",
+        ],
+        "infra-and-muliple-apps-for-same-application": [
+            "template-infra:base",
+            "template-infra:app",
+            "template-application-magic",
+            "template-whoa",
+        ],
+    }
+)
+
+
+@pytest.mark.parametrize(
+    ("dir_content", "expected"),
     installed_template_names_test_data.values(),
     ids=installed_template_names_test_data.keys(),
 )
@@ -94,19 +155,19 @@ def test_installed_template_names(tmp_path, dir_content, expected):
     DirectoryContent(dir_content).to_fs(str(tmp_path))
     project = Project(tmp_path)
 
-    assert set(project.installed_template_names()) == set(expected)
+    assert set(map(lambda tn: tn.id, project.installed_template_names())) == set(expected)
 
 
 installed_template_names_for_app_foo_test_data = map_scenarios(
     {
         "empty": [],
         "just-infra-base": [],
-        "just-infra": ["template-infra"],
+        "just-infra": ["template-infra:app"],
         "just-app": ["template-application-magic"],
-        "infra-and-app": ["template-infra", "template-application-magic"],
-        "infra-and-muliple-apps": ["template-infra", "template-application-magic"],
+        "infra-and-app": ["template-infra:app", "template-application-magic"],
+        "infra-and-muliple-apps": ["template-infra:app", "template-application-magic"],
         "infra-and-muliple-apps-for-same-application": [
-            "template-infra",
+            "template-infra:app",
             "template-application-magic",
             "template-whoa",
         ],
@@ -123,4 +184,6 @@ def test_installed_template_names_for_app(tmp_path, dir_content, expected):
     DirectoryContent(dir_content).to_fs(str(tmp_path))
     project = Project(tmp_path)
 
-    assert set(project.installed_template_names_for_app("foo")) == set(expected)
+    assert set(map(lambda tn: tn.id, project.installed_template_names_for_app("foo"))) == set(
+        expected
+    )

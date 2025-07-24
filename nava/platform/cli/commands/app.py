@@ -17,6 +17,7 @@ from nava.platform.cli.context import CliContext
 from nava.platform.projects.migrate_from_legacy_template import MigrateFromLegacyTemplate
 from nava.platform.projects.project import Project
 from nava.platform.templates.template import Template
+from nava.platform.templates.template_name import TemplateId
 
 app = typer.Typer(help="Manage application templates")
 
@@ -94,19 +95,19 @@ def update(
         else:
             installed_templates_for_app = list(
                 filter(
-                    lambda t_name: t_name != "template-infra",
+                    lambda t_name: t_name.repo_name != "template-infra",
                     project.installed_template_names_for_app(app_name),
                 )
             )
 
             if len(installed_templates_for_app) == 1:
-                template_name = installed_templates_for_app[0]
+                template_name = installed_templates_for_app[0].id
             else:
                 template_name = cast(
-                    str,
+                    TemplateId,
                     questionary.select(
                         f"Which template for {app_name}?",
-                        choices=installed_templates_for_app,
+                        choices=list(map(lambda tn: tn.id, installed_templates_for_app)),
                         use_search_filter=True,
                         use_jk_keys=False,
                     ).unsafe_ask(),

@@ -17,7 +17,7 @@ def install(
 ) -> None:
     template = InfraTemplate(ctx, template_uri)
     project = InfraProject(Path(project_dir))
-    app_names = project.app_names_possible
+    app_names = sorted(project.app_names_possible)
 
     if len(app_names) == 0:
         if data and "app_name" in data:

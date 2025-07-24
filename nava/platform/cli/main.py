@@ -3,6 +3,7 @@ from typing import Annotated
 import typer
 
 import nava.platform.cli.commands.app as app_command
+import nava.platform.cli.commands.info as info
 import nava.platform.cli.commands.infra as infra
 import nava.platform.cli.console
 import nava.platform.cli.logging
@@ -69,6 +70,7 @@ def resolve_verbosity(verbose: int, quiet: bool) -> OutputLevel:
     return OutputLevel.TRACE
 
 
+app.add_typer(info.app)
 app.add_typer(infra.app, name="infra")
 app.add_typer(app_command.app, name="app")
 

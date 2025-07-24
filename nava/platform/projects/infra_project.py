@@ -1,7 +1,5 @@
 from pathlib import Path
 
-import yaml
-
 from nava.platform.projects.get_app_names_from_infra_dir import get_app_names_from_infra_dir
 from nava.platform.projects.project import Project
 from nava.platform.types import RelativePath
@@ -18,22 +16,22 @@ class InfraProject(Project):
         return base_version
 
     def base_template_version(self) -> str:
-        return self._get_template_version_from_answers_file(self.base_answers_file())
+        return self._get_template_version_from_answers_file(self.base_answers_file()).answer_value
 
     def app_template_version(self, app_name: str) -> str:
-        return self._get_template_version_from_answers_file(self.app_answers_file(app_name))
+        return self._get_template_version_from_answers_file(
+            self.app_answers_file(app_name)
+        ).answer_value
 
     @property
-    def app_names_possible(self) -> list[str]:
+    def app_names_possible(self) -> frozenset[str]:
         return get_app_names_from_infra_dir(self.dir)
 
     @property
-    def app_names(self) -> list[str]:
+    def app_names(self) -> frozenset[str]:
         app_answer_files = self.dir.glob(".template-infra/app-*.yml")
-        return list(
-            sorted(
-                map(lambda f: f.name.removeprefix("app-").removesuffix(".yml"), app_answer_files)
-            )
+        return frozenset(
+            map(lambda f: f.name.removeprefix("app-").removesuffix(".yml"), app_answer_files)
         )
 
     def base_answers_file_rel(self) -> RelativePath:
@@ -47,11 +45,6 @@ class InfraProject(Project):
 
     def app_answers_file(self, app_name: str) -> Path:
         return self.dir / f".template-infra/app-{app_name}.yml"
-
-    def _get_template_version_from_answers_file(self, answers_file: Path) -> str:
-        answers_file_text = answers_file.read_text()
-        answers = yaml.safe_load(answers_file_text)
-        return str(answers["_commit"])
 
     #
     # Legacy projects

@@ -18,7 +18,7 @@ from nava.platform.templates.state import (
     get_template_version_for_existing_app,
     project_state_dir_rel,
 )
-from nava.platform.templates.template_name import TemplateName
+from nava.platform.templates.template_name import TemplateId, TemplateName
 from nava.platform.types import RelativePath
 from nava.platform.util import git, wrappers
 
@@ -73,7 +73,7 @@ class Template:
         ctx: CliContext,
         project: Project,
         app_name: str,
-        template_name: TemplateName | str,
+        template_name: TemplateName | TemplateId,
         src_excludes: list[str] | None = None,
     ) -> Self:
         template_uri = get_template_uri_for_existing_app(

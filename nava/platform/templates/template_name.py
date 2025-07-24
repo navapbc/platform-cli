@@ -1,8 +1,10 @@
 import dataclasses
-from typing import ClassVar, Self, cast
+from typing import ClassVar, NewType, Self, cast
+
+TemplateId = NewType("TemplateId", str)
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class TemplateName:
     """Handling the "name" of "a" "template".
 
@@ -29,14 +31,14 @@ class TemplateName:
     template_name: str
 
     @classmethod
-    def parse(cls, s: Self | str) -> Self:
+    def parse(cls, s: Self | TemplateId | str) -> Self:
         if isinstance(s, cls):
             return s
 
         return cls.from_str(cast(str, s))
 
     @classmethod
-    def from_str(cls, s: str) -> Self:
+    def from_str(cls, s: TemplateId | str) -> Self:
         parts = s.split(cls.SEPARATOR)
 
         if len(parts) == 1:
@@ -45,11 +47,11 @@ class TemplateName:
             return cls(repo_name=parts[0], template_name=cls.SEPARATOR.join(parts[1:]))
 
     @property
-    def id(self) -> str:
+    def id(self) -> TemplateId:
         if self.repo_name == self.template_name:
-            return self.repo_name
+            return TemplateId(self.repo_name)
 
-        return self.SEPARATOR.join([self.repo_name, self.template_name])
+        return TemplateId(self.SEPARATOR.join([self.repo_name, self.template_name]))
 
     @property
     def answers_file_prefix(self) -> str:

@@ -1,20 +1,84 @@
 import contextlib
 import re
+from collections import defaultdict
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import cast
+from typing import TYPE_CHECKING, Any, NewType
 
 import dunamai
 import yaml
 from packaging.version import Version
 
-from nava.platform.projects.project import Project
 from nava.platform.templates.template_name import TemplateName
 from nava.platform.types import RelativePath
+
+if TYPE_CHECKING:
+    from nava.platform.projects.project import Project
+
+
+Answers = NewType("Answers", dict[str, str])
 
 
 def project_state_dir_rel(template_name: TemplateName) -> RelativePath:
     return Path(f".{template_name.repo_name}")
+
+
+def template_repo_name_from_project_state_dir(template_state_dir: Path) -> str:
+    return template_state_dir.name.removeprefix(".")
+
+
+def template_repo_name_from_answers_file(answers_file: Path) -> str:
+    return template_repo_name_from_project_state_dir(answers_file.parent)
+
+
+def template_names_from_project_state_dir(template_state_dir: Path) -> list[TemplateName]:
+    """A single "template" state dir/repo may contain multiple "templates", check for all the names."""
+    template_answers_files = filter(lambda f: f.is_file(), template_state_dir.glob("*.yml"))
+    return template_names_from_answers_files(template_answers_files)
+
+
+def template_names_from_answers_files(template_answers_files: Iterable[Path]) -> list[TemplateName]:
+    mapping = _get_repo_to_template_from_answers(template_answers_files)
+
+    ret = []
+    for repo_name, sub_template_names in mapping.items():
+        if sub_template_names:
+            ret.extend(
+                [
+                    TemplateName(repo_name=repo_name, template_name=sub_template_name)
+                    for sub_template_name in sub_template_names
+                    if sub_template_name
+                ]
+            )
+        else:
+            ret.append(TemplateName.parse(repo_name))
+
+    return ret
+
+
+def _get_repo_to_template_from_answers(
+    template_answer_files: Iterable[Path],
+) -> dict[str, list[str]]:
+    template_repo_to_maybe_subtemplate_pairs = map(
+        lambda f: (
+            template_repo_name_from_answers_file(f),
+            get_sub_template_name_from_answers(read_answers_file(f)),
+        ),
+        template_answer_files,
+    )
+
+    ret: dict[str, list[str]] = defaultdict(list)
+
+    for k, v in template_repo_to_maybe_subtemplate_pairs:
+        # always access the key, so defaultdict ensures there's a value for all
+        # our pairs, even if there are no subtemplate values to add
+        subtemplate_names = ret[k]
+
+        if v:
+            subtemplate_names.append(v)
+
+    return ret
 
 
 def answers_file_rel(template_name: TemplateName, app_name: str) -> RelativePath:
@@ -27,14 +91,14 @@ def answers_file_rel(template_name: TemplateName, app_name: str) -> RelativePath
 
 
 def get_template_uri_for_existing_app(
-    project: Project, app_name: str, template_name: TemplateName
+    project: "Project", app_name: str, template_name: TemplateName
 ) -> str | None:
     answers = get_answers(project, app_name, template_name)
 
     return get_template_uri_from_answers(answers)
 
 
-def get_template_uri_from_answers(answers: dict[str, str] | None) -> str | None:
+def get_template_uri_from_answers(answers: Answers | None) -> str | None:
     if not answers:
         return None
 
@@ -43,7 +107,19 @@ def get_template_uri_from_answers(answers: dict[str, str] | None) -> str | None:
     return template_uri
 
 
-@dataclass
+def get_sub_template_name_from_answers(answers: Answers | None) -> str | None:
+    if not answers:
+        return None
+
+    # the specific key is template-dependant/controlled by the template's
+    # copier.yml file, but convention so far is to store the name under
+    # `template`
+    template_name = answers.get("template", None)
+
+    return template_name
+
+
+@dataclass(frozen=True)
 class TemplateVersionAnswer:
     answer_value: str
     """What is saved in the answers file as `_commit` (it's the output from a `git describe`)"""
@@ -65,15 +141,21 @@ class TemplateVersionAnswer:
 
 
 def get_template_version_for_existing_app(
-    project: Project, app_name: str, template_name: TemplateName
+    project: "Project", app_name: str, template_name: TemplateName
 ) -> TemplateVersionAnswer | None:
     answers = get_answers(project, app_name, template_name)
 
     return get_template_version_from_answers(answers)
 
 
+def get_template_version_from_answers_file(answers_file: Path) -> TemplateVersionAnswer | None:
+    answers = read_answers_file(answers_file)
+
+    return get_template_version_from_answers(answers)
+
+
 def get_template_version_from_answers(
-    answers: dict[str, str] | None,
+    answers: Answers | None,
 ) -> TemplateVersionAnswer | None:
     if not answers:
         return None
@@ -90,9 +172,7 @@ def get_template_version_from_answers(
     return TemplateVersionAnswer(answer_value=template_version, version=parsed_version)
 
 
-def get_answers(
-    project: Project, app_name: str, template_name: TemplateName
-) -> dict[str, str] | None:
+def get_answers(project: "Project", app_name: str, template_name: TemplateName) -> Answers | None:
     answers_file = project.dir / answers_file_rel(template_name, app_name)
 
     if not answers_file.exists():
@@ -101,10 +181,19 @@ def get_answers(
     return read_answers_file(answers_file)
 
 
-def read_answers_file(answers_file: Path) -> dict[str, str]:
-    answers = yaml.safe_load(answers_file.read_text())
+def read_answers_file(answers_file: Path) -> Answers | None:
+    answers = read_answers_file_raw_yaml(answers_file)
 
-    return cast(dict[str, str], answers)
+    # in real operation, the answers file should always be a dictionary, but in
+    # testing or other odd cases, perhaps it won't be, so indicate that
+    if not isinstance(answers, dict):
+        return None
+
+    return Answers(answers)
+
+
+def read_answers_file_raw_yaml(answers_file: Path) -> Any:
+    return yaml.safe_load(answers_file.read_text())
 
 
 def get_version_from_git_describe(v: str) -> Version:
