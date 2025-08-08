@@ -10,6 +10,15 @@ from nava.platform.cli.config import OutputLevel
 from nava.platform.cli.context import CliContext
 from nava.platform.cli.exceptions import exception_handler
 
+mcp_available = False
+try:
+    import nava.platform.cli.commands.mcp as mcp
+
+    mcp_available = True
+except ImportError:
+    pass
+
+
 app = typer.Typer()
 
 
@@ -71,6 +80,9 @@ def resolve_verbosity(verbose: int, quiet: bool) -> OutputLevel:
 
 app.add_typer(infra.app, name="infra")
 app.add_typer(app_command.app, name="app")
+
+if mcp_available:
+    app.add_typer(mcp.app, name="mcp")
 
 if __name__ == "__main__":
     app()

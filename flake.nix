@@ -98,10 +98,16 @@
 
         # see https://github.com/nix-community/poetry2nix/tree/master#api for more functions and examples.
         nava-platform-cli-env = pythonSet.mkVirtualEnv "nava-platform-cli-env" workspace.deps.default;
+        nava-platform-cli-full-env = pythonSet.mkVirtualEnv "nava-platform-cli-env" workspace.deps.optionals;
 
         # TODO: inject runtimePackages here?
         nava-platform-cli = (pkgs.callPackages pyproject-nix.build.util { }).mkApplication {
           venv = nava-platform-cli-env;
+          package = pythonSet.nava-platform-cli;
+        };
+
+        nava-platform-cli-full = (pkgs.callPackages pyproject-nix.build.util { }).mkApplication {
+          venv = nava-platform-cli-full-env;
           package = pythonSet.nava-platform-cli;
         };
 
@@ -185,6 +191,7 @@
         packages = {
           default = nava-platform-cli;
           nava-platform-cli = nava-platform-cli;
+          nava-platform-cli-full = nava-platform-cli-full;
           docs = cli-docs-site;
 
           docker = pkgs.dockerTools.buildLayeredImage dockerBuildArgs;
@@ -197,6 +204,10 @@
           nava-platform-cli = {
             type = "app";
             program = "${nava-platform-cli}/bin/nava-platform";
+          };
+          nava-platform-cli-full = {
+            type = "app";
+            program = "${nava-platform-cli-full}/bin/nava-platform";
           };
         };
 
@@ -294,10 +305,12 @@
                 uv2nix.packages."${system}".uv-bin
               ];
 
-            env = {
-              # Force uv to use nixpkgs Python interpreter
-              UV_PYTHON = python.interpreter;
-            } // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
+            env =
+              {
+                # Force uv to use nixpkgs Python interpreter
+                UV_PYTHON = python.interpreter;
+              }
+              // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
                 # Python libraries often load native shared objects using dlopen(3).
                 # Setting LD_LIBRARY_PATH makes the dynamic library loader aware of libraries without using RPATH for lookup.
                 LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath pkgs.pythonManylinuxPackages.manylinux1;

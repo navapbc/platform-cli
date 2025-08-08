@@ -35,6 +35,11 @@ required-version = ">0.5.8"
 [project.scripts]
 nava-platform = "nava.platform.cli.__main__:__main__"
 
+[project.optional-dependencies]
+mcp = [
+    "pycli-mcp>=0.3.0",
+]
+
 [dependency-groups]
 dev = [
     "mypy>=1.13.0",
