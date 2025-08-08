@@ -65,6 +65,7 @@ def _console_output(console: Console, project_info: ProjectInfo) -> None:
     template_table.add_column("Name")
     template_table.add_column("Version(s)")
     template_table.add_column("Versions match")
+    template_table.add_column("Newer releases")
 
     for template_id in project_info.template_ids:
         instances_of_template = []
@@ -94,10 +95,16 @@ def _console_output(console: Console, project_info: ProjectInfo) -> None:
 
         all_instance_versions = set([ti.version for ti in instances_of_template if ti.version])
         all_instance_versions_match = len(all_instance_versions) == 1
+
+        newer_releases = []
+        if all_instance_versions_match:
+            newer_releases = instances_of_template[0].newer_releases()
+
         template_table.add_row(
             display_template_id(template_id),
             ", ".join(v.display_str for v in all_instance_versions),
             str(all_instance_versions_match),
+            ", ".join(map(str, newer_releases)),
         )
 
     console.print(template_table)

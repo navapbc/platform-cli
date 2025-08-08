@@ -1,17 +1,13 @@
-import re
-from contextlib import AbstractContextManager, nullcontext
 from pathlib import Path
 
 import yaml
-from packaging.version import Version
 from rich.console import Group
 from rich.panel import Panel
 from rich.table import Table
 
 from nava.platform.cli.context import CliContext
 from nava.platform.projects.infra_project import InfraProject
-from nava.platform.projects.migrate_from_legacy_template import MIGRATION_TAG_PREFIX
-from nava.platform.util.git import GitProject
+from nava.platform.templates.util import get_newer_releases, get_template_git
 
 
 def info(ctx: CliContext, project_dir: Path, template_uri: str | None = None) -> None:
@@ -22,21 +18,14 @@ def info(ctx: CliContext, project_dir: Path, template_uri: str | None = None) ->
         base_answers = yaml.safe_load(project.base_answers_file().read_text())
         template_uri = base_answers.get("_src_path", None)
 
-    if template_uri:
-        template_git_ctx: AbstractContextManager[GitProject | None] = GitProject.clone_if_necessary(
-            template_uri
-        )
-    else:
-        template_git_ctx = nullcontext(None)
-
-    with template_git_ctx as template_git:
-        newer_versions = None
+    with get_template_git(template_uri) as template_git:
+        newer_releases = None
         if is_template:
-            newer_versions = get_newer_versions(project.base_template_version(), template_git)
+            newer_releases = get_newer_releases(project.base_template_version(), template_git)
 
         project_info = Group(
             f"Base version: {project.base_template_version() if is_template else None}",
-            f"Newer versions?: {list(map(str, newer_versions)) if newer_versions is not None else 'Unknown. Specify --template-uri to check.'}",
+            f"Newer releases?: {list(map(str, newer_releases)) if newer_releases is not None else 'Unknown. Specify --template-uri to check.'}",
         )
 
         ctx.console.print(Panel.fit(project_info, title="Project Info"))
@@ -88,31 +77,3 @@ def info(ctx: CliContext, project_dir: Path, template_uri: str | None = None) ->
                 app_table.add_row(app_name)
 
             ctx.console.print(app_table)
-
-
-def get_newer_versions(
-    project_version: str, template_git: GitProject | None = None
-) -> list[Version] | None:
-    if not template_git:
-        return None
-
-    template_tagged_versions = template_git.get_tags("--list", "v*")
-    template_versions = sorted(map(Version, template_tagged_versions))
-
-    project_v = get_version(project_version.removeprefix(MIGRATION_TAG_PREFIX))
-    if not project_v:
-        return None
-
-    return list(filter(project_v.__le__, template_versions))
-
-
-# derived from https://github.com/copier-org/copier/blob/63fec9a500d9319f332b489b6d918ecb2e0598e3/copier/template.py#L575
-def get_version(v: str) -> Version | None:
-    try:
-        return Version(v)
-    except ValueError:
-        if re.match(r"^.+-\d+-g\w+$", v):
-            base, count, git_hash = v.rsplit("-", 2)
-            return Version(f"{base}.post{count}+{git_hash}")
-
-    return None

@@ -1,8 +1,11 @@
 from dataclasses import dataclass
-from functools import partial
+from functools import cache, partial
 from pathlib import Path
 from typing import Self
 
+from packaging.version import Version
+
+import nava.platform.templates.util as template_utils
 from nava.platform.projects.project import Project
 from nava.platform.templates.state import (
     Answers,
@@ -15,6 +18,24 @@ from nava.platform.templates.state import (
     template_names_from_answers_files,
 )
 from nava.platform.templates.template_name import TemplateId, TemplateName
+
+
+@cache
+def cached_template_releases(template_uri: str) -> list[Version]:
+    with template_utils.get_template_git(template_uri) as template_git:
+        if not template_git:
+            return []
+
+        return template_utils.get_releases(template_git)
+
+
+def cached_newer_releases(template_uri: str, current_version: str) -> list[Version]:
+    return (
+        template_utils.get_newer_releases(
+            current_version, template_versions=cached_template_releases(template_uri)
+        )
+        or []
+    )
 
 
 @dataclass(frozen=True)
@@ -33,6 +54,12 @@ class TemplateInfo:
             version=get_template_version_from_answers(answers),
             src_uri=get_template_uri_from_answers(answers),
         )
+
+    def newer_releases(self) -> list[Version]:
+        if self.src_uri and self.version:
+            return cached_newer_releases(self.src_uri, self.version.display_str)
+
+        return []
 
 
 @dataclass(frozen=True)

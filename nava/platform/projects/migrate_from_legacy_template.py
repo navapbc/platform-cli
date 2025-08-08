@@ -134,7 +134,7 @@ class MigrateFromLegacyTemplate:
 
 def get_closest_tag_before_commit(git: GitProject, commit: str) -> str:
     """Find nearest tag before given commit."""
-    from nava.platform.cli.commands.infra.info_command import get_version
+    from nava.platform.templates.util import get_version
 
     closest_tag = git.get_closest_tag(commit)
     if not closest_tag:
@@ -152,7 +152,7 @@ MIGRATION_TAG_PREFIX = "platform-cli-migration/"
 
 def get_closest_migration_tag(git: GitProject, commit: str) -> tuple[str, bool]:
     """Find nearest migration tag before given commit."""
-    from nava.platform.cli.commands.infra.info_command import get_version
+    from nava.platform.templates.util import get_version
 
     closest_tag = get_closest_tag_before_commit(git, commit)
     migration_tags = git.get_tags("--list", f"{MIGRATION_TAG_PREFIX}*")
