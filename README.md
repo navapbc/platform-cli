@@ -21,276 +21,268 @@
 
 # Nava PBC Platform CLI
 
-Tooling to make installing, upgrading, and using the Nava Platform easier.
+A command-line tool that simplifies installing, upgrading, and managing Nava Strata.
 
-## Installation
+## Table of Contents
 
-There are a few ways to get the tool as an end user.
+- [Quick Start](#quick-start)
+- [Installation](#installation)
+  - [uv (Recommended)](#uv)
+  - [pipx](#pipx)
+  - [Nix](#nix)
+  - [Docker/Container](#dockercontainer)
+- [Getting Started](#getting-started)
+- [Development](#development)
+- [Credits](#credits)
 
-### uv
+---
 
-> [!IMPORTANT]
-> Prereqs:
->
-> - `git` 2.27+ exists on your `$PATH`
+## Quick Start
 
-[Install uv](https://docs.astral.sh/uv/getting-started/installation/) 0.5.8+
-(released 2024-12-11) if you haven't.
-
-Then install the tool with:
-
-```sh
-uv tool install git+https://github.com/navapbc/platform-cli
-```
-
-One-off run:
-```sh
-uvx --from git+https://github.com/navapbc/platform-cli -- <platform_cli_args>
-```
-
-<details>
-
-<summary>Other notes</summary>
-
-```sh
-uv tool upgrade nava-platform-cli
-```
-
-```sh
-uv tool uninstall nava-platform-cli
-```
-
-</details>
-
-### pipx
-
-> [!IMPORTANT]
-> Prereqs:
->
-> - `git` 2.27+ exists on your `$PATH`
-> - Python 3.8+ available on your system
-
-[Install pipx](https://pipx.pypa.io/stable/) if you haven't. This does require
-you have a working Python 3.8+ installation of some kind so pipx can run itself.
-Things installed via pipx will not depend on the system Python packages, though
-may re-use the system interpreter.
-
-Then if you have Python 3.11+ available already, install the tool with:
-
-```sh
-pipx install git+https://github.com/navapbc/platform-cli
-```
-
-<details>
-
-<summary>If you don't have Python 3.11+ available</summary>
-
-You can have pipx fetch and install an appropriate Python version for you, with
-the slightly longer:
-
-```sh
-pipx install --fetch-missing-python --python 3.12 git+https://github.com/navapbc/platform-cli
-```
-
-</details>
-
-You can now run `nava-platform`. See [Getting Started](#getting-started).
-
-If it's just a one-off operation and you don't want to install the tool to your
-`$PATH`, can use:
-
-```sh
-pipx run --spec git+https://github.com/navapbc/platform-cli nava-platform <platform_cli_args>
-```
-
-<details>
-
-<summary>Other notes</summary>
-
-If you want to get rid of it:
-
-```sh
-pipx uninstall nava-platform-cli
-```
-
-Upgrade with:
-
-```sh
-pipx upgrade nava-platform-cli
-```
-
-(or uninstall and install again)
-
-</details>
-
-### Nix
-
-> [!IMPORTANT]
-> This is currently broken on macOS due to upstream issues:
->
-> https://github.com/copier-org/copier/issues/1595
-
-[Install nix](https://nixos.org/download/) if you haven't. This approach
-requires nothing else in your environment.
-
-Note, the first time running via nix might take a while building things (as
-there's no project shared cache setup currently)! But subsequent runs will be
-faster.
-
-You can install the tool with:
-
-```sh
-nix profile install github:navapbc/platform-cli
-```
-
-You can now run `nava-platform`. See [Getting Started](#getting-started).
-
-For one-off runs:
-
-```sh
-nix run github:navapbc/platform-cli -- <platform_cli_args>
-```
-
-<details>
-
-<summary>Other notes</summary>
-
-Upgrade with:
-
-``` sh
-nix profile upgrade platform-cli
-```
-
-Uninstall with:
-
-``` sh
-nix profile remove platform-cli
-```
-
-Alternatively for one-offs, you can checkout the project locally and in the
-repository run:
-
-```sh
-nix run . -- <platform_cli_args>
-```
-
-</details>
-
-### Docker/Container
-
-Install Docker if you haven't already. Note, Docker is the default for these
-instructions, but other container runtimes may be similar.
-
-Docker images are not currently published, so you'll need to build it yourself.
-
-To get a Docker image, clone the repository and run:
-
-```sh
-make build
-```
-
-`bin/docker-wrapper` exists to streamline running via Docker, so you can just:
-
-```sh
-./bin/docker-wrapper infra install ./my_project_directory
-```
-
-(it can be a little fragile, so treat gently and read about the assumptions it
-makes in the comments of the script)
-
-<details>
-
-<summary>Running manually</summary>
-
-After building, you will have a `nava-platform-cli` image locally available that
-you can run like:
-
-```sh
-docker run --rm -it nava-platform-cli
-```
-
-For pretty much anything useful, you will need to mount the relevant locations
-from your host system into the container. For example if running the tool in the
-directory of your target project:
-
-```sh
-docker run --rm -it -v "$(pwd):/project-dir" nava-platform-cli infra install /project-dir
-```
-
-(you may want to define some aliases in your shell for commons invocations like
-this)
-
-</details>
-
-## Getting Started
-
-After you have `nava-platform` installed, if you want to see the tool in action
-immediately, try:
+Try the tool immediately after installation:
 
 ```sh
 nava-platform infra install ./just-a-test
 ```
 
-Then read [the docs](./docs/getting-started/index.md) for how to apply it to
-existing projects and more.
+For detailed usage and integration with existing projects, see [the documentation](./docs/getting-started/index.md).
+
+---
+
+## Installation
+
+Choose one of the following installation methods based on your preferences and environment.
+
+### uv
+
+**Recommended for most users.**
+
+**Prerequisites:**
+- `git` 2.27+ on your `$PATH`
+
+**Steps:**
+
+1. [Install uv](https://docs.astral.sh/uv/getting-started/installation/) 0.5.8+ (released 2024-12-11)
+
+2. Install the platform CLI:
+   ```sh
+   uv tool install git+https://github.com/navapbc/platform-cli
+   ```
+
+**One-off execution** (without installing):
+```sh
+uvx --from git+https://github.com/navapbc/platform-cli -- <platform_cli_args>
+```
+
+**Management commands:**
+```sh
+# Upgrade
+uv tool upgrade nava-platform-cli
+
+# Uninstall
+uv tool uninstall nava-platform-cli
+```
+
+### pipx
+
+**Good alternative if you already have Python installed.**
+
+**Prerequisites:**
+- `git` 2.27+ on your `$PATH`
+- Python 3.8+ available on your system
+
+**Steps:**
+
+1. [Install pipx](https://pipx.pypa.io/stable/) if you haven't already
+
+2. Install the platform CLI:
+   ```sh
+   pipx install git+https://github.com/navapbc/platform-cli
+   ```
+   
+   **Don't have Python 3.11+?** Let pipx fetch it for you:
+   ```sh
+   pipx install --fetch-missing-python --python 3.12 git+https://github.com/navapbc/platform-cli
+   ```
+
+**One-off execution** (without installing):
+```sh
+pipx run --spec git+https://github.com/navapbc/platform-cli nava-platform <platform_cli_args>
+```
+
+**Management commands:**
+```sh
+# Upgrade
+pipx upgrade nava-platform-cli
+
+# Uninstall
+pipx uninstall nava-platform-cli
+```
+
+> **Note:** pipx requires Python 3.8+ to run itself, but installed tools are isolated from system Python packages.
+
+### Nix
+
+**For users who prefer reproducible builds and declarative environments.**
+
+> [!WARNING]
+> Currently broken on macOS due to [upstream issues](https://github.com/copier-org/copier/issues/1595)
+
+**Prerequisites:**
+- None! Nix provides everything needed.
+
+**Steps:**
+
+1. [Install Nix](https://nixos.org/download/) if you haven't already
+
+2. Install the platform CLI:
+   ```sh
+   nix profile install github:navapbc/platform-cli
+   ```
+
+**One-off execution** (without installing):
+```sh
+nix run github:navapbc/platform-cli -- <platform_cli_args>
+```
+
+**Management commands:**
+```sh
+# Upgrade
+nix profile upgrade platform-cli
+
+# Uninstall
+nix profile remove platform-cli
+```
+
+**For local development:**
+```sh
+# From within the cloned repository
+nix run . -- <platform_cli_args>
+```
+
+> **Note:** First-time execution may take longer due to building dependencies. Subsequent runs will be faster.
+
+### Docker/Container
+
+**For containerized environments or when you want complete isolation.**
+
+**Prerequisites:**
+- Docker (or another container runtime)
+
+**Steps:**
+
+1. Clone the repository
+
+2. Build the Docker image:
+   ```sh
+   make build
+   ```
+
+3. Use the wrapper script for simplified execution:
+   ```sh
+   ./bin/docker-wrapper infra install ./my_project_directory
+   ```
+
+> **Note:** The `docker-wrapper` script makes assumptions about your environment. Review the script comments before use.
+
+**Manual execution:**
+
+After building, run the container directly:
+```sh
+docker run --rm -it nava-platform-cli
+```
+
+**With volume mounting** (required for most operations):
+```sh
+docker run --rm -it -v "$(pwd):/project-dir" nava-platform-cli infra install /project-dir
+```
+
+> **Tip:** Consider creating shell aliases for common invocations.
+
+---
+
+## Getting Started
+
+Once you have `nava-platform` installed, you can start using it immediately.
+
+### Basic Usage
+
+Test the installation with a simple command:
+
+```sh
+nava-platform infra install ./just-a-test
+```
+
+### Documentation
+
+For comprehensive guides on using the platform CLI with existing projects:
+- [Getting Started Guide](./docs/getting-started/index.md)
+- [New Project Setup](./docs/getting-started/new-project.md)
+- [Migrating from Legacy Template](./docs/getting-started/migrating-from-legacy-template.md)
 
 ### Shell Completion
 
-You can install completion support for the CLI by running:
+Enable tab completion for your shell:
 
 ```sh
 nava-platform --install-completion
 ```
 
-Or if you want to put the config in a particular location for your shell
-manually, you need the output from:
+To manually configure completion, get the configuration output:
 
 ```sh
 nava-platform --show-completion
 ```
 
+---
+
 ## Development
 
-### Setup
+Contributing to the platform CLI? Here's how to set up your development environment.
 
-For hacking on the tool itself, there are a couple setup options.
+### Setup Options
 
-#### Standard
+#### Option 1: Standard Setup (Recommended)
 
-> [!IMPORTANT]
-> Prereqs:
->
-> - GNU Make (not strictly, but practically)
+**Prerequisites:**
+- GNU Make
 
-[Install uv](https://docs.astral.sh/uv/getting-started/installation/) 0.5.8+
-(released 2024-12-11) if you haven't (`make setup-tooling` for convenience).
+**Steps:**
 
-Run `make deps`
+1. Install uv 0.5.8+ (released 2024-12-11):
+   ```sh
+   # Or use: make setup-tooling
+   ```
+   [Installation guide](https://docs.astral.sh/uv/getting-started/installation/)
 
-Then you can run `uv run nava-platform`
+2. Install dependencies:
+   ```sh
+   make deps
+   ```
 
-#### Nix
+3. Run the CLI:
+   ```sh
+   uv run nava-platform
+   ```
 
-> [!IMPORTANT]
-> This is currently broken on macOS due to upstream issues:
->
-> https://github.com/copier-org/copier/issues/1595
+#### Option 2: Nix Development Environment
 
-`nix develop` will drop you into a shell with all dev tooling and python
-dependencies installed.
+> [!WARNING]
+> Currently broken on macOS due to [upstream issues](https://github.com/copier-org/copier/issues/1595)
 
-You can automate this with direnv.
+**Enter the development shell:**
+```sh
+nix develop
+```
 
+**Automate with direnv:**
+
+Basic setup:
 ```sh
 echo "use flake" > .envrc && direnv allow
 ```
 
-But you probably want to use
-[nix-direnv](https://github.com/nix-community/nix-direnv) (though there are
-other options, [see the direnv wiki page for
-Nix](https://github.com/direnv/direnv/wiki/Nix)). Which the easiest way for that
-is to simply have your `.envrc` source in the right version with something like:
-
+**Recommended:** Use [nix-direnv](https://github.com/nix-community/nix-direnv) for better caching. Add to `.envrc`:
 ```sh
 if ! has nix_direnv_version || ! nix_direnv_version 3.0.6; then
   source_url "https://raw.githubusercontent.com/nix-community/nix-direnv/3.0.6/direnvrc" "sha256-RYcUJaRMf8oF5LznDrlCXbkOQrywm0HDv1VjYGaJGdM="
@@ -299,24 +291,42 @@ fi
 use flake
 ```
 
-The exact version and hash is probably out of date, refer to the [upstream docs
-for best
-info](https://github.com/nix-community/nix-direnv?tab=readme-ov-file#installation).
+> **Note:** Check the [nix-direnv docs](https://github.com/nix-community/nix-direnv?tab=readme-ov-file#installation) for the latest version and hash.
 
-You can then use the `uv` command as normal, or run tooling directly.
+### Development Workflow
 
-### Process
+This is a standard Python project using **uv** for dependency management.
 
-The project is a standard Python project using uv for dependency management.
+**Useful commands:**
+```sh
+# See all available commands
+make help
 
-The Makefile has a number of useful commands, see the output of `make help`.
+# Run quality checks
+make check
+```
 
-You may want to consider setting up a pre-commit hook for or just manually
-running `make check` before pushing work, as this will run useful checks.
+**Best practices:**
+- Run `make check` before pushing changes
+- Consider setting up a pre-commit hook for automated checks
+- See [CONTRIBUTING.md](CONTRIBUTING.MD) for detailed contribution guidelines
 
-# Credits
+## Credits
 
-Icon designed by OpenMoji – the open-source emoji and icon project. License: [CC
-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/#)
+**Icon:** Designed by [OpenMoji](https://openmoji.org/) – the open-source emoji and icon project  
+License: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/#)
 
-Built on the back of [Copier](https://github.com/copier-org/copier).
+**Built with:** [Copier](https://github.com/copier-org/copier) – Template project generator
+
+---
+
+## License
+
+This project is licensed under the Apache 2.0 License. See the [LICENSE](LICENSE) file for details.
+
+## Community
+
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Contributing Guidelines](CONTRIBUTING.MD)
+- [Security Policy](SECURITY.md)
+
