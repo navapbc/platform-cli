@@ -309,7 +309,7 @@ make check
 **Best practices:**
 - Run `make check` before pushing changes
 - Consider setting up a pre-commit hook for automated checks
-- See [CONTRIBUTING.md](CONTRIBUTING.MD) for detailed contribution guidelines
+- See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines
 
 ## Credits
 
@@ -327,6 +327,6 @@ This project is licensed under the Apache 2.0 License. See the [LICENSE](LICENSE
 ## Community
 
 - [Code of Conduct](CODE_OF_CONDUCT.md)
-- [Contributing Guidelines](CONTRIBUTING.MD)
+- [Contributing Guidelines](CONTRIBUTING.md)
 - [Security Policy](SECURITY.md)
 
