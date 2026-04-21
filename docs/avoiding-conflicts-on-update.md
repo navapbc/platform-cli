@@ -39,5 +39,30 @@ version of "notifications" for `<PROJECT_NAME>`, consider calling the module
 
 ### Application templates
 
-No good advice at the moment. It can be hard to avoid conflicts given the nature
-of applications. But at least keep in mind which files are tracked upstream.
+Application templates tend to touch files that projects also customize heavily
+(e.g. `README.md`, CI workflow files, root-level config files), so conflicts are
+more likely here than in infra templates. A few practical strategies:
+
+**Know which files are template-owned.** Run `git log --follow <file>` on files
+you intend to customize to see whether they were originally written by the
+template. If so, expect that upstream may update them and plan accordingly.
+
+**Use thin wrapper files where possible.** If an application template ships a
+CI workflow you need to tweak, prefer adding a separate workflow file that
+extends or supplements it rather than editing the template-owned file directly.
+The same applies to configuration files that support an "include" or "extend"
+mechanism (e.g. ESLint, TypeScript, Prettier configs).
+
+**Isolate project-specific content.** Files like `README.md` and
+`.github/pull_request_template.md` are natural conflict points. Consider keeping
+project-specific content in a separate included file (e.g.
+`docs/project-overview.md`) and keeping the template-owned file minimal.
+
+**Commit project customizations separately from template updates.** When you
+first apply a template, make one commit for the raw template output and a
+follow-up commit for your project-specific edits. This makes future 3-way merges
+cleaner because the "yours" side is clearly separated.
+
+**Update frequently.** Smaller, more frequent updates mean each merge has less
+divergence to reconcile. Letting many template versions accumulate makes
+conflicts significantly harder to untangle.
