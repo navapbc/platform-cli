@@ -2,3 +2,4 @@ nav:
   - index.md
   - migrating-from-legacy-template.md
   - new-project.md
+  - working-with-existing-template.md

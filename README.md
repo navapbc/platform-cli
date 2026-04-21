@@ -218,6 +218,7 @@ nava-platform infra install ./just-a-test
 For comprehensive guides on using the platform CLI with existing projects:
 - [Getting Started Guide](./docs/getting-started/index.md)
 - [New Project Setup](./docs/getting-started/new-project.md)
+- [Working with an Existing Template](./docs/getting-started/working-with-existing-template.md)
 - [Migrating from Legacy Template](./docs/getting-started/migrating-from-legacy-template.md)
 
 ### Shell Completion
