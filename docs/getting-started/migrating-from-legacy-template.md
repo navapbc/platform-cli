@@ -128,34 +128,6 @@ to `app`
 - [v0.6.0](https://github.com/navapbc/template-infra/releases/tag/v0.6.0)
     - Networking changes likely requiring hours of downtime to apply
 
-### Validating the migration
-
-Before moving on, confirm that the migration landed cleanly:
-
-1. **Check the `.template-infra/` directory.** It should contain a `base.yml`
-   and one `app-<APP_NAME>.yml` per application. Open each file and verify the
-   `_commit` value matches the version you intended to migrate to and that the
-   answer variables look correct for your project.
-
-2. **Run `infra info` to confirm the CLI can read the state:**
-   ```sh
-   nava-platform infra info .
-   ```
-   This should print the current version and any available upgrades without
-   errors. An error here usually means a YAML file in `.template-infra/` is
-   malformed or missing.
-
-3. **Check the git log.** The migration and update commits should be present and
-   the working tree should be clean (`git status` shows nothing uncommitted).
-
-4. **Review the diff of the update commit.** Run `git show HEAD` (or the
-   relevant commit hash) and skim the changed files. Pay particular attention to
-   Terraform state-affecting resources — changes there may require a `terraform
-   plan` to validate before applying.
-
-If anything looks wrong, you can re-run the migration command or reach out to
-the Platform team before proceeding.
-
 ### Post-migration
 
 After completing the migration, you may want to see what results from
