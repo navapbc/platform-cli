@@ -77,6 +77,22 @@
           # Implement build fixups here.
           # Note that uv2nix is _not_ using Nixpkgs buildPythonPackage.
           # It's using https://pyproject-nix.github.io/pyproject.nix/build.html
+          copier = prev.copier.overrideAttrs (old: rec {
+            src = pkgs.fetchFromGitHub {
+              owner = "copier-org";
+              repo = "copier";
+              rev = "cdbd0b14e688d04a95873513473bf14e58784171";
+              # Conflict on APFS on darwin, upstream issue:
+              # https://github.com/copier-org/copier/issues/1595
+              #
+              # As is done in nixpkgs:
+              # https://github.com/NixOS/nixpkgs/blob/7b93222476728a4ad4c9c140ca8801dd6a86f854/pkgs/development/python-modules/copier/default.nix#L38
+              postFetch = ''
+                rm $out/tests/demo/doc/ma*ana.txt
+              '';
+              hash = "sha256-4vV7t+PJUmx+HhxDyxo6LEQaaIKWgMTe3rZOBIt114g=";
+            };
+          });
         };
 
         python = pkgs.python312;
