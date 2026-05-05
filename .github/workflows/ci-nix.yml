@@ -12,9 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # macos is currently broken due to:
-        # https://github.com/copier-org/copier/issues/1595
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macos-latest]
 
     uses: ./.github/workflows/ci-nix-template.yml
     with:
