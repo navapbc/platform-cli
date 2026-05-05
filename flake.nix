@@ -112,7 +112,7 @@
 
           # linting
           shellcheck
-          nixfmt-rfc-style
+          nixfmt
           actionlint
 
           # container things
@@ -147,7 +147,8 @@
           contents = [
             dockerEntryPkg
             nava-platform-cli
-          ] ++ runtimePackages;
+          ]
+          ++ runtimePackages;
           config = {
             Entrypoint = "docker-entry";
             WorkingDir = "/project-dir";
@@ -297,11 +298,12 @@
             env = {
               # Force uv to use nixpkgs Python interpreter
               UV_PYTHON = python.interpreter;
-            } // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
-                # Python libraries often load native shared objects using dlopen(3).
-                # Setting LD_LIBRARY_PATH makes the dynamic library loader aware of libraries without using RPATH for lookup.
-                LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath pkgs.pythonManylinuxPackages.manylinux1;
-              };
+            }
+            // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
+              # Python libraries often load native shared objects using dlopen(3).
+              # Setting LD_LIBRARY_PATH makes the dynamic library loader aware of libraries without using RPATH for lookup.
+              LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath pkgs.pythonManylinuxPackages.manylinux1;
+            };
 
             shellHook = ''
               # Undo dependency propagation by nixpkgs.
