@@ -99,7 +99,7 @@ uv tool uninstall nava-platform-cli
    ```sh
    pipx install git+https://github.com/navapbc/platform-cli
    ```
-   
+
    **Don't have Python 3.11+?** Let pipx fetch it for you:
    ```sh
    pipx install --fetch-missing-python --python 3.12 git+https://github.com/navapbc/platform-cli
@@ -307,7 +307,7 @@ make check
 
 ## Credits
 
-**Icon:** Designed by [OpenMoji](https://openmoji.org/) – the open-source emoji and icon project  
+**Icon:** Designed by [OpenMoji](https://openmoji.org/) – the open-source emoji and icon project
 License: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/#)
 
 **Built with:** [Copier](https://github.com/copier-org/copier) – Template project generator
@@ -323,4 +323,3 @@ This project is licensed under the Apache 2.0 License. See the [LICENSE](LICENSE
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Contributing Guidelines](CONTRIBUTING.md)
 - [Security Policy](SECURITY.md)
-
