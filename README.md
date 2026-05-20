@@ -125,9 +125,6 @@ pipx uninstall nava-platform-cli
 
 **For users who prefer reproducible builds and declarative environments.**
 
-> [!WARNING]
-> Currently broken on macOS due to [upstream issues](https://github.com/copier-org/copier/issues/1595)
-
 **Prerequisites:**
 - None! Nix provides everything needed.
 
@@ -266,9 +263,6 @@ Contributing to the platform CLI? Here's how to set up your development environm
    ```
 
 #### Option 2: Nix Development Environment
-
-> [!WARNING]
-> Currently broken on macOS due to [upstream issues](https://github.com/copier-org/copier/issues/1595)
 
 **Enter the development shell:**
 ```sh
