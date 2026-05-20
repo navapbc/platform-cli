@@ -115,11 +115,18 @@
         # see https://github.com/nix-community/poetry2nix/tree/master#api for more functions and examples.
         nava-platform-cli-env = pythonSet.mkVirtualEnv "nava-platform-cli-env" workspace.deps.default;
 
-        # TODO: inject runtimePackages here?
-        nava-platform-cli = (pkgs.callPackages pyproject-nix.build.util { }).mkApplication {
+        nava-platform-cli-bin = (pkgs.callPackages pyproject-nix.build.util { }).mkApplication {
           venv = nava-platform-cli-env;
           package = pythonSet.nava-platform-cli;
         };
+
+        nava-platform-cli = nava-platform-cli-bin.overrideAttrs (old: {
+          buildInputs = (old.buildInputs or [ ]) ++ [ pkgs.makeWrapper ];
+          postInstall = ''
+            wrapProgram $out/bin/nava-platform \
+              --prefix PATH : ${pkgs.lib.makeBinPath runtimePackages}
+          '';
+        });
 
         # TODO: could add docker-client here?
         generalDevPackages = with pkgs; [
@@ -202,6 +209,7 @@
         packages = {
           default = nava-platform-cli;
           nava-platform-cli = nava-platform-cli;
+          nava-platform-cli-bin = nava-platform-cli-bin;
           docs = cli-docs-site;
 
           docker = pkgs.dockerTools.buildLayeredImage dockerBuildArgs;
