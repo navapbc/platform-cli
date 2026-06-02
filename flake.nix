@@ -124,7 +124,8 @@
           buildInputs = (old.buildInputs or [ ]) ++ [ pkgs.makeWrapper ];
           postInstall = ''
             wrapProgram $out/bin/nava-platform \
-              --prefix PATH : ${pkgs.lib.makeBinPath runtimePackages}
+              --prefix PATH : ${pkgs.lib.makeBinPath runtimePackages} \
+              --unset PYTHONPATH
           '';
         });
 
