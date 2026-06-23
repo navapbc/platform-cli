@@ -1,0 +1,25 @@
+name: "Set up navapbc/platform-cli"
+description: "Make `nava-platform` tool available in the running environment"
+
+inputs:
+  cli-version:
+    description: "A Git ref for the version of the tool to use (e.g., d5750bb or main)"
+    required: true
+    default: main
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.13'
+
+    - name: Install nava-platform CLI
+      shell: bash
+      env:
+        CLI_VERSION: ${{ inputs.cli-version }}
+      run: |
+        pipx install \
+          --python "$(which python)" \
+          "git+https://github.com/navapbc/platform-cli@${CLI_VERSION}"
