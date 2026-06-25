@@ -1,6 +1,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
+    "github>navapbc/strata-lib-renovate",
+    "github>navapbc/strata-lib-renovate:dependencyDashboard",
+    "github>navapbc/strata-lib-renovate:labels"
   ]
 }
