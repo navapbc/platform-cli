@@ -3,7 +3,8 @@
   "extends": [
     "github>navapbc/strata-lib-renovate",
     "github>navapbc/strata-lib-renovate:dependencyDashboard",
-    "github>navapbc/strata-lib-renovate:labels"
+    "github>navapbc/strata-lib-renovate:labels",
+    "github>navapbc/strata-lib-renovate:groupLangUpdatesPython"
   ],
   "nix": {
     "enabled": true
