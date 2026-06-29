@@ -1,9 +1,5 @@
 # Make sure PYTHON_VERSION matches the value in .python-version
-#
-# Lie a little bit with `depName` since ultimately what we are interested in is
-# the Python version.
-#
-# renovate: datasource=docker depName=registry.docker.com/library/python
+# renovate: datasource=python-version depName=python
 ARG PYTHON_VERSION=3.12
 
 FROM ghcr.io/astral-sh/uv:python$PYTHON_VERSION-bookworm-slim@sha256:abee452509bff525494b21aea05708bfa026802b12741213594be2be13741a97
