@@ -4,9 +4,30 @@
     "github>navapbc/strata-lib-renovate",
     "github>navapbc/strata-lib-renovate:dependencyDashboard",
     "github>navapbc/strata-lib-renovate:labels",
-    "github>navapbc/strata-lib-renovate:groupLangUpdatesPython"
+
+    "customManagers:dockerfileVersions"
   ],
   "nix": {
     "enabled": true
-  }
+  },
+  "packageRules": [
+    {
+      "groupName": "Python language",
+      "groupSlug": "python-lang",
+      "matchManagers": [
+        "dockerfile",
+        "custom.regex",
+        "pyenv"
+      ],
+      "matchDatasources": [
+        "docker",
+        "pypi"
+      ],
+      "matchDepNames": [
+        "python",
+        "registry.docker.com/library/python"
+      ],
+      "commitMessageTopic": "Python language"
+    }
+  ]
 }
