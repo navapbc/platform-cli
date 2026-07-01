@@ -26,7 +26,8 @@
       ],
       "matchDepNames": [
         "python",
-        "registry.docker.com/library/python"
+        "registry.docker.com/library/python",
+        "actions/python-versions"
       ],
       "commitMessageTopic": "Python language"
     }
