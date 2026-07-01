@@ -14,20 +14,8 @@
     {
       "groupName": "Python language",
       "groupSlug": "python-lang",
-      "matchManagers": [
-        "dockerfile",
-        "custom.regex",
-        "pyenv"
-      ],
-      "matchDatasources": [
-        "docker",
-        "pypi",
-        "python-version"
-      ],
       "matchDepNames": [
-        "python",
-        "registry.docker.com/library/python",
-        "actions/python-versions"
+        "python"
       ],
       "commitMessageTopic": "Python language"
     }
