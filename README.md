@@ -62,7 +62,7 @@ Choose one of the following installation methods based on your preferences and e
 
 **Steps:**
 
-1. [Install uv](https://docs.astral.sh/uv/getting-started/installation/) 0.5.8+ (released 2024-12-11)
+1. [Install uv](https://docs.astral.sh/uv/getting-started/installation/) 0.6.15+ (released 2025-04-21)
 
 2. Install the platform CLI:
    ```sh

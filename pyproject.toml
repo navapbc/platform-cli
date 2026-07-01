@@ -29,7 +29,7 @@ dependencies = [
 ]
 
 [tool.uv]
-required-version = ">0.5.8"
+required-version = ">0.6.15"
 
 [project.scripts]
 nava-platform = "nava.platform.cli.__main__:__main__"
