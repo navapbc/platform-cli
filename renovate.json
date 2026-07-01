@@ -1,0 +1,23 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "github>navapbc/strata-lib-renovate",
+    "github>navapbc/strata-lib-renovate:dependencyDashboard",
+    "github>navapbc/strata-lib-renovate:labels",
+
+    "customManagers:dockerfileVersions"
+  ],
+  "nix": {
+    "enabled": true
+  },
+  "packageRules": [
+    {
+      "groupName": "Python language",
+      "groupSlug": "python-lang",
+      "matchDepNames": [
+        "python"
+      ],
+      "commitMessageTopic": "Python language"
+    }
+  ]
+}
