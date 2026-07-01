@@ -10,8 +10,20 @@ function get_image_digest() {
 }
 
 images_used_with_digest=$(perl -lne 'print $1 if /^FROM (.*)@.*$/' "${file}")
+vars=$(perl -lne 'print $1 if /^ARG (.*=.*)$/' "${file}")
 
-while IFS= read -r image; do
-    latest_digest=$(get_image_digest "${image}")
-    sed -ri "s|^FROM ${image}@[[:alnum:]:]+ (.*)|FROM ${image}@${latest_digest} \1|" "${file}"
+while IFS= read -r image_src; do
+
+    image_resolved="${image_src}"
+
+    while IFS= read -r var; do
+      var_name=${var%%=*}
+      var_value=${var##*=}
+      image_resolved="${image_resolved//\$${var_name}/${var_value}}"
+    done <<< "${vars}"
+
+    latest_digest=$(get_image_digest "${image_resolved}")
+
+    escaped_image_src="${image_src//$/\\$}"
+    sed -ri "s;^FROM ${escaped_image_src}@[[:alnum:]:]+($|\s+.*);FROM ${escaped_image_src}@${latest_digest}\1;" "${file}"
 done <<< "${images_used_with_digest}"
