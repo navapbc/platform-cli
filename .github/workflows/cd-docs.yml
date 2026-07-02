@@ -6,10 +6,7 @@ on:
     branches:
       - main
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+permissions: {}
 
 concurrency:
   group: "pages"
@@ -17,8 +14,10 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - uses: ./.github/actions/setup-nix
@@ -32,9 +31,15 @@ jobs:
 
   deploy:
     needs: build
+
+    permissions:
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to GitHub Pages
