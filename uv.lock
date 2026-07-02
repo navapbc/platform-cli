@@ -732,7 +732,6 @@ name = "nava-platform-cli"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
-    { name = "click" },
     { name = "copier" },
     { name = "packaging" },
     { name = "platformdirs" },
@@ -762,7 +761,6 @@ docs = [
 
 [package.metadata]
 requires-dist = [
-    { name = "click", specifier = ">=8.1.7" },
     { name = "copier", git = "https://github.com/copier-org/copier?rev=cdbd0b14e688d04a95873513473bf14e58784171" },
     { name = "packaging", specifier = ">=24.1" },
     { name = "platformdirs", specifier = ">=4.3.6" },
