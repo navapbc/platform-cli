@@ -252,7 +252,7 @@ class Template:
         result = project.git.commit_all(msg)
 
         if result.returncode != 0:
-            self.ctx.console.error.print(result.stderr if result.stderr else result.stdout)
+            self.ctx.console.error.print(result.stderr or result.stdout)
             self.ctx.exit(2)
 
         if result.stdout:
