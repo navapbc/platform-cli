@@ -1,6 +1,8 @@
 #!/usr/bin/env sh
 set -e
 
+export NAVA_PLATFORM_VERBOSE=1
+
 for test_script in tests-e2e/test*; do
     echo "::group::${test_script}"
     ./"${test_script}"
