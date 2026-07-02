@@ -60,6 +60,12 @@ module = "tests.*"
 disallow_untyped_defs = false
 disallow_incomplete_defs = false
 
+[tool.pytest]
+filterwarnings = [
+    # internal to Copier
+    'ignore:GitWildMatchPattern .* is deprecated:DeprecationWarning'
+]
+
 [tool.ruff]
 line-length = 100
 # see docs at https://docs.astral.sh/ruff/rules
