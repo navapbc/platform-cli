@@ -21,7 +21,7 @@ def from_str_values(value: Iterable[str] | None) -> dict[str, str] | None:
 
         result[k] = v
 
-    return result if result else None
+    return result or None
 
 
 class LeastRecentlyUsedDict(collections.OrderedDict[Hashable, int]):

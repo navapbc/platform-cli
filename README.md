@@ -89,7 +89,7 @@ uv tool uninstall nava-platform-cli
 
 **Prerequisites:**
 - `git` 2.27+ on your `$PATH`
-- Python 3.8+ available on your system
+- Python 3.11+ available on your system
 
 **Steps:**
 
@@ -119,7 +119,7 @@ pipx upgrade nava-platform-cli
 pipx uninstall nava-platform-cli
 ```
 
-> **Note:** pipx requires Python 3.8+ to run itself, but installed tools are isolated from system Python packages.
+> **Note:** pipx requires Python 3.10+ to run itself, but installed tools are isolated from system Python packages.
 
 ### Nix
 

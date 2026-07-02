@@ -33,7 +33,7 @@ def _migrate_from_legacy(
         template_name="template-infra",
         legacy_version_file_name=".template-version",
         new_version_answers_file_name="base.yml",
-        extra_answers=lambda _: (base_project_config_answers | {"template": "base"}),
+        extra_answers=lambda _: base_project_config_answers | {"template": "base"},
     )
     base_migrate.migrate_from_legacy(
         preserve_legacy_file=True, commit=commit, use_migration_tags=True
