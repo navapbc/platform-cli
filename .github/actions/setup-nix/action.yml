@@ -3,7 +3,7 @@ description: "Install and configure Nix for Github Actions"
 runs:
   using: "composite"
   steps:
-    - uses: nixbuild/nix-quick-install-action@v30
+    - uses: nixbuild/nix-quick-install-action@9f63be77f412a248c9d9a65a4c82cf066cdf8f0c # v35
     - uses: nix-community/cache-nix-action@v6
       with:
         # restore and save a cache using this key
