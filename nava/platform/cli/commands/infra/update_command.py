@@ -89,9 +89,9 @@ def update_app(
                         choices=project.app_names,
                         use_search_filter=True,
                         use_jk_keys=False,
-                        validate=lambda choices: "You must choose at least one app to update"
-                        if not choices
-                        else True,
+                        validate=lambda choices: (
+                            "You must choose at least one app to update" if not choices else True
+                        ),
                     ).unsafe_ask(),
                 )
         elif wrong_app_names := sorted(list(set(app_names).difference(project.app_names))):
