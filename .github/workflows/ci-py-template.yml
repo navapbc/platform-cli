@@ -10,6 +10,8 @@ on:
         required: true
         type: string
 
+permissions: {}
+
 jobs:
   uv:
     uses: ./.github/workflows/ci-uv.yml
