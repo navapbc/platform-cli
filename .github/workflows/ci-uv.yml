@@ -75,3 +75,7 @@ jobs:
 
       - name: Run e2e
         run: make test-e2e
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: ./.github/actions/upload-cli-logs
