@@ -33,7 +33,7 @@ jobs:
         run: make deps
 
       - name: Run lint
-        run: make check-static
+        run: make --keep-going lint-py
 
   test:
     name: Test
