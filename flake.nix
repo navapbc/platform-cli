@@ -138,6 +138,7 @@
           shellcheck
           nixfmt
           actionlint
+          zizmor
 
           # container things
           skopeo

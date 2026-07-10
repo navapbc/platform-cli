@@ -81,7 +81,18 @@ fmt: ## Run formatter
 	$(PY_RUN) ruff format $(FMT_ARGS) $(PY_SRCS)
 
 lint: ## Run linting
-lint: lint-mypy lint-ruff lint-uv
+lint: lint-py lint-gh
+
+lint-gh: ## Run GitHub linters
+lint-gh: lint-actionlint lint-zizmor
+
+lint-actionlint: ## Run actionlint for GitHub Actions
+	actionlint
+
+lint-zizmor: ## Run zizmor for GitHub Actions
+	zizmor .github
+
+lint-py: lint-mypy lint-ruff lint-uv
 
 lint-mypy: ## Run mypy
 	$(PY_RUN) mypy $(args) $(PY_SRCS)
