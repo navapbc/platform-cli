@@ -227,6 +227,8 @@
           };
         };
 
+        formatter = pkgs.nixfmt;
+
         devShells = {
           # Shell for general app development.
           #

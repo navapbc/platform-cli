@@ -77,7 +77,13 @@ $(REFERENCE_DOC_DIR)/%.md: %.py
 	mkdir -p $(@D)
 	echo "::: $(call python_module_name_from_file_name, $<)" > $@
 
-fmt: ## Run formatter
+fmt: ## Run formatting
+fmt: fmt-py fmt-nix
+
+fmt-nix: ## Format Nix files
+	nix fmt flake.nix
+
+fmt-py: ## Format Python files
 	$(PY_RUN) ruff format $(FMT_ARGS) $(PY_SRCS)
 
 lint: ## Run linting
