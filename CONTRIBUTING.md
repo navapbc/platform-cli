@@ -42,6 +42,30 @@ This keeps everyone on the same page, avoids wasted efforts on changes that may
 not fit the project's direction, and prevents multiple contributors from working
 on the same thing.
 
+## Finding where to pitch in
+
+Maintainers label issues that would be good for first-time contributors with
+["workflow: good first issue"][w: gfi]. These issues should not require a lot of
+context on the project itself and any details should be clearly laid out in the
+issue, though in some cases they may require some familiarity with tooling or
+ecosystems used by the project.
+
+After you are comfortable with the development setup and process, issues labeled
+with ["workflow: self-contained"][w: sc] are the next best place to start. These
+will vary in size and complexity, but will be relatively isolated in scope and
+should not require grasping complex interactions or architectural details.
+
+That's not to say these are the only issues you can look at, but these should be
+the lowest friction starts. Always follow the guidance in the previous section
+for indicating interest and getting assigned before starting work on any issue.
+
+Beyond the previous labels, [general bugs][bugs] often can use more hands.
+Anything labeled with "workflow: needs refinement" should be avoided.
+
+[w: gfi]: https://github.com/navapbc/platform-cli/issues?q=state%3Aopen%20label%3A%22workflow%3A%20good%20first%20issue%22
+[w: sc]: https://github.com/navapbc/platform-cli/issues?q=state%3Aopen%20label%3A%22workflow%3A%20self-contained%22
+[bugs]: https://github.com/navapbc/platform-cli/issues?q=state%3Aopen%20type%3ABug
+
 ## Submitting changes
 
 1. Push your changes up to GitHub
