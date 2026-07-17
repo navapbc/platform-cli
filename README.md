@@ -239,44 +239,31 @@ Contributing to the platform CLI? Here's how to set up your development environm
 
 ### Setup Options
 
-#### Option 1: Standard Setup (Recommended)
+#### Option 1: Nix (Recommended)
 
-**Prerequisites:**
-- GNU Make
+1. [Install Nix](https://nixos.org/download/) if you haven't already
+2. Activate development shell
 
-**Steps:**
+    ```sh
+    nix develop
+    ```
 
-1. Install uv 0.5.8+ (released 2024-12-11):
-   ```sh
-   # Or use: make setup-tooling
-   ```
-   [Installation guide](https://docs.astral.sh/uv/getting-started/installation/)
+3. Run Make targets or `uv` as desired
+   - No need to run `make deps` to get started, all the Python dependencies are
+     included in the development shell automatically. If you add/remove/update
+     Python dependencies in `pyproject.toml`, reload the development shell to
+     pick up the changes.
 
-2. Install dependencies:
-   ```sh
-   make deps
-   ```
-
-3. Run the CLI:
-   ```sh
-   uv run nava-platform
-   ```
-
-#### Option 2: Nix Development Environment
-
-**Enter the development shell:**
-```sh
-nix develop
-```
-
-**Automate with direnv:**
+**Automate environment activation with direnv:**
 
 Basic setup:
+
 ```sh
 echo "use flake" > .envrc && direnv allow
 ```
 
 **Recommended:** Use [nix-direnv](https://github.com/nix-community/nix-direnv) for better caching. Add to `.envrc`:
+
 ```sh
 if ! has nix_direnv_version || ! nix_direnv_version 3.0.6; then
   source_url "https://raw.githubusercontent.com/nix-community/nix-direnv/3.0.6/direnvrc" "sha256-RYcUJaRMf8oF5LznDrlCXbkOQrywm0HDv1VjYGaJGdM="
@@ -285,7 +272,39 @@ fi
 use flake
 ```
 
-> **Note:** Check the [nix-direnv docs](https://github.com/nix-community/nix-direnv?tab=readme-ov-file#installation) for the latest version and hash.
+> **Note:** Check the [nix-direnv
+> docs](https://github.com/nix-community/nix-direnv?tab=readme-ov-file#installation)
+> for the latest version and hash.
+
+#### Option 2: Non-Nix Setup
+
+For basic development and running Python code, this is relatively
+straightforward. For a more complete development environment, see the previous
+option.
+
+**Prerequisites:**
+
+- GNU Make
+
+**Steps:**
+
+1. [Install uv](https://docs.astral.sh/uv/getting-started/installation/) 0.6.15+ (released 2025-04-21):
+
+   ```sh
+   # Or use: make setup-tooling
+   ```
+
+2. Install Python dependencies:
+
+   ```sh
+   make deps
+   ```
+
+3. Run the CLI:
+
+   ```sh
+   uv run nava-platform
+   ```
 
 ### Development Workflow
 
