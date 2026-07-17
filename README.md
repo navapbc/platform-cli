@@ -16,20 +16,6 @@ _Part of [Nava Strata](https://github.com/navapbc/strata)._
 
 A command-line tool that simplifies installing, upgrading, and managing Nava Strata.
 
-## Table of Contents
-
-- [Quick Start](#quick-start)
-- [Installation](#installation)
-  - [uv (Recommended)](#uv)
-  - [pipx](#pipx)
-  - [Nix](#nix)
-  - [Docker/Container](#dockercontainer)
-- [Getting Started](#getting-started)
-- [Development](#development)
-- [Credits](#credits)
-
----
-
 ## Quick Start
 
 Try the tool immediately after installation:
