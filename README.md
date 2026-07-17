@@ -1,25 +1,18 @@
-<p>
-  <img src="docs/assets/Nava-Strata-Logo-V02.svg" alt="Nava Strata" width="400">
-</p>
-<p><i>Open source tools for every layer of government service delivery.</i></p>
-<p><b>Strata is a gold-standard target architecture and suite of open-source tools that gives government agencies everything they need to run a modern service.</b></p>
+# Nava Platform CLI
 
-<h4 align="center">
+_Part of [Nava Strata](https://github.com/navapbc/strata)._
+
+<p align="center">
   <a href="https://github.com/navapbc/platform-cli/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/license-apache_2.0-red" alt="Nava Strata is released under the Apache 2.0 license" >
   </a>
   <a href="https://github.com/navapbc/platform-cli/blob/main/CONTRIBUTING.md">
     <img src="https://img.shields.io/badge/PRs-Welcome-brightgreen" alt="PRs welcome!" />
   </a>
-  <a href="https://github.com/navapbc/platform-cli/issues">
+  <a href="https://github.com/navapbc/platform-cli/commits/main">
     <img src="https://img.shields.io/github/commit-activity/m/navapbc/platform-cli" alt="git commit activity" />
   </a>
-  <a href="https://github.com/navapbc/platform-cli/repos/">
-    <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/navapbc/platform-cli/total">
-  </a>
-</h4>
-
-# Nava PBC Platform CLI
+</p>
 
 A command-line tool that simplifies installing, upgrading, and managing Nava Strata.
 
@@ -335,7 +328,8 @@ License: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/#)
 
 ## License
 
-This project is licensed under the Apache 2.0 License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache 2.0 License. See the
+[LICENSE](LICENSE) file for details.
 
 ## Community
 
