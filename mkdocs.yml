@@ -63,9 +63,58 @@ plugins:
       default_handler: python
       handlers:
         python:
+          # Mostly following:
+          # https://mkdocstrings.github.io/python/usage/#recommended-settings
           options:
             preload_modules:
               - copier
+
+            docstring_section_style: spacy
+
+            # CROSS-REFERENCES -------------------------------------------------------
+            # Enable cross-references in signatures.
+            signature_crossrefs: true
+
+            # Unwrap actual types from `Annotated` type annotations.
+            unwrap_annotated: true
+
+            # MEMBERS ----------------------------------------------------------------
+            # Show class inherited members.
+            inherited_members: true
+
+            # Render auto-generated summaries of attributes, functions, etc.
+            # at the start of each symbol's documentation.
+            summary: true
+
+            # HEADINGS ---------------------------------------------------------------
+            heading_level: 1
+            parameter_headings: true
+            type_parameter_headings: true
+            show_root_heading: true
+            show_root_full_path: false
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+
+            # SIGNATURES -------------------------------------------------------------
+            line_length: 88
+
+            # Merge signature and docstring of `__init__` methods
+            # into their parent class signature and docstring.
+            merge_init_into_class: true
+
+            # Render signatures and attribute values in a separate code block,
+            # below the symbol heading.
+            separate_signature: true
+
+            # Show type annotations in signatures.
+            show_signature_annotations: true
+
+            # Show type parameters in signatures.
+            show_signature_type_parameters: true
+
+            # OTHER ------------------------------------------------------------------
+            # Show base classes
+            show_bases: false
   - search
 
 validation:
