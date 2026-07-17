@@ -1,17 +1,17 @@
-# Migrating old templates to Nava Platform CLI
+# Migrating old templates to the CLI
 
 Previously templates would (generally) store the version installed into a
 `.<TEMPLATE_NAME>-version` file at the root of the project. Templates updated to
-use the Platform CLI track this info in a different way, so before utilizing the
-Platform CLI you'll need to convert the old file into the new format.
+use the CLI track this info in a different way, so before utilizing the CLI
+you'll need to convert the old file into the new format.
 
-The Platform CLI provides commands for doing this migration, though the exact
-steps you need to take will vary depending on what templates you have installed.
+The CLI provides commands for doing this migration, though the exact steps you
+need to take will vary depending on what templates you have installed.
 
 ## template-infra
 
-The switch to Platform CLI happened with `v0.15.0`. If you are running a version
-earlier than this, you'll need to migrate things.
+The switch to CLI happened with `v0.15.0`. If you are running a version earlier
+than this, you'll need to migrate things.
 
 One way to figure out what version of `template-infra` your project is using is
 to run, at the root of your project:
@@ -24,9 +24,8 @@ Look for the "Closest upstream version" value. If it is "Unknown", reach out to
 the Platform team for guidance.
 
 If the value is pre-`v0.12.0`, you may want to approach the update in smaller
-steps than jumping directly to `v0.15.0`. You can use the Platform CLI to do
-these updates as well, see [Migrate in smaller
-steps](#migrate-in-smaller-steps).
+steps than jumping directly to `v0.15.0`. You can use the CLI to do these
+updates as well, see [Migrate in smaller steps](#migrate-in-smaller-steps).
 
 As always, read the [release
 notes](https://github.com/navapbc/template-infra/releases) for each version
@@ -47,7 +46,7 @@ This will result in a `.template-infra/` directory with a number of files inside
 of it. Check that the `app-<APP_NAME>.yml` files all correspond to proper
 applications. Remove any that don't and update the commit.
 
-This gets your project into a state that Platform CLI can understand.
+This gets your project into a state that the CLI can understand.
 
 Now perform the actual template update, with:
 
@@ -69,7 +68,7 @@ nava-platform infra update-app --all .
 Likely you'll hit merge conflicts for each app as well, resolve those, commit,
 and move on to the next app, until you've done them all.
 
-See [the docs on updating in general](../updating.md) for more details on running
+See [the docs on updating in general](./updating.md) for more details on running
 updates.
 
 ### Migrate in smaller steps
@@ -77,17 +76,20 @@ updates.
 This is similar to the previous section, so read that first.
 
 1. Run the `migrate-from-legacy` command as stated in previous section. This
-   gets you into the Platform CLI ecosystem.
+   gets you into the CLI ecosystem.
 2. Then decide which version of `template-infra` you want to update to,
    represented by `v0.x.x` in the following example:
+
    ```sh
    nava-platform infra update --version platform-cli-migration/v0.x.x .
    ```
+
 3. Follow update guidance as discussed in previous section.
 4. Do steps 2-3 over and over, jumping versions as you see fit until you hit
    `v0.15.0`.
 5. Once on `v0.15.0`, run a final update to get to the latest release (or to
    whatever post-`v0.15.0` version you want):
+
    ```sh
    nava-platform infra update [--version vA.B.C] .
    ```

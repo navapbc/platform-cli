@@ -16,309 +16,64 @@ _Part of [Nava Strata](https://github.com/navapbc/strata)._
 
 A command-line tool that simplifies installing, upgrading, and managing Nava Strata.
 
-## Quick Start
-
-Try the tool immediately after installation:
-
-```sh
-nava-platform infra install ./just-a-test
-```
-
-For detailed usage and integration with existing projects, see [the documentation](./docs/getting-started/index.md).
-
----
-
 ## Installation
 
-Choose one of the following installation methods based on your preferences and environment.
+Recommended options:
 
-### uv
+- uv: `uv tool install git+https://github.com/navapbc/platform-cli`
+- Nix: `nix profile add github:navapbc/platform-cli`
 
-**Recommended for most users.**
+> [!TIP]
+>
+> The CLI can be installed in additional ways which may fit your needs better.
+> See all the supported methods in [the installation
+> documentation](./docs/getting-started/installation.md).
 
-**Prerequisites:**
-- `git` 2.27+ on your `$PATH`
+## Getting started
 
-**Steps:**
-
-1. [Install uv](https://docs.astral.sh/uv/getting-started/installation/) 0.6.15+ (released 2025-04-21)
-
-2. Install the platform CLI:
-   ```sh
-   uv tool install git+https://github.com/navapbc/platform-cli
-   ```
-
-**One-off execution** (without installing):
-```sh
-uvx --from git+https://github.com/navapbc/platform-cli -- <platform_cli_args>
-```
-
-**Management commands:**
-```sh
-# Upgrade
-uv tool upgrade nava-platform-cli
-
-# Uninstall
-uv tool uninstall nava-platform-cli
-```
-
-### pipx
-
-**Good alternative if you already have Python installed.**
-
-**Prerequisites:**
-- `git` 2.27+ on your `$PATH`
-- Python 3.11+ available on your system
-
-**Steps:**
-
-1. [Install pipx](https://pipx.pypa.io/stable/) if you haven't already
-
-2. Install the platform CLI:
-   ```sh
-   pipx install git+https://github.com/navapbc/platform-cli
-   ```
-
-   **Don't have Python 3.11+?** Let pipx fetch it for you:
-   ```sh
-   pipx install --fetch-missing-python --python 3.12 git+https://github.com/navapbc/platform-cli
-   ```
-
-**One-off execution** (without installing):
-```sh
-pipx run --spec git+https://github.com/navapbc/platform-cli nava-platform <platform_cli_args>
-```
-
-**Management commands:**
-```sh
-# Upgrade
-pipx upgrade nava-platform-cli
-
-# Uninstall
-pipx uninstall nava-platform-cli
-```
-
-> **Note:** pipx requires Python 3.10+ to run itself, but installed tools are isolated from system Python packages.
-
-### Nix
-
-**For users who prefer reproducible builds and declarative environments.**
-
-**Prerequisites:**
-- None! Nix provides everything needed.
-
-**Steps:**
-
-1. [Install Nix](https://nixos.org/download/) if you haven't already
-
-2. Install the platform CLI:
-   ```sh
-   nix profile install github:navapbc/platform-cli
-   ```
-
-**One-off execution** (without installing):
-```sh
-nix run github:navapbc/platform-cli -- <platform_cli_args>
-```
-
-**Management commands:**
-```sh
-# Upgrade
-nix profile upgrade platform-cli
-
-# Uninstall
-nix profile remove platform-cli
-```
-
-**For local development:**
-```sh
-# From within the cloned repository
-nix run . -- <platform_cli_args>
-```
-
-> **Note:** First-time execution may take longer due to building dependencies. Subsequent runs will be faster.
-
-### Docker/Container
-
-**For containerized environments or when you want complete isolation.**
-
-**Prerequisites:**
-- Docker (or another container runtime)
-
-**Steps:**
-
-1. Clone the repository
-
-2. Build the Docker image:
-   ```sh
-   make build
-   ```
-
-3. Use the wrapper script for simplified execution:
-   ```sh
-   ./bin/docker-wrapper infra install ./my_project_directory
-   ```
-
-> **Note:** The `docker-wrapper` script makes assumptions about your environment. Review the script comments before use.
-
-**Manual execution:**
-
-After building, run the container directly:
-```sh
-docker run --rm -it nava-platform-cli
-```
-
-**With volume mounting** (required for most operations):
-```sh
-docker run --rm -it -v "$(pwd):/project-dir" nava-platform-cli infra install /project-dir
-```
-
-> **Tip:** Consider creating shell aliases for common invocations.
-
----
-
-## Getting Started
-
-Once you have `nava-platform` installed, you can start using it immediately.
-
-### Basic Usage
-
-Test the installation with a simple command:
+After you have `nava-platform` installed, you can try out a Strata template
+install just to see things working:
 
 ```sh
 nava-platform infra install ./just-a-test
 ```
 
-### Documentation
+Then refer to [the main Getting started documentation][docs-getting-started] for
+how to use it with existing projects and more.
 
-For comprehensive guides on using the platform CLI with existing projects:
-- [Getting Started Guide](./docs/getting-started/index.md)
-- [New Project Setup](./docs/getting-started/new-project.md)
-- [Migrating from Legacy Template](./docs/getting-started/migrating-from-legacy-template.md)
+[docs-getting-started]: ./docs/getting-started/index.md
 
-### Shell Completion
+## Documentation
 
-Enable tab completion for your shell:
+In-depth documentation is available at
+<https://navapbc.github.io/platform-cli/>.
 
-```sh
-nava-platform --install-completion
-```
-
-To manually configure completion, get the configuration output:
-
-```sh
-nava-platform --show-completion
-```
-
----
+When running `nava-platform` itself, use the `--help` flag on commands for more
+information.
 
 ## Development
 
-Contributing to the platform CLI? Here's how to set up your development environment.
+Interested in contributing to the project? See [the development
+documentation][docs-development].
 
-### Setup Options
-
-#### Option 1: Nix (Recommended)
-
-1. [Install Nix](https://nixos.org/download/) if you haven't already
-2. Activate development shell
-
-    ```sh
-    nix develop
-    ```
-
-3. Run Make targets or `uv` as desired
-   - No need to run `make deps` to get started, all the Python dependencies are
-     included in the development shell automatically. If you add/remove/update
-     Python dependencies in `pyproject.toml`, reload the development shell to
-     pick up the changes.
-
-**Automate environment activation with direnv:**
-
-Basic setup:
-
-```sh
-echo "use flake" > .envrc && direnv allow
-```
-
-**Recommended:** Use [nix-direnv](https://github.com/nix-community/nix-direnv) for better caching. Add to `.envrc`:
-
-```sh
-if ! has nix_direnv_version || ! nix_direnv_version 3.0.6; then
-  source_url "https://raw.githubusercontent.com/nix-community/nix-direnv/3.0.6/direnvrc" "sha256-RYcUJaRMf8oF5LznDrlCXbkOQrywm0HDv1VjYGaJGdM="
-fi
-
-use flake
-```
-
-> **Note:** Check the [nix-direnv
-> docs](https://github.com/nix-community/nix-direnv?tab=readme-ov-file#installation)
-> for the latest version and hash.
-
-#### Option 2: Non-Nix Setup
-
-For basic development and running Python code, this is relatively
-straightforward. For a more complete development environment, see the previous
-option.
-
-**Prerequisites:**
-
-- GNU Make
-
-**Steps:**
-
-1. [Install uv](https://docs.astral.sh/uv/getting-started/installation/) 0.6.15+ (released 2025-04-21):
-
-   ```sh
-   # Or use: make setup-tooling
-   ```
-
-2. Install Python dependencies:
-
-   ```sh
-   make deps
-   ```
-
-3. Run the CLI:
-
-   ```sh
-   uv run nava-platform
-   ```
-
-### Development Workflow
-
-This is a standard Python project using **uv** for dependency management.
-
-**Useful commands:**
-```sh
-# See all available commands
-make help
-
-# Run quality checks
-make check
-```
-
-**Best practices:**
-- Run `make check` before pushing changes
-- Consider setting up a pre-commit hook for automated checks
-- See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines
+[docs-development]: ./docs/reference/development.md
 
 ## Credits
 
-**Icon:** Designed by [OpenMoji](https://openmoji.org/) – the open-source emoji and icon project
-License: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/#)
+**Icon:** Designed by [OpenMoji](https://openmoji.org/) – the open-source emoji
+and icon project License: [CC BY-SA
+4.0](https://creativecommons.org/licenses/by-sa/4.0/#)
 
 **Built with:** [Copier](https://github.com/copier-org/copier) – Template project generator
-
----
 
 ## License
 
 This project is licensed under the Apache 2.0 License. See the
-[LICENSE](LICENSE) file for details.
+[LICENSE](https://github.com/navapbc/platform-cli/blob/main/LICENSE) file for
+details.
 
 ## Community
 
-- [Code of Conduct](CODE_OF_CONDUCT.md)
-- [Contributing Guidelines](CONTRIBUTING.md)
-- [Security Policy](SECURITY.md)
+- [Code of Conduct](https://github.com/navapbc/platform-cli/blob/main/CODE_OF_CONDUCT.md)
+- [Contributing Guidelines](https://github.com/navapbc/platform-cli/blob/main/CONTRIBUTING.md)
+- [Security Policy](https://github.com/navapbc/platform-cli/blob/main/SECURITY.md)

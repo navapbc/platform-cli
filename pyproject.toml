@@ -45,8 +45,9 @@ dev = [
 docs = [
     "markdown-callouts>=0.4.0",
     "mkdocs<2.0.0",
-    "mkdocs-awesome-pages-plugin>=2.10.1",
+    "mkdocs-awesome-nav>=3.3.0",
     "mkdocs-material>=9.5.49",
+    "mkdocs-redirects>=1.2.3",
     "mkdocstrings[python]>=0.27.0",
 ]
 

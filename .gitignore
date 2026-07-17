@@ -5,7 +5,7 @@ __pycache__/
 
 # generated docs
 docs/index.md
-docs/development/code-reference/
+docs/reference/code/
 
 # docs site output/build directory
 site/

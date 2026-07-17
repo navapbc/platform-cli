@@ -1,4 +1,6 @@
 nav:
   - Overview: index.md
   - getting-started
-  - ...
+  - guides
+  - "*"
+  - reference

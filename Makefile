@@ -61,7 +61,7 @@ docs/index.md: README.md
 	cp -f $< $@
 	sed -ri 's|\./docs/||g' $@
 
-REFERENCE_DOC_DIR := ./docs/development/code-reference
+REFERENCE_DOC_DIR := ./docs/reference/code
 
 python_module_files := $(shell find nava -type f -name '*.py')
 python_module_doc_files := $(patsubst %.py,$(REFERENCE_DOC_DIR)/%.md,$(python_module_files))
@@ -117,6 +117,9 @@ test: ## Run tests
 
 test-e2e: ## Run "e2e" tests, requires that the tool is installed
 	./bin/test-e2e $(args)
+
+test-watch: ## Run tests continually and watch for changes
+	$(PY_RUN) pytest-watcher --clear $(PY_SRCS) $(args)
 
 update-container-digest: ## Update container digests to latest
 	./bin/update-container-digest Dockerfile

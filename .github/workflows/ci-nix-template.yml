@@ -71,7 +71,7 @@ jobs:
       - uses: ./.github/actions/setup-nix
 
       - name: Run install
-        run: nix profile install '.'
+        run: nix profile add '.'
 
       - name: Run --help
         run: nava-platform --help

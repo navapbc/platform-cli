@@ -1,6 +1,7 @@
-# Getting Started
+# Getting started
 
-For projects using the legacy install/update scripts, see [Migrating old
-templates to Nava Platform CLI](./migrating-from-legacy-template.md).
+We'll cover the basics for:
 
-For starting a new project, see [Starting a new project](./new-project.md)
+- [Installing the CLI](./installation.md)
+- [Then using it](./usage.md)
+- [And getting help](./help.md)

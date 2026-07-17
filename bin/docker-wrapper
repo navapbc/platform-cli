@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Wrap running `nava-platform` via Docker. Pass arguments as you would to
-#`nava-platform` itself.
+# `nava-platform` itself.
 #
 # Since the tool heavily involves manipulating files on the host system, some of
 # which are in locations that may need created first, it can be fiddly to

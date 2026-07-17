@@ -12,6 +12,7 @@ theme:
     - navigation.indexes
     - navigation.top
     - navigation.tracking
+    - navigation.sections
   palette:
     # https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/#automatic-light-dark-mode
     # Palette toggle for automatic mode
@@ -52,13 +53,16 @@ markdown_extensions:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
   - toc:
       permalink: true
   - footnotes
 
 plugins:
   - autorefs
-  - awesome-pages
+  - awesome-nav:
+      filename: ".nav.yaml"
   - mkdocstrings:
       default_handler: python
       handlers:
@@ -116,6 +120,14 @@ plugins:
             # Show base classes
             show_bases: false
   - search
+  - redirects:
+      redirect_maps:
+        'getting-started/new-project.md': 'guides/new-project.md'
+        'getting-started/migrating-from-legacy-template.md': 'guides/migrating-from-legacy-template.md'
+        'avoiding-conflicts-on-update.md': 'guides/avoiding-conflicts-on-update.md'
+        'how-it-works.md': 'reference/how-templates-work.md'
+        'adding-an-app.md': 'guides/adding-an-app.md'
+        'updating.md': 'guides/updating.md'
 
 validation:
   omitted_files: warn

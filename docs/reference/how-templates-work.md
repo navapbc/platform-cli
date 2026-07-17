@@ -1,6 +1,6 @@
-# How it works
+# How templates works
 
-The Platform CLI is largely a wrapper around
+The CLI's template handling is largely a wrapper around
 [Copier](https://copier.readthedocs.io/en/stable/), with a few tweaks to support
 easier-to-reason-about file exclusions and answers files in the
 `.<TEMPLATE_NAME>/` subdirectories.

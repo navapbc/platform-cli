@@ -42,6 +42,9 @@ This keeps everyone on the same page, avoids wasted efforts on changes that may
 not fit the project's direction, and prevents multiple contributors from working
 on the same thing.
 
+See [the development docs](./docs/reference/development.md) for details on
+technical setup and development workflow.
+
 ## Finding where to pitch in
 
 Maintainers label issues that would be good for first-time contributors with
