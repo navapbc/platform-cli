@@ -61,7 +61,7 @@ docs/index.md: README.md
 	cp -f $< $@
 	sed -ri 's|\./docs/||g' $@
 
-REFERENCE_DOC_DIR := ./docs/reference
+REFERENCE_DOC_DIR := ./docs/development/code-reference
 
 python_module_files := $(shell find nava -type f -name '*.py')
 python_module_doc_files := $(patsubst %.py,$(REFERENCE_DOC_DIR)/%.md,$(python_module_files))
