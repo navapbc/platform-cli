@@ -1,0 +1,22 @@
+name: CI (container)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    strategy:
+      fail-fast: false
+      matrix:
+        container_cmd: [docker, podman]
+
+    uses: ./.github/workflows/ci-docker-template.yml
+    with:
+      container_cmd: ${{ matrix.container_cmd }}

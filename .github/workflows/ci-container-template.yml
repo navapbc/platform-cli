@@ -1,14 +1,17 @@
-name: CI (docker)
+name: Template for CI (container)
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      container_cmd:
+        required: true
+        type: string
 
 permissions:
   contents: read
+
+env:
+  CONTAINER_CMD: ${{ inputs.container_cmd }}
 
 jobs:
   build-and-run:
@@ -25,9 +28,9 @@ jobs:
         run: make build
 
       - name: Run --help
-        run: docker run --rm nava-platform-cli --help
+        run: ${CONTAINER_CMD} run --rm nava-platform-cli --help
 
-      - name: Run e2e through docker-wrapper
+      - name: Run e2e through container-wrapper
         env:
-          CMD: ./bin/docker-wrapper
+          CMD: ./bin/container-wrapper
         run: make test-e2e

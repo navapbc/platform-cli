@@ -129,7 +129,6 @@
           '';
         });
 
-        # TODO: could add docker-client here?
         generalDevPackages = with pkgs; [
           # dev tooling
           gnumake
@@ -144,7 +143,7 @@
           skopeo
         ];
 
-        dockerEntryPkg =
+        containerEntryPkg =
           let
             scriptDeps = [
               pkgs.coreutils # for id, stat
@@ -152,30 +151,30 @@
             ];
           in
           pkgs.stdenv.mkDerivation {
-            name = "docker-entry";
+            name = "container-entry";
             src = pkgs.lib.fileset.toSource {
               root = ./.;
-              fileset = ./bin/docker-entry;
+              fileset = ./bin/container-entry;
             };
             nativeBuildInputs = [ pkgs.makeWrapper ];
             installPhase = ''
               mkdir -p $out/bin
-              install $src/bin/docker-entry $out/bin/docker-entry
+              install $src/bin/container-entry $out/bin/container-entry
 
-              wrapProgram $out/bin/docker-entry --prefix PATH : ${pkgs.lib.makeBinPath scriptDeps}
+              wrapProgram $out/bin/container-entry --prefix PATH : ${pkgs.lib.makeBinPath scriptDeps}
             '';
           };
 
-        dockerBuildArgs = {
+        containerBuildArgs = {
           name = "nava-platform-cli";
           tag = "latest";
           contents = [
-            dockerEntryPkg
+            containerEntryPkg
             nava-platform-cli
           ]
           ++ runtimePackages;
           config = {
-            Entrypoint = "docker-entry";
+            Entrypoint = "container-entry";
             WorkingDir = "/project-dir";
           };
         };
@@ -214,8 +213,8 @@
           nava-platform-cli-bin = nava-platform-cli-bin;
           docs = cli-docs-site;
 
-          docker = pkgs.dockerTools.buildLayeredImage dockerBuildArgs;
-          dockerStream = pkgs.dockerTools.streamLayeredImage dockerBuildArgs;
+          container = pkgs.dockerTools.buildLayeredImage containerBuildArgs;
+          containerStream = pkgs.dockerTools.streamLayeredImage containerBuildArgs;
         };
 
         # nix run .
@@ -349,6 +348,19 @@
             packages = [
               pkgs.pipx
             ];
+          };
+
+          # Shell for container interaction. For testing running the package via
+          # a container runtime or other needs.
+          podman = pkgs.mkShell {
+            packages = [
+              generalDevPackages
+              pkgs.podman
+            ];
+
+            env = {
+              CONTAINER_CMD = "podman";
+            };
           };
         };
 

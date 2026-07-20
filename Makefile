@@ -5,6 +5,8 @@ PY_SRCS := nava tests
 
 PY_RUN ?= uv run --frozen
 
+CONTAINER_CMD ?= docker
+export CONTAINER_CMD
 
 ifdef CI
 FMT_ARGS :=--check
@@ -14,8 +16,8 @@ FMT_ARGS :=
 LINT_ARGS :=--fix
 endif
 
-build: ## Build docker image
-	docker build --tag $(PKG_NAME) .
+build: ## Build container image
+	$(CONTAINER_CMD) build --tag $(PKG_NAME) .
 
 check: ## Run checks
 check: check-static test test-e2e
@@ -31,7 +33,7 @@ clean: clean-docs
 	find . -type d -name .mypy_cache -print -exec rm -r {} +
 	find . -type d -name .pytest_cache -print -exec rm -r {} +
 	$(PY_RUN) ruff clean
-	-docker image rm $(PKG_NAME)
+	-$(CONTAINER_CMD) image rm $(PKG_NAME)
 
 clean-docs: ## Remove generated doc files
 	rm -f docs/index.md
@@ -122,7 +124,7 @@ test-watch: ## Run tests continually and watch for changes
 	$(PY_RUN) pytest-watcher --clear $(PY_SRCS) $(args)
 
 update-container-digest: ## Update container digests to latest
-	./bin/update-container-digest Dockerfile
+	./bin/update-container-digest Containerfile
 
 help: ## Display this help screen
 	@grep -Eh '^[[:print:]]+:.*?##' $(MAKEFILE_LIST) | \

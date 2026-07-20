@@ -140,15 +140,15 @@ yourself.
    for simplified execution:
 
     ```sh
-    ./bin/docker-wrapper infra install ./my_project_directory
+    ./bin/container-wrapper infra install ./my_project_directory
     ```
 
     (or create an alias in your shell like `alias nava-platform =
-    <path_to_checkout>/bin/docker-wrapper`)
+    <path_to_checkout>/bin/container-wrapper`)
 
 !!! warning
 
-    The `docker-wrapper` script makes assumptions about your
+    The `container-wrapper` script makes assumptions about your
     environment. Review the script comments before use.
 
 ??? note "Running manually"
