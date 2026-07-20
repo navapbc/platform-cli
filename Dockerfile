@@ -1,6 +1,6 @@
 # Make sure PYTHON_VERSION matches the value in .python-version
 # renovate: datasource=python-version depName=python
-ARG PYTHON_VERSION=3.12
+ARG PYTHON_VERSION=3.14
 
 FROM ghcr.io/astral-sh/uv:python$PYTHON_VERSION-trixie-slim@sha256:3137a0b606f65a74ee0245f43dae219b09e8af98fc37fef20841cbceef35a646 
 
