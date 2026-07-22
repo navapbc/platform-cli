@@ -2,7 +2,7 @@
 # renovate: datasource=python-version depName=python
 ARG PYTHON_VERSION=3.12
 
-FROM ghcr.io/astral-sh/uv:python$PYTHON_VERSION-trixie-slim@sha256:36cdfbf910c8b0f651355c013e7ece9678f4ecbf030a9fd9e6779de421189805 
+FROM ghcr.io/astral-sh/uv:python$PYTHON_VERSION-trixie-slim@sha256:36cdfbf910c8b0f651355c013e7ece9678f4ecbf030a9fd9e6779de421189805
 
 # allow all users to get into "home", like git checking for a global ignore
 # file, until better user juggling in the future
@@ -32,7 +32,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 ENV PATH="/app/.venv/bin:$PATH"
 
-COPY bin/docker-entry /usr/local/bin
+COPY bin/container-entry /usr/local/bin
 
 WORKDIR /project-dir
-ENTRYPOINT ["docker-entry"]
+ENTRYPOINT ["container-entry"]

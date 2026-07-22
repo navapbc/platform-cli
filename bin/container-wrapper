@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 #
-# Wrap running `nava-platform` via Docker. Pass arguments as you would to
+# Wrap running `nava-platform` via a container. Pass arguments as you would to
 # `nava-platform` itself.
 #
 # Since the tool heavily involves manipulating files on the host system, some of
 # which are in locations that may need created first, it can be fiddly to
-# manually run via Docker.
+# manually run.
 #
 # So this script tries to automate the annoying parts for common situations. To
 # not explode in complexity, it does make some assumptions (or reserves the
@@ -15,8 +15,12 @@
 #
 set -euo pipefail
 
+set -x
+
+CONTAINER_CMD=${CONTAINER_CMD:-docker}
+
 processed_args=()
-docker_flags=()
+run_flags=()
 detected_host_paths=()
 
 looks_like_path() {
@@ -30,16 +34,31 @@ case "${uname_out}" in
     *)          host_os="UNKNOWN:${uname_out}"
 esac
 
-# not strictly required with magic in `docker-entry` script and mostly for when
-# running on Linux, but explicitly run as host user to help avoid any file
-# permission issues with mounted locations from the host file system
-docker_flags+=(--user "$(id -u):$(id -g)")
+# TODO: make a consolidated setting/detection for rootless podman which seems to
+# have broken --userns=keep-id/--userns=keep-id:uid=$(id -u),gid=$(id -g)
+# handling so we need to let things inside the container run as root to most
+# seamlessly map created files back to the hosts uid/gid
+
+# mostly for when running on Linux, but when using a daemon running as root,
+# explicitly run the container as host user to help avoid any file permission
+# issues with mounted locations from the host file system
+if [[ "${CONTAINER_CMD}" == "docker" ]]; then
+  run_flags+=(--user "$(id -u):$(id -g)")
+fi
+
+
+if [[ "${CONTAINER_CMD}" == "docker" ]]; then
+  CONTAINER_USER_HOME=""
+else
+  # otherwise the host user is going to be map to root user in the container
+  CONTAINER_USER_HOME="/root"
+fi
 
 # connect the host git config if present, for better chance committing with work
 # inside the container (theoretically someone may not have their name/email
 # configured even if the config file exists)
 if [[ -e "$HOME/.gitconfig" ]]; then
-  docker_flags+=("-v=$HOME/.gitconfig:/.gitconfig")
+  run_flags+=("-v=$HOME/.gitconfig:${CONTAINER_USER_HOME}/.gitconfig")
 fi
 
 # figure out what location to mount for logs
@@ -59,7 +78,7 @@ fi
 if [[ ! -d "${HOST_LOG_DIR}" ]]; then
     mkdir -p "${HOST_LOG_DIR}"
 fi
-docker_flags+=("-v=${HOST_LOG_DIR}:/.local/state/nava-platform-cli/log:z")
+run_flags+=("-v=${HOST_LOG_DIR}:${CONTAINER_USER_HOME}/.local/state/nava-platform-cli/log:z")
 
 # process the script arguments
 for ((i=1;i<=$#;i++))
@@ -83,7 +102,7 @@ do
       abs_value=$(realpath "${value}")
       detected_host_paths+=("${abs_value}")
 
-      docker_flags+=("-v=${abs_value}:${abs_value}:z")
+      run_flags+=("-v=${abs_value}:${abs_value}:z")
       processed_args+=("${abs_value}")
   else
     processed_args+=("${value}")
@@ -91,12 +110,12 @@ do
 done
 
 # if host paths don't exist yet, particularly directories, create them before
-# Docker does (with incorrect permissions) when it goes to mount them as a
-# volume
+# the container runtime does (with incorrect permissions) when it goes to mount
+# them as a volume
 #
 # TODO: this is basically only to support initializing a project with a
 # template. We could isolate that functionality in an `init` command that we
-# have simpler special handling for or just not support that mode via docker?
+# have simpler special handling for or just not support that mode via a container?
 for dpath in "${detected_host_paths[@]}"; do
   if [[ ! -e "${dpath}" ]]; then
     # basically, does the path look like a directory?
@@ -110,4 +129,4 @@ for dpath in "${detected_host_paths[@]}"; do
   fi
 done
 
-docker run --interactive --rm "${docker_flags[@]}" nava-platform-cli "${processed_args[@]}"
+${CONTAINER_CMD} run --interactive --rm "${run_flags[@]}" nava-platform-cli "${processed_args[@]}"

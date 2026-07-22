@@ -88,7 +88,7 @@ for a overview:
 ├── nava/             # CLI app source code
 ├── tests/            # Unit tests
 ├── tests-e2e/        # End-to-end tests for CLI behavior
-├── Dockerfile        # Source for the container build of the CLI
+├── Containerfile     # Source for the container build of the CLI
 ├── flake.lock        # Nix
 ├── flake.nix         # Nix
 ├── Makefile          # Main development interface
