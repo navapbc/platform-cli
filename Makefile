@@ -17,7 +17,7 @@ LINT_ARGS :=--fix
 endif
 
 build: ## Build container image
-	$(CONTAINER_CMD) build --tag $(PKG_NAME) .
+	$(CONTAINER_CMD) build --tag $(PKG_NAME) --file Containerfile .
 
 check: ## Run checks
 check: check-static test test-e2e
