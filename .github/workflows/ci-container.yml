@@ -17,6 +17,6 @@ jobs:
       matrix:
         container_cmd: [docker, podman]
 
-    uses: ./.github/workflows/ci-docker-template.yml
+    uses: ./.github/workflows/ci-container-template.yml
     with:
       container_cmd: ${{ matrix.container_cmd }}
