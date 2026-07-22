@@ -32,16 +32,31 @@ case "${uname_out}" in
     *)          host_os="UNKNOWN:${uname_out}"
 esac
 
-# not strictly required with magic in `container-entry` script and mostly for
-# when running on Linux, but explicitly run as host user to help avoid any file
-# permission issues with mounted locations from the host file system
-run_flags+=(--user "$(id -u):$(id -g)")
+# TODO: make a consolidated setting/detection for rootless podman which seems to
+# have broken --userns=keep-id/--userns=keep-id:uid=$(id -u),gid=$(id -g)
+# handling so we need to let things inside the container run as root to most
+# seamlessly map created files back to the hosts uid/gid
+
+# mostly for when running on Linux, but when using a daemon running as root,
+# explicitly run the container as host user to help avoid any file permission
+# issues with mounted locations from the host file system
+if [[ "${CONTAINER_CMD}" == "docker" ]]; then
+  run_flags+=(--user "$(id -u):$(id -g)")
+fi
+
+
+if [[ "${CONTAINER_CMD}" == "docker" ]]; then
+  CONTAINER_USER_HOME="${HOME}"
+else
+  # otherwise the host user is going to be map to root user in the container
+  CONTAINER_USER_HOME="/root"
+fi
 
 # connect the host git config if present, for better chance committing with work
 # inside the container (theoretically someone may not have their name/email
 # configured even if the config file exists)
 if [[ -e "$HOME/.gitconfig" ]]; then
-  run_flags+=("-v=$HOME/.gitconfig:/.gitconfig")
+  run_flags+=("-v=$HOME/.gitconfig:${CONTAINER_USER_HOME}/.gitconfig")
 fi
 
 # figure out what location to mount for logs
@@ -61,7 +76,7 @@ fi
 if [[ ! -d "${HOST_LOG_DIR}" ]]; then
     mkdir -p "${HOST_LOG_DIR}"
 fi
-run_flags+=("-v=${HOST_LOG_DIR}:/.local/state/nava-platform-cli/log:z")
+run_flags+=("-v=${HOST_LOG_DIR}:${CONTAINER_USER_HOME}/.local/state/nava-platform-cli/log:z")
 
 # process the script arguments
 for ((i=1;i<=$#;i++))
