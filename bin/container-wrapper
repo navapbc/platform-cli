@@ -48,7 +48,7 @@ fi
 
 
 if [[ "${CONTAINER_CMD}" == "docker" ]]; then
-  CONTAINER_USER_HOME="${HOME}"
+  CONTAINER_USER_HOME=""
 else
   # otherwise the host user is going to be map to root user in the container
   CONTAINER_USER_HOME="/root"
