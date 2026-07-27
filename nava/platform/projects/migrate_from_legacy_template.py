@@ -180,7 +180,7 @@ def get_closest_migration_tag(git: GitProject, commit: str) -> tuple[str, bool]:
             candidates.append(migration_version)
 
     if candidates:
-        closest_migration_version = sorted(candidates, reverse=True)[0]
+        closest_migration_version = max(candidates)
         return MIGRATION_TAG_PREFIX + "v" + str(closest_migration_version), False
 
     raise Exception(f"Can't find matching migration version for {closest_tag}")
