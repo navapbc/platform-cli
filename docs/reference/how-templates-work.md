@@ -1,4 +1,4 @@
-# How templates works
+# How templates work
 
 The CLI's template handling is largely a wrapper around
 [Copier](https://copier.readthedocs.io/en/stable/), with a few tweaks to support
