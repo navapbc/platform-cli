@@ -23,6 +23,7 @@ def main(
             "--verbose",
             count=True,
             help="Increase verbosity. Add enough -v's and you'll get the logs printed to your screen. Enjoy.",
+            envvar="NAVA_PLATFORM_VERBOSE",
         ),
     ] = 0,
     quiet: Annotated[

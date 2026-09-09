@@ -1,0 +1,38 @@
+name: "Set up navapbc/platform-cli"
+description: "Make `nava-platform` tool available in the running environment"
+
+inputs:
+  cli-version:
+    description: "A Git ref for the version of the tool to use (e.g., d5750bb or main)"
+    required: true
+    default: main
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get logs directory
+      id: logs-dir
+      shell: bash
+      run: |
+        case "${RUNNER_OS}" in
+          Linux)
+            log_dir="${XDG_STATE_HOME:-${HOME}/.local/state}/nava-platform-cli/log"
+            ;;
+          macOS)
+            log_dir="${HOME}/Library/Logs/nava-platform-cli"
+            ;;
+          *)
+            echo "Unknown operating system: ${RUNNER_OS}"
+            exit 1
+            ;;
+        esac
+
+        echo "LOG_DIR=${log_dir}"
+        echo "LOG_DIR=${log_dir}" >> $GITHUB_ENV
+
+    - name: Upload logs
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+      with:
+        name: nava-platform-cli-debug-logs-${{ github.workflow }}-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
+        path: ${{ env.LOG_DIR }}
+        retention-days: 5
