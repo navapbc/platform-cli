@@ -15,13 +15,13 @@ permissions:
 
 jobs:
   uv:
-    uses: ./.github/workflows/ci-uv.yml
+    uses: $/.github/workflows/ci-uv.yml
     with:
       python-version: ${{ inputs.python-version }}
       os: ${{ inputs.os }}
 
   pipx:
-    uses: ./.github/workflows/ci-pipx.yml
+    uses: $/.github/workflows/ci-pipx.yml
     with:
       python-version: ${{ inputs.python-version }}
       os: ${{ inputs.os }}

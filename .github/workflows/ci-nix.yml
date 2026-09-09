@@ -17,6 +17,6 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
 
-    uses: ./.github/workflows/ci-nix-template.yml
+    uses: $/.github/workflows/ci-nix-template.yml
     with:
       os: ${{ matrix.os }}

@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-      - uses: ./.github/actions/setup-nix
+      - uses: $/.github/actions/setup-nix
 
       - name: Run build
         run: nix build
@@ -37,7 +37,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-      - uses: ./.github/actions/setup-nix
+      - uses: $/.github/actions/setup-nix
       - uses: DeterminateSystems/flake-checker-action@de924abd783455e8429c858962b9e43062d19da1 # v13
 
       - name: Run lint
@@ -52,8 +52,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-      - uses: ./.github/actions/configure-git
-      - uses: ./.github/actions/setup-nix
+      - uses: $/.github/actions/configure-git
+      - uses: $/.github/actions/setup-nix
 
       - name: Run tests
         run: nix develop --command bash -c "make test"
@@ -67,8 +67,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-      - uses: ./.github/actions/configure-git
-      - uses: ./.github/actions/setup-nix
+      - uses: $/.github/actions/configure-git
+      - uses: $/.github/actions/setup-nix
 
       - name: Run install
         run: nix profile add '.'
