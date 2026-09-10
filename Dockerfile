@@ -2,7 +2,7 @@
 # renovate: datasource=python-version depName=python
 ARG PYTHON_VERSION=3.12
 
-FROM ghcr.io/astral-sh/uv:python$PYTHON_VERSION-trixie-slim@sha256:fce651fe385e83c691c15c33b2574486581fbc58e307f2db3a9c3987919f8b08 
+FROM ghcr.io/astral-sh/uv:python$PYTHON_VERSION-trixie-slim@sha256:87bc72093c0aa93cc962bd7c0498ddf416dad3ce9e1434724e936e02b72afe5d 
 
 # allow all users to get into "home", like git checking for a global ignore
 # file, until better user juggling in the future
